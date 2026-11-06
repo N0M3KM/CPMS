@@ -2,7 +2,7 @@
 
 CPE 334 group project, Theme 6. Documentation index: [docs/README.md](docs/README.md). Working rules: [AGENTS.md](AGENTS.md).
 
-Status: Sprint 1 in progress. F-06 (foundation and seed) is implemented on its feature branch. No UI yet.
+Status: Sprint 1 in progress. F-06 (foundation and seed) is integrated in staging. F-01 adds login, role-specific home screens and logout on its feature branch.
 
 ## Prerequisites
 
@@ -30,8 +30,8 @@ The container creates two databases: `cpms_dev` and `cpms_test`. Seed accounts u
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | Start the API with reload on `PORT` (default 3000). |
-| `npm run build` | Type-check and compile the server. |
+| `npm run dev` | Start the API on `PORT` (default 3000) and the client at `http://localhost:5173`. |
+| `npm run build` | Type-check and build the server and client. |
 | `npm test` | Run all tests against `cpms_test` (applies migrations first). |
 | `npm run test:unit -w server` | Run only the database-free tests. |
 | `npm run db:migrate` | Create and apply a migration on the dev database. |
@@ -39,12 +39,15 @@ The container creates two databases: `cpms_dev` and `cpms_test`. Seed accounts u
 
 `GET /api/health` returns 200 without the database. `GET /api/ready` returns 200 only when the database answers.
 
+Open `http://localhost:5173` and sign in as `student.a1@example.test` or `supervisor1@example.test` using the corresponding seed password from `.env`. The Vite dev server proxies `/api` to Express.
+
 Tests refuse to run unless `TEST_DATABASE_URL` points at a database whose name ends in `_test`.
 
 ## Not yet available
 
-`npm run test:e2e`, the client, authentication and the proposal-free Theme 6 workflows arrive with F-01 to F-07. Docker packaging, CI/CD and GCP deployment are Lab 5.
+`npm run test:e2e` and the milestone, submission and feedback workflows arrive with the remaining Sprint 1 features. Docker packaging, CI/CD and GCP deployment are Lab 5.
 
 ## Known limitations
 
+- Rate limits are per server process and reset on restart. The local server uses the socket IP and ignores forwarded IP headers.
 - `npm audit` reports 3 high findings, all in `deepmerge-ts` through the Prisma CLI (a dev-time dependency). The suggested fix is a breaking upgrade and has not been applied.

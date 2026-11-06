@@ -1,10 +1,21 @@
+import { prismaAuthStore } from './auth/store.js';
 import { createApp } from './platform/app.js';
+import { systemClock } from './platform/clock.js';
 import { loadConfig } from './platform/config.js';
 import { createPrisma, dbChecker } from './platform/db.js';
 
 const config = loadConfig(process.env);
 const prisma = createPrisma(config.databaseUrl);
-const app = createApp({ checkDb: dbChecker(prisma) });
+const app = createApp({
+  checkDb: dbChecker(prisma),
+  auth: {
+    store: prismaAuthStore(prisma),
+    clock: systemClock,
+    ttlHours: config.sessionTtlHours,
+    secure: config.nodeEnv === 'production',
+    allowedOrigin: config.allowedOrigin,
+  },
+});
 
 const server = app.listen(config.port, () => {
   console.log(`CPMS server listening on port ${config.port}`);

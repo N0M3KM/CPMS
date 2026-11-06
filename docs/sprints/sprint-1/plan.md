@@ -1,6 +1,6 @@
 # CPMS Sprint 1 Plan: Milestone Submission and Feedback
 
-**Version:** 2.0 (draft for review)
+**Version:** 2.1 (Sprint 1 approved)
 **Product:** CPE 334 Course Project Management System (CPMS), Theme 6
 **Developers:** Jinnakan 1010 and Drarun 1016
 **Three-sprint plan:** [Sprint plan](../plan.md) · **Contracts:** F-01 to F-07 in this folder · **Tests and DoD:** [sts.md](sts.md) · **Patterns:** [architecture.md](architecture.md)
@@ -9,6 +9,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.1 | 2026-11-06 | Sprint 1 plan approved. Clarified F-01 login validation, throttling limits and test expectations. |
 | 2.0 | 2026-11-06 | Reworked for Theme 6 (teams, milestones, submissions, feedback). New sequence diagrams and ownership. |
 | 1.x | 2026-11-05 to 2026-11-06 | Proposal-domain drafts, superseded. |
 
@@ -199,4 +200,4 @@ See the Product Definition of Done in [sts.md](sts.md). In short: F-01 to F-07 b
 
 ## Current status
 
-Plan only. No implementation, test run, Issue, PR, screenshot or release evidence exists yet.
+F-06 is integrated in Sprint 1 staging. F-01 is in feature development. The Sprint 1 release is pending integration and acceptance checks.
