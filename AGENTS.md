@@ -10,9 +10,9 @@ Read this file before changing the project. These instructions combine the team'
 - Sprint 1 actors: Student and Supervisor. Student submits and reads own proposals. Supervisor reviews assigned proposals and reads own assigned workload. Seeded accounts only; no self-registration or password recovery.
 - Sprint 1 must deliver a working UI -> API/application layer -> PostgreSQL journey, including a Login screen and related authentication code.
 - Current documentation layout:
-  - `docs/plans/project-plan.md` — product roadmap across Sprints 1–3.
-  - `docs/sprints/sprint-<number>/plan.md` — that sprint only.
-  - `docs/sprints/sprint-<number>/specification.md` — detailed contracts for that sprint.
+  - `docs/srs.md`, `docs/features.md`, `docs/traceability.md`, `docs/system-sds.md` — product-level Parts A–C.
+  - `docs/sprints/plan.md` — three-sprint plan (Part D).
+  - `docs/sprints/sprint-<number>/plan.md` — that sprint only; `F-<nn>-*.md` feature contracts and `sts.md` tests/DoD.
   - `docs/README.md` — documentation index.
 - The root `AGENTS.md` is the repository-wide rulebook. Do not copy the full project roadmap or workflow rules into individual sprint specifications; link here where needed.
 
@@ -28,7 +28,7 @@ Read this file before changing the project. These instructions combine the team'
 
 ## 3. Scope and approval gates
 
-- Keep the three-sprint roadmap in `docs/plans/project-plan.md`; an individual sprint plan covers only that sprint.
+- Keep the three-sprint roadmap in `docs/sprints/plan.md`; an individual sprint plan covers only that sprint.
 - Detailed feature contracts are written only for the currently authorized sprint. Later sprint plans/specifications and implementations require separate authorization.
 - Do not begin implementation until the user has rechecked and explicitly approved the Sprint 1 plan/specification. Do not silently expand scope; record specification revisions in the visible version history.
 - Work in reviewable phases. After a requested documentation/implementation phase, summarize the result and changed files, then stop for the user's review when an approval gate applies.

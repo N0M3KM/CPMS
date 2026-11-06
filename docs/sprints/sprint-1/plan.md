@@ -3,8 +3,8 @@
 **Status:** Draft for review  
 **Product:** CPE 334 Course Project Management System (CPMS)  
 **Developers:** Jinnakan 1010 and Drarun 1016  
-**Project roadmap:** [Project plan](../../plans/project-plan.md)  
-**Detailed specification:** [Sprint 1 specification](specification.md)  
+**Three-sprint plan:** [Sprint plan](../plan.md)  
+**Contracts:** F-01 to F-06 in this folder · **Tests and DoD:** [sts.md](sts.md)  
 **Planning boundary:** Sprint 1 only. No calendar schedule or effort estimates.
 
 ## Version history
@@ -16,6 +16,7 @@
 | 0.3 | 2026-11-05 | Separated product-level Sprints 1–3 roadmap into `docs/plans/project-plan.md`; narrowed this document to Sprint 1. |
 | 0.4 | 2026-11-06 | Aligned Sprint 1 documents under `docs/sprints/sprint-1/` and moved all architecture, data-model, and sequence diagrams into this plan. |
 | 0.5 | 2026-11-06 | Clarified Sprint 1 branch names, issue flow, and pull-request targets to match the per-sprint staging rule. |
+| 0.6 | 2026-11-06 | Specification split into per-feature contracts and `sts.md`; architecture and data-model diagrams moved to `docs/system-sds.md`; sequence diagrams kept here. |
 
 ## Sprint goal
 
@@ -59,55 +60,13 @@ If implementation order changes, record why and ensure requirements, contracts, 
 | F-04 Supervisor review | Jinnakan 1010 | Drarun 1016 | Review API/panel, BR-02–BR-04 enforcement and transactional state update. |
 | Integration and release evidence | Both | Each reviews the other's changes | E2E journeys, integration/system checks, screenshot selection, evidence and contribution record. |
 
-Both developers review the full design and understand the released behavior. Neither developer approves their own PR. Apply the repository-wide Issue, Kanban, staging-branch, review, and release rules in [AGENTS.md](../../../AGENTS.md); this sprint uses `sprint-1-staging` and the feature assignments above.
+Both developers review the full design and understand the released behavior. Neither developer approves their own PR. Apply the repository-wide Issue, Kanban, staging-branch, review, and release rules in [AGENTS.md](../../../AGENTS.md); this sprint uses the Sprint 1 staging branch and the feature assignments above.
 
 ## Design diagrams
 
-The diagrams are kept with the Sprint 1 plan for review. They cover the UI/API/database architecture, User/Session/Proposal data model, and both primary role journeys. Sequence lifelines are the swimlanes across actor, browser UI, API/auth middleware, application service, and database.
+The sequence diagrams cover both primary role journeys. Sequence lifelines are the swimlanes across actor, browser UI, API/auth middleware, application service, and database.
 
-### System architecture
-
-```mermaid
-flowchart LR
-  Browser[React TypeScript Vite UI] -->|JSON REST and session cookie| API[Express TypeScript API]
-  API -->|Zod validation auth roles rules| DB[(PostgreSQL Prisma)]
-  Seed[Idempotent synthetic seed] --> DB
-  API -->|Production serves built assets| Browser
-```
-
-### Domain model
-
-```mermaid
-classDiagram
-  class User {
-    UUID id
-    string email
-    string passwordHash
-    Role role
-    int capacity
-    datetime createdAt
-  }
-  class Session {
-    string id
-    UUID userId
-    datetime expiresAt
-    datetime createdAt
-  }
-  class Proposal {
-    UUID id
-    string title
-    string description
-    UUID studentId
-    UUID supervisorId
-    ProposalStatus status
-    string reviewComment
-    datetime submittedAt
-    datetime reviewedAt
-  }
-  User "1" --> "0..*" Session : owns
-  User "1" --> "0..*" Proposal : student
-  User "1" --> "0..*" Proposal : supervisor
-```
+Architecture and data-model diagrams are in the [system SDS](../../system-sds.md).
 
 | Diagram | Owner | Reviewer | Required branches |
 |---|---|---|---|
@@ -208,11 +167,11 @@ sequenceDiagram
 
 ## Issue, branch, test, and review flow
 
-For each feature, follow the root [AGENTS.md](../../../AGENTS.md) workflow. Sprint-specific execution order, owner/reviewer, AC mapping, and test-first expectations are listed in this plan and the linked specification. Record actual verification results; report failures/skips and preserve failing-before/passing-after evidence. Never weaken tests to manufacture a pass.
+For each feature, follow the root [AGENTS.md](../../../AGENTS.md) workflow. Sprint-specific execution order, owner/reviewer, AC mapping, and test-first expectations are listed in this plan and the linked contracts and STS. Record actual verification results; report failures/skips and preserve failing-before/passing-after evidence. Never weaken tests to manufacture a pass.
 
 ## Verification outcomes
 
-The STS and ACs are in [specification.md](specification.md). The implementation phase must verify:
+The STS and DoD are in; ACs are in the feature contracts, and [sts.md](sts.md). The implementation phase must verify:
 
 - Valid and invalid login; logout; current user; expired/revoked session behavior.
 - 401 for unauthenticated protected endpoints; forbidden role actions; cross-user and unassigned-supervisor access with no private data.
