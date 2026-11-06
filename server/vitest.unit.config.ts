@@ -7,6 +7,7 @@ export default defineConfig({
       'tests/clock.test.ts',
       'tests/code-gates.test.ts',
       'tests/config.test.ts',
+      'tests/feedback-policy.test.ts',
       'tests/health.test.ts',
       'tests/milestone-status.test.ts',
       'tests/scope.test.ts',
