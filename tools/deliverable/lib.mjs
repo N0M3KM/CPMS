@@ -33,7 +33,7 @@ export function mdToHtml(source, { demote = 1, dropRelated = true } = {}) {
     },
   };
   marked.use({ renderer, gfm: true });
-  return marked.parser(tokens);
+  return marked.parser(tokens).replace(/<td>((?:TEST|AC|FR|BR|NFR|F|D|SEC|X)-\d+)<\/td>/g, '<td class="id">$1</td>');
 }
 
 export function table(headers, rows, { cls = '' } = {}) {
@@ -79,6 +79,7 @@ figcaption { font-size: 8.6pt; margin-top: 1mm; }
 .toc tr.l1 td { font-weight: 700; padding-top: 2mm; }
 .toc tr.l2 td:first-child { padding-left: 6mm; }
 .ac td:nth-child(1), .ac td:nth-child(2) { white-space: nowrap; }
+.id { white-space: nowrap; }
 .status-pass { color: #146c2e; font-weight: 700; }
 .status-partial { color: #8a5a00; font-weight: 700; }
 .status-manual { color: #4e6282; font-weight: 700; }

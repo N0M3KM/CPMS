@@ -24,7 +24,7 @@ function localInputValue(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-const shot = (page: Page, name: string) => page.screenshot({ path: `${SHOTS}/${name}.png` });
+const shot = (page: Page, name: string) => page.screenshot({ path: `${SHOTS}/${name}.png`, fullPage: true });
 
 test('TEST-42 supervisor creates a milestone, a student submits it and sees it after reload', async ({ page }) => {
   await page.goto('/login');
@@ -112,7 +112,7 @@ test('TEST-43 invalid feedback is blocked, valid feedback is saved and other tea
   await expect(otherPage.getByRole('heading', { name: 'Student home' })).toBeVisible();
   await otherPage.goto(`/milestones/${milestone}`);
   await expect(otherPage.getByText('This page is unavailable.')).toBeVisible();
-  await otherPage.screenshot({ path: `${SHOTS}/09-other-team-unavailable.png` });
+  await otherPage.screenshot({ path: `${SHOTS}/09-other-team-unavailable.png`, fullPage: true });
   const foreign = await otherPage.request.get(`/api/milestones/${milestone}`);
   const missing = await otherPage.request.get(`/api/milestones/${id(999)}`);
   expect(foreign.status()).toBe(404);
