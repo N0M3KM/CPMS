@@ -72,12 +72,13 @@ td code { font-size: 7.8pt; word-break: break-word; }
 .box { border: 1px solid #c9d2e0; background: #f4f6fa; padding: 3mm 4mm; margin: 3mm 0; }
 .warn { border-color: #a02032; background: #fbeff1; }
 figure { margin: 0 0 4mm; break-inside: avoid; }
-figure img { width: 100%; border: 1px solid #c9d2e0; }
+figure img { width: 138mm; display: block; border: 1px solid #c9d2e0; }
 figcaption { font-size: 8.6pt; margin-top: 1mm; }
 .toc td { border: none; border-bottom: 1px dotted #b8c2d4; padding: 0.7mm 1mm; font-size: 9pt; }
 .toc td.pg { text-align: right; width: 14mm; }
 .toc tr.l1 td { font-weight: 700; padding-top: 2mm; }
 .toc tr.l2 td:first-child { padding-left: 6mm; }
+.ac td:nth-child(1), .ac td:nth-child(2) { white-space: nowrap; }
 .status-pass { color: #146c2e; font-weight: 700; }
 .status-partial { color: #8a5a00; font-weight: 700; }
 .status-manual { color: #4e6282; font-weight: 700; }

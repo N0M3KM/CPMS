@@ -93,7 +93,8 @@ const statusCell = (row) => {
 
 function sliceBlock(text, startRe, lines = 14) {
   const all = text.split('\n');
-  const i = all.findIndex((l) => startRe.test(l));
+  let i = all.findIndex((l, k) => startRe.test(l) && /^(Error|AssertionError)/.test(all[k + 1] ?? ''));
+  if (i === -1) i = all.findIndex((l) => startRe.test(l));
   return i === -1 ? '(not found in recorded output)' : all.slice(i, i + lines).join('\n');
 }
 function sourceBlock(file, re) {
@@ -196,7 +197,7 @@ npm run test:e2e            # two browser journeys on cpms_test (resets and re-s
     r.ac, r.test, esc(r.level),
     r.evaluated.map((i) => `<code>${esc(i.label)}</code>${i.kind === 'auto' && i.n > 1 ? ` (${i.n})` : ''}`).join('<br/>') + (r.note ? `<br/><span class="small">${esc(r.note)}</span>` : ''),
     statusCell(r),
-  ])));
+  ]), { cls: 'ac' }));
   const journey = (id, text) => [id, text, e2eText.split('\n').some((l) => l.includes(id) && l.includes('✓')) ? '<span class="status-pass">PASS</span>' : '<span class="status-fail">FAIL</span>'];
   out.push(table(['Journey test', 'What it covers', 'Result'], [
     journey('TEST-42', 'Supervisor creates a milestone; student submits; reload shows the saved submission (AC-17, AC-21, AC-35, AC-41 for the student view).'),
@@ -244,9 +245,18 @@ npm run test:e2e            # two browser journeys on cpms_test (resets and re-s
   const own = results.filter((r) => r.file === 'security.test.ts' && r.name.includes('AC-10 and AC-11'));
   out.push('<h3>Excerpt 1 — domain rule: submission deadline (BR-02, AC-24, TEST-24)</h3>');
   out.push(pre(`// server/tests/submit-work-db.test.ts\nconst DUE_A = new Date('2026-11-22T12:00:00Z');\n\n${setNowFn.trim()}\n\n${t24}`));
-  out.push(`<p><b>Failing before implementation</b> — red commit <code>b1ebafc</code> (${esc(when('b1ebafc'))}), recorded output <code>evidence/F-04-red.txt</code>. The route did not exist, so the deadline cases failed on their assertions:</p>`);
-  out.push(pre(sliceBlock(redF04, /FAIL .*TEST-24 exactly at the deadline/, 12)));
-  out.push(`<p><b>Passing after implementation</b> — green commit <code>5d59402</code> (${esc(when('5d59402'))}). In the final run: ${t24Rows.map((r) => `${r.status === 'passed' ? 'passed' : 'FAILED'}`).length} TEST-24 tests, ${t24Rows.filter((r) => r.status === 'passed').length} passed (before the deadline: 201; exactly at the deadline: 201; one second after: 409 DEADLINE_PASSED with no row stored).</p>`);
+  const redRecon = read(join(repo, 'docs/sprints/sprint-1/evidence/F-04-red-reconstructed.txt'));
+  const redF05 = read(join(repo, 'docs/sprints/sprint-1/evidence/F-05-red.txt'));
+  out.push(`<p><b>Failing without the behavior.</b> The red run recorded for commit <code>b1ebafc</code> (${esc(when('b1ebafc'))}, <code>evidence/F-04-red.txt</code>) failed the policy unit tests and the route matrix on their assertions, but the database tests for this rule failed earlier, in test setup (login throttle returned 429), so they did not reach their assertions. The setup was corrected in the green commit. To show the deadline assertions catch the missing rule, a reconstructed run disables only the deadline check on the final code (<code>evidence/F-04-red-reconstructed.txt</code>; made after the implementation, so it is a reconstruction):</p>`);
+  out.push(pre(sliceBlock(redRecon, /FAIL .*TEST-24 one second after the deadline/, 8)));
+  out.push(`<p><b>Passing after implementation</b> — green commit <code>5d59402</code> (${esc(when('5d59402'))}). In the final run all ${t24Rows.length} TEST-24 tests pass (${t24Rows.filter((r) => r.status === 'passed').length} passed): one second before the deadline gives 201, exactly at the deadline 201, one second after 409 DEADLINE_PASSED with no row stored.</p>`);
+  const t29 = sourceBlock('server/tests/feedback-db.test.ts', /  it\('TEST-29 keeps the first feedback[\s\S]*?\n  \}\);\n/);
+  const t29Rows = results.filter((r) => r.file === 'feedback-db.test.ts' && r.name.includes('TEST-29'));
+  out.push('<p><b>Genuine test-first example — one feedback per submission (BR-05, AC-29, TEST-29).</b> Red commit <code>bd010cb</code> holds only the tests and a placeholder; green commit <code>860f442</code> holds the implementation.</p>');
+  out.push(pre(`// server/tests/feedback-db.test.ts\n${t29}`));
+  out.push(`<p>Red output (<code>evidence/F-05-red.txt</code>, ${esc(when('bd010cb'))}): the route does not exist yet, so the first expectation fails.</p>`);
+  out.push(pre(sliceBlock(redF05, /FAIL .*TEST-29 keeps the first feedback/, 8)));
+  out.push(`<p>Green (${esc(when('860f442'))}): in the final run ${t29Rows.filter((r) => r.status === 'passed').length} of ${t29Rows.length} TEST-29 tests pass, including two simultaneous requests that create exactly one row.</p>`);
   out.push('<h3>Excerpt 2 — role and ownership restriction: team scope with uniform 404 (BR-06, AC-10, AC-11, TEST-10, TEST-11)</h3>');
   out.push(pre(`// server/tests/security.test.ts\n${ownership}`));
   out.push(`<p><b>Failing without the behavior</b> — the original F-02 tests were committed together with the implementation (<code>2e8c38a</code>, ${esc(when('2e8c38a'))}), so no failing run exists from before implementation. To show the assertions catch the missing behavior, the team recorded a reconstructed run with only the role check and the scope check disabled (<code>evidence/F-02-red-assertions.txt</code>, labelled as a reconstruction):</p>`);
@@ -320,7 +330,7 @@ npm run test:e2e            # two browser journeys on cpms_test (resets and re-s
     `Release record: ${releasedToMain ? `released to main as ${TAG}.` : 'the release PR from sprint-1-staging to main and the tag were not yet done when this evidence was collected.'}`,
     'Failed or skipped tests: none in the recorded run (0 failed, 0 skipped). The local-secrets check in secrets.test.ts skips automatically if no .env file exists.',
     'Partial verification (see F.4): AC-06 timing parity (sampled by hand), AC-13 browser rendering of hostile text, AC-38 loading and error UI states (no automated test, no empty-state screenshot), AC-41 hidden UI actions (checked for the student milestone form only). AC-40 is a manual check.',
-    'Test-first evidence differs by feature: F-04 and F-05 have separate red and green commits; the review fixes to F-02 do too; for F-02 TEST-09 to TEST-11 only a labelled reconstruction exists (process exception in evidence/F-02.md, team decision still marked pending there); F-01, F-03 and F-06 evidence records the failing run in prose or output files without separate red commits; the Playwright journeys, contrast test and latency script were added after the implementation.',
+    'Test-first evidence differs by feature: F-05 has genuine separate red and green commits (bd010cb, 860f442); F-04 has separate red and green commits but its recorded red run failed in test setup for the database tests (login throttle 429), so the deadline rule relies on a reconstructed red run (evidence/F-04-red-reconstructed.txt); the review fixes to F-02 do too; for F-02 TEST-09 to TEST-11 only a labelled reconstruction exists (process exception in evidence/F-02.md, team decision still marked pending there); F-01, F-03 and F-06 evidence records the failing run in prose or output files without separate red commits; the Playwright journeys, contrast test and latency script were added after the implementation.',
     'Decisions D-05 to D-08 and D-10 to D-13 in the SRS answer Theme 6 ambiguities; they are proposed and were not confirmed with the instructor or TA.',
     'Issues #1, #2, #3 and #5 still carry proposal-era wording from before the Theme 6 rework; the contracts in Part E and the PRs name the real scope. Issue #4 was updated on its branch name only in part.',
     'Open design points: the login throttle also limits by IP (one address can block others, and behind a proxy all clients share one address; the proxy setting is a Lab 5 item); the limiter is in memory and per instance; the milestone detail response omits the submitter name and the feedback author name that the F-04 and F-05 responses return; a 401 during use shows a generic error instead of returning to sign-in; length rules count UTF-16 units; a milestone detail view loads all milestones of a team without paging.',
@@ -436,7 +446,7 @@ async function render(htmlText, pdfPath) {
     await page.addScriptTag({ path: join(here, 'node_modules/mermaid/dist/mermaid.min.js') });
     await page.evaluate(async () => {
       // eslint-disable-next-line no-undef
-      mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'strict', sequence: { useMaxWidth: true }, flowchart: { useMaxWidth: true } });
+      mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'strict', sequence: { useMaxWidth: true, actorMargin: 30, width: 120, boxMargin: 6, messageMargin: 26, messageFontSize: 15, actorFontSize: 14, wrap: true }, flowchart: { useMaxWidth: true } });
       // eslint-disable-next-line no-undef
       await mermaid.run({ querySelector: 'pre.mermaid' });
     });

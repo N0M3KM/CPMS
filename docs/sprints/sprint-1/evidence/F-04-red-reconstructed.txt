@@ -1,0 +1,86 @@
+# Reconstructed red run for TEST-24 (BR-02, AC-24)
+# The recorded red run for commit b1ebafc (F-04-red.txt) failed in test setup (login throttle 429) before the route tests reached their assertions.
+# This run uses final commit 3e5e18d with ONLY the deadline rule disabled, so the TEST-24 assertions execute and fail on the missing behavior.
+# Made after the implementation; it is a reconstruction, not an original red run.
+
+# diff --git a/server/src/submissions/policy.ts b/server/src/submissions/policy.ts
+# index 1945616..05ac4a3 100644
+# --- a/server/src/submissions/policy.ts
+# +++ b/server/src/submissions/policy.ts
+# @@ -31,10 +31,8 @@ export const submissionSchema = z.strictObject({
+#  
+#  export type SubmissionInput = z.output<typeof submissionSchema>;
+#  
+# -export function assertBeforeDeadline(dueAt: Date, now: Date): void {
+# -  if (isPastDue(dueAt, now)) {
+# -    throw AppError.conflict('DEADLINE_PASSED', 'The deadline for this milestone has passed.');
+# -  }
+# +export function assertBeforeDeadline(_dueAt: Date, _now: Date): void {
+# +  // RED RECONSTRUCTION: deadline rule disabled
+#  }
+#  
+#  export const duplicateSubmission = () =>
+
+
+ RUN  v5.1.0 /private/var/folders/w2/3sww2s0d4hx5wbdvk8tkfv6w0000gn/T/f04red/server
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "cpms_test", schema "public" at "127.0.0.1:5433"
+
+1 migration found in prisma/migrations
+
+
+No pending migrations to apply.
+ ❯ tests/submit-work-db.test.ts (13 tests | 2 failed) 7276ms
+   ❯ F-04 submit milestone work (13)
+     × TEST-24 one second after the deadline 588ms
+     × TEST-24 refuses an already overdue milestone and reports a duplicate before a late one 522ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-24 one second after the deadline
+AssertionError: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ tests/submit-work-db.test.ts:130:24
+    128|     const cookie = await login('student.a1@example.test');
+    129|     const res = await submit(OPEN_A, cookie).send(valid);
+    130|     expect(res.status).toBe(status);
+       |                        ^
+    131|     if (status === 409) {
+    132|       expect(res.body.error.code).toBe('DEADLINE_PASSED');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-24 refuses an already overdue milestone and reports a duplicate before a late one
+Error: expected 409 "Conflict", got 201 "Created"
+ ❯ tests/submit-work-db.test.ts:138:58
+    136|
+    137|   it('TEST-24 refuses an already overdue milestone and reports a dupli…
+    138|     const late = await submit(OVERDUE_B, b1).send(valid).expect(409);
+       |                                                          ^
+    139|     expect(late.body.error.code).toBe('DEADLINE_PASSED');
+    140|     setNow(new Date('2026-12-31T00:00:00Z'));
+ ❯ Test._assertStatus ../../../../../../../../Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../../../../../Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../../../../../Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../../../../../Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../../../../../Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../../../../../Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 11 passed (13)
+   Start at  00:18:55
+   Duration  8.18s (tests 97%, import 3%, transform 1%)
+
