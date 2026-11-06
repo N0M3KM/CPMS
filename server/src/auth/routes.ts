@@ -3,10 +3,8 @@ import { z } from 'zod';
 import type { Clock } from '../platform/clock.js';
 import { clientIp, createRateLimit, rateLimited } from '../platform/rate-limit.js';
 import { createAuthService, type AuthStore } from './service.js';
+import { COOKIE_NAME, sessionIdFromCookieHeader } from './session-cookie.js';
 
-const COOKIE_NAME = 'cpms_session';
-const COOKIE_PREFIX = `${COOKIE_NAME}=`;
-const SESSION_ID = /^[A-Za-z0-9_-]{43}$/;
 const loginBody = z.strictObject({
   email: z.string().trim().toLowerCase().max(254).pipe(z.email()),
   password: z.string().min(1),
@@ -20,12 +18,7 @@ export interface AuthOptions {
   allowedOrigin: string;
 }
 
-function sessionId(cookieHeader: string | undefined): string | undefined {
-  const cookies = cookieHeader?.split(';').map(cookie => cookie.trim());
-  const sessions = cookies?.filter(cookie => cookie.startsWith(COOKIE_PREFIX)) ?? [];
-  const value = sessions.length === 1 ? sessions[0]?.slice(COOKIE_PREFIX.length) : undefined;
-  return value && SESSION_ID.test(value) ? value : undefined;
-}
+const sessionId = sessionIdFromCookieHeader;
 
 function error(res: Response, status: number, code: string, message: string): void {
   res.status(status).json({ error: { code, message } });

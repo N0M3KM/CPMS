@@ -41,7 +41,13 @@ function fixture(secure = false) {
     checkDb: async () => undefined,
     auth: { store, clock, ttlHours: 1, secure, allowedOrigin: 'http://localhost:5173' },
   };
-  return { api: request(createApp(deps)), clock, sessions };
+  // Browsers always send Origin on POST, so the fixture does too. Individual tests override it.
+  const agent = request(createApp(deps));
+  const api = {
+    get: (url: string) => agent.get(url),
+    post: (url: string) => agent.post(url).set('Origin', deps.auth.allowedOrigin),
+  };
+  return { api, clock, sessions };
 }
 
 function setCookie(response: request.Response): string {

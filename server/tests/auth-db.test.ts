@@ -48,7 +48,7 @@ it('TEST-01 to TEST-06 exercise seeded authentication and session persistence in
   expect(await bcrypt.compare(studentPassword, credentials.passwordHash)).toBe(true);
 
   const login = (email: string, password: string, prior = '') =>
-    api.post('/api/auth/login').set('Cookie', prior).send({ email, password });
+    api.post('/api/auth/login').set('Origin', 'http://localhost:5173').set('Cookie', prior).send({ email, password });
 
   expect((await login(studentEmail, 'incorrect')).status).toBe(401);
   expect(await prisma.session.count()).toBe(0);
@@ -68,7 +68,7 @@ it('TEST-01 to TEST-06 exercise seeded authentication and session persistence in
   expect(await prisma.session.findUnique({ where: { id: id(first) } })).toBeNull();
   expect((await api.get('/api/auth/me').set('Cookie', first)).status).toBe(401);
   expect((await api.get('/api/auth/me').set('Cookie', rotated)).body).toEqual(supervisor.body.user);
-  expect((await api.post('/api/auth/logout').set('Cookie', rotated)).status).toBe(200);
+  expect((await api.post('/api/auth/logout').set('Origin', 'http://localhost:5173').set('Cookie', rotated)).status).toBe(200);
   expect(await prisma.session.count()).toBe(0);
 
   const expiring = cookie(await login(studentEmail, studentPassword));
