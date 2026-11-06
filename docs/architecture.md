@@ -1,16 +1,23 @@
 # CPMS Product Architecture Plan (all features)
 
-**Version:** 0.1 (draft for review)
+**Version:** 1.0 (draft for review)
 **Related:** [System SDS](system-sds.md) · [Sprint 1 pattern plan](sprints/sprint-1/architecture.md) · [Security test plan](security-test-plan.md) · [Features](features.md)
 
-Plan only. No code exists. Sprint 1 (F-01 to F-06) is the authorized baseline. F-07 to F-10 are proposed in the [SRS](srs.md); their architecture here is a direction, not a contract, and each needs sprint authorization before detailed specification.
+## Version history
+
+| Version | Date | Change |
+|---|---|---|
+| 1.0 | 2026-11-06 | Reworked for Theme 6 (F-01 to F-12, X-01). |
+| 0.1 | 2026-11-06 | Proposal-domain draft, superseded. |
+
+Plan only. No code exists. Sprint 1 (F-01 to F-07) is the authorized baseline. F-08 to F-12 are proposed in the [SRS](srs.md); their architecture is a direction, not a contract.
 
 ## 1. Principles
 
-- One modular monolith: a React client and a single Express service over one PostgreSQL database. No microservices.
-- Feature modules own their routes, service, repository and tests. Cross-module calls go through the module's service, never its repository.
-- Identity and role come only from the server session. Every module sits behind the same security chain (section 4).
-- Rules live in the domain layer and are unit-testable without Express or Prisma.
+- One modular monolith: a React client and one Express service over one PostgreSQL database.
+- Feature modules own their routes, service, repository and tests. Cross-module calls go through a module's service, never its repository.
+- Identity, role and team scope come only from the server session. Every module sits behind the same security chain.
+- Business rules live in pure policies and are unit-testable without Express or Prisma.
 - Migrations are additive; later sprints add tables and endpoints without changing Sprint 1 contracts.
 
 ## 2. Module map
@@ -25,111 +32,64 @@ flowchart TB
   subgraph Server[Express service]
     Edge[Security chain: headers, CORS, origin check, rate limit, auth, role, validation]
     Edge --> M1[auth F-01]
-    Edge --> M2[access F-02]
-    Edge --> M3[proposals F-03 F-04 F-05]
-    Edge --> M4[progress F-07 proposed]
-    Edge --> M5[discussion F-08 proposed]
-    Edge --> M6[admin F-09 proposed]
-    Edge --> M7[search F-10 proposed]
-    M1 & M3 & M4 & M5 & M6 & M7 --> Repo[Repositories over Prisma]
-    M2 -. guards .-> M3
-    M2 -. guards .-> M4
-    M2 -. guards .-> M5
-    M2 -. guards .-> M6
-    M2 -. guards .-> M7
+    Edge --> M2[teams and views F-07]
+    Edge --> M3[milestones F-03]
+    Edge --> M4[submissions F-04]
+    Edge --> M5[feedback F-05]
+    Edge --> M6[revisions F-08 proposed]
+    Edge --> M7[grades F-10 proposed]
+    Edge --> M8[board and reports F-11 proposed]
+    Edge --> M9[search F-12 proposed]
+    M2 & M3 & M4 & M5 & M6 & M7 & M8 & M9 --> Scope[team scope + AuthorizedTeamService F-02]
+    Scope --> Repo[Repositories over Prisma]
   end
   Repo --> DB[(PostgreSQL)]
-  Found[foundation F-06: config, db, app factory, seed, health] --> Server
-```
-
-Backend layout, extending the [Sprint 1 layout](sprints/sprint-1/architecture.md):
-
-```text
-server/src/
-  platform/   config db app errors logger          (F-06)
-  security/   headers cors originCheck rateLimit requireAuth requireRole scope authorized*   (F-01, F-02)
-  modules/
-    auth/        service, routes, sessionRepo
-    proposals/   domain/state, submissionService, reviewService, viewService, routes, repo
-    progress/    (proposed F-07)
-    discussion/  (proposed F-08)
-    admin/       (proposed F-09)
-    search/      (proposed F-10)
+  Found[foundation F-06: config, db, app factory, clock, seed, health] --> Server
 ```
 
 ## 3. Per-feature architecture
 
-| Feature | Module and layers | Patterns | Data | API | Key security controls | Extension points |
+| Feature | Module | Patterns | Data | API | Key security controls | Extension points |
 |---|---|---|---|---|---|---|
-| F-06 Foundation | `platform/`, seed, test harness | Factory (`createApp`), test builders | `User`, `Session`, `Proposal`, enums, indexes | `GET /api/health`, `/api/ready` | Zod-validated env, no secrets in Git, strict seed (no password output) | New modules mount in `createApp` |
-| F-01 Authentication | `modules/auth`: routes, `AuthService`, `sessionRepo` | Facade, Factory (session, cookie), Chain | `Session` | login, logout, me | bcrypt, generic 401, constant-time unknown-user path, session rotation on login, login rate limit | Add MFA or SSO behind `AuthService` |
-| F-02 Access | `security/`: middleware, `AuthorizedProposalService`, scopes | Proxy, Chain, Strategy, Factory (`AppError`) | none | none | Role and ownership checks, uniform denial, safe error envelope | New roles add a scope and a role guard |
-| F-03 Submit | `modules/proposals`: `SubmissionService`, `Proposal.create` | Facade, Factory, State (initial) | `Proposal` | `POST /api/proposals`, `GET /api/supervisors` | Strict schema (no mass assignment), session-derived student, transaction plus partial unique index | More fields or attachments via new columns |
-| F-04 Review | `ReviewService`, state objects, policies | State, Facade | `Proposal` updates | `POST /api/proposals/:id/review` | Row locks, assignment and state checks, comment validation | New states or policies without touching routes |
-| F-05 Views | `ViewService`, scope strategies | Facade, Strategy, Proxy | read only | `GET /api/proposals`, `GET /api/proposals/:id` | DB-level scoping, response field whitelist | Pagination and filters (F-10) |
-| F-07 Milestones (proposed) | `modules/progress` | State (milestone status), Facade, Proxy | `Milestone`: id, proposalId, title, dueDate, status, createdBy | `GET/POST /api/proposals/:id/milestones`, `PATCH .../milestones/:mid` | Only proposal participants, only for `APPROVED` proposals, same BOLA tests | Notifications via event bus |
-| F-08 Discussion (proposed) | `modules/discussion` | Facade, Proxy, Observer (event bus, now justified) | `Comment`: id, proposalId, authorId, body, createdAt | `GET/POST /api/proposals/:id/comments` | Body length cap, output escaping (stored XSS tests), participants only | Notify subscribers on new comment |
-| F-09 Admin (proposed, needs role decision) | `modules/admin` | Strategy (`AdminScope`), Proxy | `User.role` gains `ADMIN` if approved | `GET /api/admin/users`, `PATCH /api/admin/proposals/:id/supervisor` | Admin-only guard, audit trail, no self-demotion, all actions logged | Reassignment rules via policies |
-| F-10 Search (proposed) | `modules/search` | Strategy (scope), Builder (query), Iterator (cursor paging) | indexes on status, supervisor, title | `GET /api/proposals?status=&q=&cursor=` | Query params validated and parameterized, scope applied before filter, page size cap | Full-text index later |
-| X-01 Deployment (Lab 5) | Docker image, CI, Cloud Run, Cloud SQL, Secret Manager | none | none | health, ready | Secrets from Secret Manager, `Secure` cookie, HTTPS only, dependency audit in CI | Staging and prod environments |
+| F-06 Foundation | `platform/` | Factory, Clock, test builders | All Sprint 1 tables | health, ready | Zod-validated env, no secrets in Git, seed never prints passwords | New modules mount in `createApp` |
+| F-01 Auth | `auth/` | Facade, Factory, Chain | `Session` | login, logout, me | bcrypt, generic 401, dummy compare, session rotation, throttle | MFA or SSO behind `AuthService` |
+| F-02 Access | `security/` | Proxy, Chain, Strategy, Factory (`AppError`) | none | none | Role and team scope, uniform 404, origin check, DTO whitelist | New role adds a scope |
+| F-07 Views | `teams/` | Facade, Strategy | read only | `GET /api/teams`, `/teams/:id`, `/milestones/:id` | DB-level scoping | Filters and paging for F-12 |
+| F-03 Milestone | `milestones/` | Facade, Policy | `Milestone` | `POST /api/teams/:id/milestones` | Supervisor scope, strict schema, future date | Edit and close in F-09 |
+| F-04 Submission | `submissions/` | Facade, Policy, Proxy | `Submission` | `POST /api/milestones/:id/submission` | Membership, unique index, link scheme allow-list, deadline | Revisions in F-08 |
+| F-05 Feedback | `feedback/` | Facade, Policy | `Feedback` | `POST /api/submissions/:id/feedback` | Supervisor scope, unique index, comment limits | Grades in F-10 |
+| F-08 Revisions (proposed) | `submissions/` | State (revision lifecycle), Policy | `SubmissionRevision` or versioned `Submission` | `POST /api/milestones/:id/submission/revisions`, `GET .../history` | Same scope and BOLA tests; history immutable | Revision limits per milestone |
+| F-09 Milestone mgmt (proposed) | `milestones/` | Facade, Policy | `Milestone.status`, `closedAt` | `PATCH /api/milestones/:id` | Supervisor scope; deadline change rules | Bulk deadlines |
+| F-10 Grades (proposed) | `feedback/` | Policy, Strategy (visibility) | `Feedback.grade` | `POST .../feedback` extended | Grade visibility rule decided in SRS first | Rubrics |
+| F-11 Board and reports (proposed) | `reports/` | Facade, Observer | read only aggregates | `GET /api/board`, `/reports/summary` | Scope applied before aggregation | Export |
+| F-12 Search (proposed) | `search/` | Strategy, Builder, Iterator (cursor) | indexes on status, dueAt, team | `GET /api/milestones?status=&q=&cursor=` | Params validated, parameterized, scope first, page cap | Full-text index |
+| X-01 Deployment (Lab 5) | Docker, CI, Cloud Run, Cloud SQL, Secret Manager | none | none | health, ready | Secret Manager, `Secure` cookie, HTTPS, audit in CI | Staging environment |
 
-Patterns skipped in Sprint 1 (Observer, Iterator) become justified in F-08 and F-10 and are added then, not earlier.
+Patterns skipped in Sprint 1 become justified later: State in F-08, Observer in F-11, Iterator in F-12.
 
 ## 4. Security chain and layers
 
-Every request passes these layers in order. Each later layer assumes the earlier ones may have been bypassed by a bug.
-
 | Layer | Controls | Verified by |
 |---|---|---|
-| Edge | HTTPS in production, security headers, no `X-Powered-By`, strict CORS (same origin), body size cap, JSON-only content type | SEC-17, SEC-18 |
-| Abuse control | Global and login rate limits, failed-login backoff | SEC-08, SEC-16 |
+| Edge | HTTPS in production, security headers, no `X-Powered-By`, strict CORS, body size cap, JSON-only | SEC-17, SEC-18 |
+| Abuse control | Global and login rate limits | SEC-08, SEC-16 |
 | Request integrity | Origin check on state-changing methods, `SameSite=Lax` cookie | SEC-03 |
-| Authentication | Opaque session ID, expiry, revocation, rotation on login | SEC-07 to SEC-11 |
-| Authorization | Role guard, ownership or assignment check via proxy, DB-level scope | SEC-05, SEC-06 |
-| Input | Zod strict schemas, UUID params, parameterized Prisma queries | SEC-02, SEC-12 to SEC-14 |
-| Output | Field whitelist DTOs, JSON escaping, UI renders text, safe errors | SEC-01, SEC-15, TEST-33 |
+| Authentication | Opaque session ID, expiry, revocation, rotation on login | SEC-07 to SEC-10, SEC-15 |
+| Authorization | Role guard, team scope in the query, proxy check | SEC-05, SEC-06 |
+| Input | Zod strict schemas, UUID params, URL scheme allow-list, parameterized Prisma queries | SEC-02, SEC-11 to SEC-13 |
+| Output | Field whitelist DTOs, JSON escaping, UI renders text, safe errors | SEC-01, SEC-14 |
 | Supply chain and secrets | `npm audit`, env-only secrets | SEC-19, SEC-20 |
 
 ## 5. Data model evolution (proposed)
 
-```mermaid
-classDiagram
-  User "1" --> "0..*" Session
-  User "1" --> "0..*" Proposal : student
-  User "1" --> "0..*" Proposal : supervisor
-  Proposal "1" --> "0..*" Milestone
-  Proposal "1" --> "0..*" Comment
-  User "1" --> "0..*" Comment : author
-  class Milestone {
-    UUID id
-    UUID proposalId
-    string title
-    date dueDate
-    MilestoneStatus status
-  }
-  class Comment {
-    UUID id
-    UUID proposalId
-    UUID authorId
-    string body
-    datetime createdAt
-  }
-```
-
-Milestone and Comment are proposed entities; they require F-07 and F-08 approval. Sprint 1 tables are unchanged.
+Sprint 1 tables stay unchanged. F-08 adds revision history (a `SubmissionRevision` table linked to `Submission`, or a version column; decide when F-08 is authorized). F-09 adds `closedAt` to `Milestone`. F-10 adds a nullable `grade` to `Feedback`. F-12 adds indexes only.
 
 ## 6. Deployment architecture (Lab 5)
 
-One container: Express serves the built client and the API. Cloud Run runs it, Cloud SQL holds PostgreSQL over a private connection, Secret Manager supplies `DATABASE_URL`, `SESSION_SECRET` and seed passwords as environment variables. CI runs build, tests, security tests and `npm audit`, then deploys. This plan runs no cloud command.
+One container: Express serves the built client and the API. Cloud Run runs it, Cloud SQL holds PostgreSQL, Secret Manager supplies `DATABASE_URL`, `SESSION_SECRET`, `ALLOWED_ORIGIN` and seed passwords. CI runs build, tests, security tests and `npm audit` on PRs and blocks failures; a pipeline deploys accepted releases from `main`. Data survives restart because it lives in Cloud SQL. This plan runs no cloud command.
 
 ## 7. Open decisions
 
-1. Whether F-09 introduces an admin role.
-
-Closed 2026-11-06: uniform 404 for missing and unauthorized proposal IDs (SRS D-05); security NFR-07 to NFR-12 approved for Sprint 1.
-
-## Version history
-
-| Version | Date | Change |
-|---|---|---|
-| 0.1 | 2026-11-06 | Product-level architecture for F-01 to F-10 and X-01, security layers, data evolution. |
+1. Revision policy for F-08 (how many, until when).
+2. Grade visibility for F-10 (SRS D-10 covers feedback only).
+3. Instructor or TA confirmation of SRS decisions D-05 to D-08 and D-10 to D-13.

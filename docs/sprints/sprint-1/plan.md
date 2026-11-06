@@ -1,195 +1,202 @@
-# CPMS Sprint 1 Plan — Secure Proposal Lifecycle
+# CPMS Sprint 1 Plan: Milestone Submission and Feedback
 
-**Status:** Draft for review  
-**Product:** CPE 334 Course Project Management System (CPMS)  
-**Developers:** Jinnakan 1010 and Drarun 1016  
-**Three-sprint plan:** [Sprint plan](../plan.md)  
-**Contracts:** F-01 to F-06 in this folder · **Tests and DoD:** [sts.md](sts.md)  
-**Planning boundary:** Sprint 1 only. No calendar schedule or effort estimates.
+**Version:** 2.0 (draft for review)
+**Product:** CPE 334 Course Project Management System (CPMS), Theme 6
+**Developers:** Jinnakan 1010 and Drarun 1016
+**Three-sprint plan:** [Sprint plan](../plan.md) · **Contracts:** F-01 to F-07 in this folder · **Tests and DoD:** [sts.md](sts.md) · **Patterns:** [architecture.md](architecture.md)
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
-| 0.1 | 2026-11-05 | Initial three-sprint roadmap and Sprint 1 delivery outline. |
-| 0.2 | 2026-11-05 | Added owner/reviewer assignments, dependency-based work packages, verification plan, and UML sequence swimlane work. |
-| 0.3 | 2026-11-05 | Separated product-level Sprints 1–3 roadmap into `docs/plans/project-plan.md`; narrowed this document to Sprint 1. |
-| 0.4 | 2026-11-06 | Aligned Sprint 1 documents under `docs/sprints/sprint-1/` and moved all architecture, data-model, and sequence diagrams into this plan. |
-| 0.5 | 2026-11-06 | Clarified Sprint 1 branch names, issue flow, and pull-request targets to match the per-sprint staging rule. |
-| 0.6 | 2026-11-06 | Specification split into per-feature contracts and `sts.md`; architecture and data-model diagrams moved to `docs/system-sds.md`; sequence diagrams kept here. |
+| 2.0 | 2026-11-06 | Reworked for Theme 6 (teams, milestones, submissions, feedback). New sequence diagrams and ownership. |
+| 1.x | 2026-11-05 to 2026-11-06 | Proposal-domain drafts, superseded. |
 
 ## Sprint goal
 
-Deliver a working proposal lifecycle with a Login screen and related authentication code, role-specific UI, Express API enforcement, and PostgreSQL persistence. A Student logs in, submits a proposal, reloads, and sees the saved result. The assigned Supervisor logs in, sees assigned workload and queue, receives a validation error when attempting to reject without a valid comment, then makes a valid decision and sees the saved result. Unauthorized and cross-user operations expose no private data.
+A Supervisor logs in, opens a team they supervise and creates a milestone with a due date. A member of that team logs in, sees the milestone, submits a title, description and link, reloads and sees the saved submission. A late or second submission is rejected. The Supervisor records feedback; an invalid comment is rejected first. The team sees the feedback. A student from another team, and a supervisor of another team, see none of it.
 
-## Sprint scope
+## Scope
 
 | Feature | Included behavior | Depends on |
 |---|---|---|
-| F-06 Foundation and synthetic data | Schema, additive migration, env handling, separate test DB setup, health/ready endpoints, idempotent synthetic seed. | None |
-| F-01 Authentication/current user | Login UI, valid/invalid credential behavior, bcrypt verification, database-backed expiring session, logout, current-user lookup. | F-06 |
-| F-02 Role and ownership | Session-derived identity, Student/Supervisor role checks, record ownership and assignment checks, safe errors. | F-01 |
-| F-05 Scoped views | Supervisor choices, Student own list/detail/history, Supervisor assigned queue/detail/workload, shared UI states. | F-01, F-02, proposal schema |
-| F-03 Proposal submission | Student selects a supervisor and submits bounded title/description; enforce BR-01; persist/read back. | F-01, F-02, F-05 supervisor choices |
-| F-04 Proposal review | Assigned Supervisor approves/rejects submitted proposal; enforce BR-02–BR-04; persist decision and timestamp. | F-01, F-02, F-03, F-05 queue |
-| Integrated UI and verification | Student/Supervisor dashboards, detail and review panel, two critical E2E journeys, API/DB checks, release evidence. | F-01–F-06 |
+| F-06 Foundation and seed | Schema, additive migration, env handling, test DB, health and ready, idempotent seed of teams, members, milestones, submissions. | none |
+| F-01 Authentication | Login UI, bcrypt, expiring session, logout, `me`, enumeration and throttling defenses. | F-06 |
+| F-02 Role and team ownership | Session identity, role guards, team scope, uniform 404, shared security middleware. | F-01 |
+| F-07 Scoped views and progress | Team list and detail, milestone detail, computed status, shared UI states. | F-01, F-02 |
+| F-03 Create milestone | Supervisor form and API with validation and future due date. | F-01, F-02, F-07 |
+| F-04 Submit work | Member form and API, deadline and one-per-milestone rules, link validation. | F-03 |
+| F-05 Feedback | Supervisor feedback form and API, immutable, one per submission. | F-04 |
 
-No Sprint 2 or Sprint 3 planning is included in this sprint plan. Out of scope: self-registration, password recovery, admin UI, file uploads, notifications, milestones, grading, Docker/CI/CD completion, and deployment.
+Out of scope: registration, recovery, grades, revisions, milestone editing, uploads, notifications, admin UI, Docker, CI/CD, GCP.
 
 ## Dependency-driven work order
 
-1. **Foundation:** define Prisma entities/constraints, additive migration, local env example, test database, synthetic seed, and health/readiness endpoints.
-2. **Authentication and Login UI:** build login form and its pending/error/success states; implement login/logout/me and session expiry; verify password hashes and cookie behavior.
-3. **Authorization:** protect routes, derive identity and role from session, enforce role and ownership/assignment boundaries.
-4. **Read paths:** implement student/supervisor-scoped lists and detail, safe supervisor picker, remaining capacity, and workload queries.
-5. **Submission:** implement form validation, server-side Student identity, supervisor selection, active-proposal check, transaction/persistence, and retrieval.
-6. **Review:** implement assignment and state checks, reject-comment validation, approval capacity check, atomic transition, review comment/timestamp persistence.
-7. **Integrated UI and acceptance:** complete dashboards, detail, review panel, loading/empty/error/success states, accessibility and contrast evidence, E2E journeys, integration checks, and release evidence.
+1. **Foundation:** Prisma entities and constraints, migration, env example, test DB, seed, health and ready.
+2. **Authentication and Login UI:** login form and states, login, logout, `me`, session expiry, throttling.
+3. **Authorization:** protect routes, derive identity from the session, role guards, team scope, uniform 404, shared security middleware.
+4. **Read paths:** team list and detail, milestone detail, computed status, dashboards.
+5. **Milestone creation:** form, validation, supervised-team check, persistence.
+6. **Submission:** form, link and field validation, membership check, deadline and duplicate rules, retrieval.
+7. **Feedback:** form, comment validation, supervised-team check, one-per-submission rule, visibility.
+8. **Integration and acceptance:** two E2E journeys, security suite, timing and contrast evidence, release evidence.
 
-If implementation order changes, record why and ensure requirements, contracts, and tests still cover the same behavior. For each business rule, retain the intended failing test output before implementation and passing output afterward.
+If the order changes, record why and confirm coverage is unchanged. For each business rule keep the failing test output before implementation and the passing output after.
 
 ## Developer ownership and peer review
 
 | Work package | Owner | Peer reviewer | Main deliverables |
 |---|---|---|---|
-| F-06 foundation, schema, seed, test harness | Jinnakan 1010 | Drarun 1016 | Prisma model/migration, seed safety/idempotency, env setup, health/ready and test plumbing. |
-| F-01 authentication and Login UI | Drarun 1016 | Jinnakan 1010 | Login screen, auth endpoints, session lifecycle, bcrypt and cookie tests. |
-| F-02 role and ownership enforcement | Jinnakan 1010 | Drarun 1016 | Reusable backend checks and API coverage for role, owner, and supervisor assignment. |
-| F-05 scoped views and supervisor directory | Drarun 1016 | Jinnakan 1010 | Role-scoped queries, workload data, safe picker response, dashboards and UI states. |
-| F-03 Student proposal submission | Drarun 1016 | Jinnakan 1010 | Submission form/API, validation, BR-01 enforcement, persistence and retrieval. |
-| F-04 Supervisor review | Jinnakan 1010 | Drarun 1016 | Review API/panel, BR-02–BR-04 enforcement and transactional state update. |
-| Integration and release evidence | Both | Each reviews the other's changes | E2E journeys, integration/system checks, screenshot selection, evidence and contribution record. |
+| F-06 foundation, schema, seed, test harness | Jinnakan 1010 | Drarun 1016 | Prisma model, migration, seed idempotency, env, health, test plumbing. |
+| F-01 authentication and Login UI | Drarun 1016 | Jinnakan 1010 | Login screen, auth endpoints, sessions, bcrypt, enumeration and throttle tests. |
+| F-02 role and team ownership | Jinnakan 1010 | Drarun 1016 | Middleware, team scope, uniform 404, shared security checks and tests. |
+| F-07 scoped views and progress | Jinnakan 1010 | Drarun 1016 | Team and milestone queries, computed status, dashboards and UI states. |
+| F-03 create milestone | Drarun 1016 | Jinnakan 1010 | Milestone form and API, validation, supervisor scope. |
+| F-04 submit work | Jinnakan 1010 | Drarun 1016 | Submission form and API, deadline and duplicate rules, link validation. |
+| F-05 feedback | Drarun 1016 | Jinnakan 1010 | Feedback form and API, one-per-submission, visibility. |
+| Integration and release evidence | Both | Each reviews the other | E2E journeys, security suite, screenshots, evidence, contribution table. |
 
-Both developers review the full design and understand the released behavior. Neither developer approves their own PR. Apply the repository-wide Issue, Kanban, staging-branch, review, and release rules in [AGENTS.md](../../../AGENTS.md); this sprint uses the Sprint 1 staging branch and the feature assignments above.
+Both developers understand the full design. Neither approves their own PR. Apply the Issue, Kanban, staging-branch, review and release rules in [AGENTS.md](../../../AGENTS.md).
 
-## Design diagrams
+## Sequence diagrams
 
-The sequence diagrams cover both primary role journeys. Sequence lifelines are the swimlanes across actor, browser UI, API/auth middleware, application service, and database.
-
-Architecture and data-model diagrams are in the [system SDS](../../system-sds.md).
+Lifelines are the swimlanes across actor, browser UI, API and auth middleware, application service and database.
 
 | Diagram | Owner | Reviewer | Required branches |
 |---|---|---|---|
-| Student login and proposal submission | Drarun 1016 | Jinnakan 1010 | Session created; invalid login; valid supervisor selection; BR-01 conflict; successful persistence and readback. |
-| Supervisor review and capacity decision | Jinnakan 1010 | Drarun 1016 | Invalid reject comment; wrong assignment; already decided; full capacity; valid decision and readback. |
+| Supervisor creates milestone, member submits | Drarun 1016 | Jinnakan 1010 | Invalid milestone; unsupervised team; deadline passed; duplicate; success and readback. |
+| Supervisor records feedback | Jinnakan 1010 | Drarun 1016 | Invalid comment; unassigned supervisor; feedback exists; success; member reads feedback. |
 
-#### Student login and proposal submission
+### Supervisor creates milestone and member submits
 
 ```mermaid
 sequenceDiagram
+  participant Supervisor
   participant Student
   participant UI
   participant API
   participant Auth
   participant Service
   participant DB
-  Student->>UI: Enter email and password
-  UI->>API: Send login request
-  API->>DB: Find account by email
-  DB-->>API: Return account and password hash
-  API->>API: Verify password and prepare session
-  API->>DB: Save expiring session
-  DB-->>API: Confirm session saved
-  API-->>UI: Return safe identity and session cookie
-  UI->>API: Request current user and supervisor choices
+  Supervisor->>UI: Open supervised team
+  UI->>API: Request team with session cookie
+  API->>Auth: Validate session and role
+  Auth-->>API: Return supervisor identity
+  API->>DB: Read team in supervisor scope
+  DB-->>API: Return team and milestones
+  API-->>UI: Return team detail
+  Supervisor->>UI: Submit milestone title and due date
+  UI->>API: Send create milestone request
+  API->>Auth: Validate session and supervisor role
+  Auth-->>API: Authorize supervisor
+  API->>Service: Validate fields and team ownership
+  alt Invalid fields or past due date
+    Service-->>API: Return validation error
+    API-->>UI: Return 400 and create nothing
+  else Team not supervised by this user
+    Service-->>API: Return not found
+    API-->>UI: Return uniform 404
+  else Valid
+    Service->>DB: Insert milestone
+    DB-->>Service: Return milestone
+    API-->>UI: Return created milestone
+  end
+  Student->>UI: Open milestone and submit title description link
+  UI->>API: Send submission with session cookie
   API->>Auth: Validate session and student role
   Auth-->>API: Return student identity
-  API-->>UI: Return safe identity and choices
-  Student->>UI: Submit proposal form
-  UI->>API: Send proposal and session cookie
-  API->>Auth: Validate session and derive student identity
-  Auth-->>API: Authorize student
-  API->>Service: Validate fields and proposal rule
-  Service->>DB: Check for active proposal
-  alt Active proposal exists
-    DB-->>Service: Active proposal found
-    Service-->>API: Return rule conflict
-    API-->>UI: Return conflict with no insert
-  else No active proposal
-    Service->>DB: Insert submitted proposal
-    DB-->>Service: Return saved proposal
-    Service-->>API: Return created proposal
-    API-->>UI: Return success and proposal
-    UI->>API: Request saved proposal detail
-    API->>Auth: Validate session and ownership
-    Auth-->>API: Authorize owner
-    API-->>UI: Return persisted detail
+  API->>Service: Check team membership and validate link
+  Service->>DB: Start transaction and read milestone
+  alt Not a member of the milestone team
+    DB-->>Service: Membership missing
+    Service-->>API: Return not found
+    API-->>UI: Return uniform 404
+  else Deadline passed
+    Service-->>API: Return deadline conflict
+    API-->>UI: Return 409 and store nothing
+  else Submission already exists
+    DB-->>Service: Unique violation
+    Service-->>API: Return duplicate conflict
+    API-->>UI: Return 409 and keep original
+  else Valid
+    Service->>DB: Insert submission and commit
+    DB-->>Service: Return submission
+    API-->>UI: Return created submission
+    UI->>API: Reload milestone detail
+    API-->>UI: Return persisted submission
   end
 ```
 
-#### Supervisor review and capacity decision
+### Supervisor records feedback
 
 ```mermaid
 sequenceDiagram
   participant Supervisor
+  participant Student
   participant UI
   participant API
   participant Auth
   participant Service
   participant DB
-  Supervisor->>UI: Open proposal queue
-  UI->>API: Request queue with session cookie
-  API->>Auth: Validate session and supervisor role
+  Supervisor->>UI: Open submission of a supervised team
+  UI->>API: Request milestone detail
+  API->>Auth: Validate session and role
   Auth-->>API: Return supervisor identity
-  API->>DB: Read proposals assigned to supervisor
-  DB-->>API: Return assigned queue and workload
-  API-->>UI: Return scoped queue and capacity
-  Supervisor->>UI: Reject without a valid comment
-  UI->>API: Send reject decision
-  API->>Auth: Validate session and role
+  API->>DB: Read milestone in supervisor scope
+  DB-->>API: Return milestone and submission
+  API-->>UI: Return detail
+  Supervisor->>UI: Send feedback with a short comment
+  UI->>API: Send feedback request
+  API->>Auth: Validate session and supervisor role
   Auth-->>API: Authorize supervisor
-  API->>Service: Validate decision comment
+  API->>Service: Validate comment
   Service-->>API: Return comment validation error
-  API-->>UI: Return validation error and keep proposal unchanged
-  Supervisor->>UI: Approve assigned submitted proposal
-  UI->>API: Send approval decision
-  API->>Auth: Validate session and role
-  Auth-->>API: Authorize supervisor
-  API->>Service: Check assignment status and capacity
-  Service->>DB: Start transaction and lock relevant records
-  alt Wrong assignment or proposal already decided
-    DB-->>Service: Return assignment or state conflict
-    Service-->>API: Return forbidden or conflict result
-    API-->>UI: Return safe error and keep state unchanged
-  else Capacity reached
-    DB-->>Service: Return capacity reached
-    Service-->>API: Return capacity conflict
-    API-->>UI: Return conflict and keep state unchanged
-  else Assigned submitted and capacity available
-    Service->>DB: Update decision and review time then commit
-    DB-->>Service: Return updated proposal
-    Service-->>API: Return approved proposal
-    API-->>UI: Return updated proposal
-    UI->>API: Reload queue and detail
-    API-->>UI: Return saved decision and workload
+  API-->>UI: Return 400 and store nothing
+  Supervisor->>UI: Send feedback with valid comment
+  UI->>API: Send feedback request
+  API->>Service: Check team ownership and existing feedback
+  Service->>DB: Start transaction and read submission
+  alt Submission not in a supervised team
+    DB-->>Service: Not in scope
+    Service-->>API: Return not found
+    API-->>UI: Return uniform 404
+  else Feedback already exists
+    DB-->>Service: Unique violation
+    Service-->>API: Return conflict
+    API-->>UI: Return 409 and keep original
+  else Valid
+    Service->>DB: Insert feedback and commit
+    DB-->>Service: Return feedback
+    API-->>UI: Return created feedback
   end
+  Student->>UI: Open milestone
+  UI->>API: Request milestone detail
+  API->>Auth: Validate session and membership
+  Auth-->>API: Return student identity
+  API-->>UI: Return submission with feedback
 ```
 
-## Issue, branch, test, and review flow
+## Issue, branch, test and review flow
 
-For each feature, follow the root [AGENTS.md](../../../AGENTS.md) workflow. Sprint-specific execution order, owner/reviewer, AC mapping, and test-first expectations are listed in this plan and the linked contracts and STS. Record actual verification results; report failures/skips and preserve failing-before/passing-after evidence. Never weaken tests to manufacture a pass.
+Follow [AGENTS.md](../../../AGENTS.md). Each feature has an Issue linked to its feature ID, FR, BR, NFR, contract, ACs and tests. Record actual verification results; report failures and skips; keep failing-before and passing-after evidence. Never weaken a test to get a pass.
 
 ## Verification outcomes
 
-The STS and DoD are in; ACs are in the feature contracts, and [sts.md](sts.md). The implementation phase must verify:
+The implementation must verify:
 
-- Valid and invalid login; logout; current user; expired/revoked session behavior.
-- 401 for unauthenticated protected endpoints; forbidden role actions; cross-user and unassigned-supervisor access with no private data.
-- Proposal field boundaries, BR-01 active-proposal rejection/resubmission after rejection, BR-02 capacity rejection, BR-03 comment validation, and BR-04 assigned-only single decision.
-- Persisted student submit-and-reload journey and supervisor invalid-reject-then-valid-decision journey.
-- DB integration on a separate test database; synthetic seed; NFR-02 password hashing; NFR-03 safe errors.
-- Accessible UI states, keyboard behavior, palette contrast calculation, and representative local response timings.
-- Actual build/test commands and outputs, test names/counts/results at a specific release commit.
+- Valid and invalid login, logout, current user, expired and revoked sessions.
+- 401 on every protected endpoint; 403 for wrong role; uniform 404 for another team's data.
+- Milestone, submission and feedback field boundaries; link scheme validation.
+- BR-01 duplicate submission (including concurrent), BR-02 deadline (before, at and after `dueAt`), BR-05 one feedback and comment length, BR-06 team scope.
+- Persisted milestone to submission to feedback journeys through UI, API and database.
+- The security suite (SEC-01 to SEC-20), seed idempotency, hashed passwords, safe errors.
+- Accessible UI states, contrast calculation and representative local timing.
+- Actual build and test commands, counts and results at a specific release commit.
 
 ## Definition of Sprint 1 completion
 
-- F-01–F-06 behavior is implemented to the approved contracts; actual test runs and results are recorded.
-- Login UI and complete Student/Supervisor proposal journeys work through UI, API, and database.
-- Each AC maps to verification; all failures/skips are disclosed; no claimed results lack command output.
-- Peer-reviewed feature changes are integrated through staging and a reviewed release change; both developers' meaningful contributions are recorded.
-- README/setup documentation, migration/seed instructions, selected screenshots, test excerpts, known limitations, and the self-contained Part F evidence are ready.
-- No real secrets appear in code, Git, logs, or screenshots.
+See the Product Definition of Done in [sts.md](sts.md). In short: F-01 to F-07 behave as contracted with recorded results; both journeys work through UI, API and database; every AC maps to a test and failures are disclosed; features are peer reviewed into staging and released to `main` with a tag; setup docs and Part F evidence are ready; no real secrets anywhere.
 
 ## Current status
 
-This document is a plan only. Implementation, test execution, GitHub Issues/PRs, screenshots, and release evidence have not been produced here. Work remains paused until the user approves the Sprint 1 documentation.
+Plan only. No implementation, test run, Issue, PR, screenshot or release evidence exists yet.

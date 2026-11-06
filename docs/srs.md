@@ -1,110 +1,119 @@
 # CPMS Software Requirements Specification (Part A)
 
-**Version:** 1.0 (draft for review)
-**Product:** Course Project Management System (CPMS), CPE 334
-**Related:** [Features](features.md) · [Traceability](traceability.md) · [System SDS](system-sds.md) · [Sprint plan](sprints/plan.md)
+**Version:** 2.0 (draft for review)
+**Product:** Course Project Management System (CPMS), CPE 334, Theme 6
+**Related:** [Features](features.md) · [Traceability](traceability.md) · [System SDS](system-sds.md) · [Sprint plan](sprints/plan.md) · [Security test plan](security-test-plan.md)
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
-| 1.1 | 2026-11-06 | Approved NFR-07 to NFR-12 for Sprint 1; decided D-05 as uniform 404. |
-| 1.0 | 2026-11-06 | Split out of the former project plan and Sprint 1 specification. Renamed AC/test IDs to `AC-nn` / `TEST-nn`. Added proposed FR-07 to FR-10 for Sprints 2 and 3 (unapproved). |
+| 2.0 | 2026-11-06 | Reworked from a proposal approve/reject product to the Theme 6 domain in `group_work_specs_v1.pdf`: teams, milestones, submissions, feedback, progress. Requirement, rule, AC and test IDs renumbered. Closes D-07. |
+| 1.1 | 2026-11-06 | Approved NFR-07 to NFR-12. |
+| 1.0 | 2026-11-06 | Initial split SRS (proposal domain, superseded). |
 
 ## 1. Stakeholder problem and context
 
-Course project proposals are tracked through chat messages and spreadsheets. Students cannot see where their proposal stands. Supervisors have no reliable view of what is assigned to them or how loaded they are. CPMS centralizes proposal submission, review, status and role-scoped visibility for a course project setting.
+A course project program has teams working toward milestones. Supervisors set milestones and need to see which teams have submitted, which are late, and what feedback was given. Students need one place to see their team's milestones, submit work, and read feedback. Today this is spread across chat, email and spreadsheets, so deadlines are missed, submissions are lost and feedback is hard to find.
 
-The course brief points to `group_work_specs.docx` as the master specification. It has not been supplied, so this SRS rests on the CPMS brief the team received. Theme-specific examples or rubric details in that file may require changes (see D-07).
+CPMS gives each team a private workspace: supervisors define milestones for their teams, team members submit a title, description and link, and supervisors record feedback tied to that submission.
+
+Context chosen: a single course with seeded teams, students and supervisors. The theme is assigned from the student IDs (`...016` and `...010`); the team chose Theme 6.
 
 ## 2. Actors and responsibilities
 
 | Actor | Responsibility | Data boundary |
 |---|---|---|
-| Anonymous visitor | Log in with an existing seeded account. | No protected data or operations. |
-| Student | Submit a proposal to a chosen supervisor; track status and history. | Only proposals whose `studentId` is their session user ID. |
-| Supervisor | Review proposals assigned to them; see own queue and workload. | Only proposals whose `supervisorId` is their session user ID. |
+| Anonymous visitor | Log in with a seeded account. | None. |
+| Student | View own team, its milestones, submissions and feedback; submit work for a team milestone. | Only teams where they are a member. |
+| Supervisor | Create milestones for supervised teams; view their submissions and progress; record feedback. | Only teams assigned to them. |
 
-There is no administrator actor in Sprint 1. A later admin role (F-09) needs an explicit decision first.
+No admin role in any sprint unless a later decision adds one. Teams and membership are seeded in Sprint 1.
 
 ### Terminology
 
-- **Active proposal:** a proposal in `SUBMITTED` or `APPROVED` status.
-- **Assigned supervisor:** the user whose ID is stored in `Proposal.supervisorId`.
-- **Authenticated user:** a user holding a valid, unexpired, unrevoked server-side session.
-- **Remaining capacity:** `max(capacity - count(APPROVED), 0)` for a supervisor.
+- **Team:** a group of students with exactly one supervisor.
+- **Milestone:** a deliverable with a due date, created for one team.
+- **Submission:** a team member's work for one milestone (title, description, link).
+- **Feedback:** a supervisor's comment attached to one submission.
+- **Milestone status (computed):** `NOT_SUBMITTED`, `SUBMITTED`, `REVIEWED` (has feedback), or `OVERDUE` (due date passed with no submission).
 
 ## 3. Scope
 
-**In scope (whole product):** authentication, role and ownership enforcement, proposal submission, proposal review, scoped views and workload (Sprint 1); progress tracking and project discussion (Sprint 2, proposed); administrative assignment and search (Sprint 3, proposed).
+**In scope (whole product):** authentication and access (Sprint 1); milestone creation, submission, feedback, scoped views and progress (Sprint 1); revisions with history, milestone management, grades (Sprint 2, proposed); progress board, summary reports, search and filter (Sprint 3, proposed).
 
-**Explicitly excluded:** self-registration, password recovery, file uploads, notifications, grading, and any admin UI in Sprint 1. Docker packaging, CI/CD and GCP deployment are designed for but not performed in Deliverable 1 (Lab 5).
+**Excluded:** self-registration, password recovery, email verification, multiple roles per account, file upload (links only), notifications, real external integrations. Docker, CI/CD and GCP deployment are designed for now and delivered in Lab 5.
 
 ## 4. Functional requirements
 
 | ID | Requirement | Feature | Sprint | Status |
 |---|---|---|---:|---|
-| FR-01 | An existing seeded user can log in with email and password, log out, retrieve current-user identity, and use a session that expires. | F-01 | 1 | Baseline |
-| FR-02 | Every protected operation enforces role and record ownership using identity and role derived from the server session only. | F-02 | 1 | Baseline |
-| FR-03 | A Student can submit a proposal assigned to a selected Supervisor. Title is 5 to 100 characters and description is 20 to 2000 characters. | F-03 | 1 | Baseline |
-| FR-04 | Only the assigned Supervisor can approve or reject a `SUBMITTED` proposal, subject to the comment and capacity rules. | F-04 | 1 | Baseline |
-| FR-05 | Students list and read only their own proposals. Supervisors list and read only assigned proposals and see their own workload and capacity. | F-05 | 1 | Baseline |
-| FR-06 | A repeatable, idempotent seed provides synthetic Student and Supervisor accounts and proposals in several states. | F-06 | 1 | Baseline |
-| FR-07 | Student and Supervisor can record and view progress milestones on an approved proposal. | F-07 | 2 | Proposed |
-| FR-08 | Participants of an approved proposal can post and read a discussion history for it. | F-08 | 2 | Proposed |
-| FR-09 | An authorized administrator can manage supervisor assignment and users. | F-09 | 3 | Proposed, needs role decision |
-| FR-10 | A user can search and filter only the proposal records they are entitled to see. | F-10 | 3 | Proposed |
+| FR-01 | A seeded user logs in with email and password, logs out, retrieves current-user identity, and uses an expiring session. | F-01 | 1 | Baseline |
+| FR-02 | Every protected operation enforces role and team ownership from the server session only. | F-02 | 1 | Baseline |
+| FR-03 | A Supervisor creates a milestone (title, description, due date) for a team they supervise. | F-03 | 1 | Baseline |
+| FR-04 | A Student team member submits a title, description and link for a milestone of their team. | F-04 | 1 | Baseline |
+| FR-05 | A Supervisor records feedback on a submission of a team they supervise. | F-05 | 1 | Baseline |
+| FR-06 | A repeatable idempotent seed provides teams, membership, users, milestones, submissions and feedback. | F-06 | 1 | Baseline |
+| FR-07 | Students view their team, milestones, submissions, feedback and progress. Supervisors view assigned teams and per-milestone progress. | F-07 | 1 | Baseline |
+| FR-08 | A team may resubmit a milestone under a revision policy, with preserved revision history. | F-08 | 2 | Proposed |
+| FR-09 | A Supervisor edits or closes a milestone and manages team deadlines. | F-09 | 2 | Proposed |
+| FR-10 | A Supervisor assigns a grade with feedback; visibility of grades is defined by rule. | F-10 | 2 | Proposed |
+| FR-11 | A progress board and summary reports show team and milestone status. | F-11 | 3 | Proposed |
+| FR-12 | Users search and filter only records they are entitled to see. | F-12 | 3 | Proposed |
 
-FR-07 to FR-10 are placeholders so the three sprints cover a whole-product baseline. They are not detailed or approved. Each needs its own authorization before specification.
+FR-08 to FR-12 are placeholders so the three sprints cover a whole-product baseline. They are unapproved and need their own contracts.
 
 ## 5. Business rules
 
 | ID | Applies when | Required enforcement | Outcome when violated |
 |---|---|---|---|
-| BR-01 One active proposal per student | A Student submits. `SUBMITTED` and `APPROVED` proposals count; `REJECTED` ones are history. | Check and insert safely under concurrent submissions (transaction or constraint). Student ID comes from the session. | 409 with an explicit active-proposal error; no record created. Rejected-only history allows a new submission. |
-| BR-02 Supervisor approval capacity | Before a proposal becomes `APPROVED`, compare the supervisor's `APPROVED` count to their `capacity` (seed default 5). | Check and approve atomically so concurrent approvals cannot exceed capacity. | 409 with an explicit capacity message; proposal unchanged. |
-| BR-03 Rejection comment | A `REJECTED` decision. Trim whitespace; at least 10 characters must remain. Approval comment is optional. | Validate on the server; persist the comment. | 400; status, comment and `reviewedAt` unchanged. |
-| BR-04 Assigned supervisor, one decision | Every review request. | Role is Supervisor, user ID equals `supervisorId`, state is `SUBMITTED`, all checked inside the decision transaction. | Wrong role or assignment: 403 or privacy-safe 404. Already decided: 409. Nothing changes. |
-| BR-05 Private ownership | Every list and detail request. | Scope list queries in the backend; authorize detail against the session identity; never trust a client-supplied ID or role. | 403 or 404 with no private fields; lists omit out-of-scope records. |
-| BR-06 Role separation | Submission and review routes. | Student may submit, not review. Supervisor may review assigned records, not submit. Enforced in the API. | 403 with a safe error; no state change. |
+| BR-01 One submission per milestone | A team member submits to a milestone. | Unique constraint on `Submission.milestoneId` plus a transaction, safe under concurrent submits by two members. | 409 `DUPLICATE_SUBMISSION`; no new record. |
+| BR-02 Deadline | A submission is created. | Accept at or before `dueAt`; compare against an injectable server clock. | 409 `DEADLINE_PASSED`; no record. |
+| BR-03 Milestone creation | A Supervisor creates a milestone. | Only the team's supervisor; title 5 to 100 chars; description 0 to 1000; `dueAt` must be a valid date in the future at creation. | 400 for bad fields; unassigned team returns the uniform 404; no record. |
+| BR-04 Submission authorization and data | Any submission. | Only a Student who is a member of the milestone's team. `submittedById` comes from the session. Title 5 to 100; description 20 to 2000; link is `http` or `https`, at most 500 chars, stored as text and never fetched. | 400 invalid data (including `javascript:`, `data:`, `ftp:` links); non-member gets the uniform 404; no record. |
+| BR-05 Feedback | A Supervisor records feedback. | Only the team's supervisor, on an existing submission; comment trimmed has 10 to 2000 chars; one feedback per submission; feedback is immutable and linked by foreign key. | 400 invalid comment; 409 `FEEDBACK_EXISTS`; unassigned supervisor gets the uniform 404. |
+| BR-06 Private team data | Every read. | Students read only data of teams they belong to; Supervisors only data of teams they supervise. Scope is applied in the query. | Uniform 404 for another team's data and for nonexistent IDs; lists omit out-of-scope records. |
+| BR-07 Role separation | Milestone, submission and feedback routes. | Students submit but cannot create milestones or feedback. Supervisors create milestones and feedback but cannot submit. | 403 with a safe error; no change. |
 
-**Precedence:** authentication first, then role, then ownership or assignment, then validation (400), then rule conflicts (409).
+**Precedence:** authentication (401), role (403), team ownership (uniform 404), validation (400), rule conflict (409).
 
 ## 6. Non-functional requirements
 
 | ID | Requirement and measurable target | Verification | Sprint |
 |---|---|---|---:|
-| NFR-01 | Protected endpoints reject unauthenticated requests with 401 and return no private data. | API test (TEST-31) | 1 |
-| NFR-02 | Passwords are stored only as bcrypt hashes; plaintext appears nowhere in persistence. | DB integration test (TEST-32) | 1 |
-| NFR-03 | Error responses never contain stack traces or SQL. | API test across validation, conflict and unexpected-error paths (TEST-33) | 1 |
-| NFR-04 | Body and button text contrast is at least 4.5:1 (WCAG AA) for the chosen token pairs. | Recorded contrast calculation (TEST-34) | 1 |
-| NFR-05 | Typical API responses take under 500 ms on local seeded data. | Manual timing record with endpoint and conditions (TEST-35) | 1 |
-| NFR-06 | The app builds and runs from environment variables alone, with no secrets in Git or client code. | Review of `.env.example` and a clean-clone setup run | 1, re-verified in Lab 5 |
+| NFR-01 | Protected endpoints reject unauthenticated requests with 401 and return no private data. | API test | 1 |
+| NFR-02 | Passwords are stored only as bcrypt hashes; plaintext appears nowhere in persistence. | DB integration test | 1 |
+| NFR-03 | Error responses never contain stack traces or SQL. | API test across validation, conflict and unexpected-error paths | 1 |
+| NFR-04 | Body and button text contrast is at least 4.5:1 (WCAG AA). | Recorded contrast calculation | 1 |
+| NFR-05 | Typical API responses take under 500 ms on local seeded data. | Manual timing record | 1 |
+| NFR-06 | The app builds and runs from environment variables alone, with no secrets in Git or client code. | Clean-clone setup run | 1, Lab 5 |
+| NFR-07 | Hostile input cannot cause script, SQL, command, file-path or server-side request effects. | Security tests | 1 |
+| NFR-08 | State-changing requests from a foreign `Origin` or with a non-JSON body are rejected. | Security tests | 1 |
+| NFR-09 | Login does not reveal registered emails, ignores unanticipated fields and redirect inputs, issues a fresh session ID, and rejects tampered cookies. | Security tests | 1 |
+| NFR-10 | Repeated failed logins and request bursts are throttled with 429 (placeholders: 5 failures per 15 min per IP and email; 100 requests per minute per IP). | Security tests | 1 |
+| NFR-11 | Request schemas reject unknown fields; responses contain only whitelisted fields. | Security tests | 1 |
+| NFR-12 | Security headers, strict CORS, body size cap, and no high or critical dependency vulnerabilities. | Security tests | 1 |
 
-### Security NFRs (approved 2026-11-06 for Sprint 1)
-
-| ID | Requirement and measurable target | Verification | Sprint |
-|---|---|---|---:|
-| NFR-07 | User-supplied input cannot cause script execution, SQL, command, file-path or server-side request effects. | SEC-01, 02, 04, 11, 12 | 1 |
-| NFR-08 | State-changing requests from a foreign `Origin` or non-JSON body are rejected. | SEC-03 | 1 |
-| NFR-09 | Login does not reveal whether an email is registered, ignores unanticipated fields and redirect inputs, and issues a fresh session ID; tampered cookies are rejected. | SEC-07, 09, 10 | 1 |
-| NFR-10 | Repeated failed logins and request bursts are throttled with 429 (proposed: 5 failures per 15 min per IP and email; 100 requests per minute per IP). | SEC-08, 16 | 1 |
-| NFR-11 | Request schemas reject unknown fields; responses contain only whitelisted fields. | SEC-13, 14 | 1 |
-| NFR-12 | Security headers, strict CORS, body size cap and no high or critical dependency vulnerabilities. | SEC-17, 18, 19 | 1 |
-
-See the [security test plan](security-test-plan.md) and the [architecture plan](architecture.md).
+NFR-07 to NFR-12 were approved for Sprint 1 on 2026-11-06 and carry over unchanged. Details are in the [security test plan](security-test-plan.md).
 
 ## 7. Assumptions, decisions and open questions
 
+The spec says to resolve theme ambiguities and record decisions. Items marked Proposed are the team's answers and need confirmation with the instructor or TA where noted.
+
 | ID | Decision or assumption | Status |
 |---|---|---|
-| D-01 | Student and Supervisor are the only roles in Sprint 1. | Decided (brief) |
-| D-02 | Accounts are seeded; no self-registration or recovery. | Decided (brief, course PDF) |
-| D-03 | Authentication uses database-backed expiring sessions in a secure cookie. | Decided (brief) |
-| D-04 | Rejected proposals stay as history and allow resubmission when no active proposal exists. | Decided (BR-01) |
-| D-05 | Another user's proposal and a nonexistent proposal both return the same 404 body (no existence leak). 403 remains for wrong role. | Decided 2026-11-06 |
-| D-06 | Sprint order is dependency-driven; no calendar or effort estimates are fixed beyond course checkpoints. | Decided |
-| D-07 | `group_work_specs.docx` was not available. | Open gap; reconcile if obtained |
-| D-08 | Email is unique and compared case-insensitively. | Proposed; brief is silent |
-| D-09 | Password change and session revocation on change are out of scope. | Decided |
-| D-10 | Submission is not blocked when a chosen supervisor is at approval capacity; only approval is blocked. | Decided (brief) |
+| D-01 | Student and Supervisor are the only roles. | Decided (spec 5.2, Theme 6) |
+| D-02 | Accounts, teams and memberships are seeded; no registration or recovery. | Decided (spec 5.2) |
+| D-03 | Authentication uses database-backed expiring sessions in a secure cookie. | Decided |
+| D-04 | Another team's data and a nonexistent ID return the same 404 body. Wrong role returns 403. | Decided 2026-11-06 |
+| D-05 | Each student belongs to exactly one team; each team has exactly one supervisor; a supervisor may supervise several teams. | Proposed |
+| D-06 | A milestone belongs to one team and is created per team. | Proposed |
+| D-07 | Deadline policy: submissions at or before `dueAt` are accepted; later ones are rejected with 409. | Proposed |
+| D-08 | Revision policy for Sprint 1: one submission per milestone, no edit or resubmit. Revisions with history move to Sprint 2 (F-08). | Proposed |
+| D-09 | Supervision scope: a supervisor sees and acts only on teams assigned to them. | Decided (spec Theme 6) |
+| D-10 | Feedback visibility: the team's members and the team's supervisor only. No other team and no grades in Sprint 1. | Proposed |
+| D-11 | A submission is by the team, recorded with the member who sent it; any member may submit. | Proposed |
+| D-12 | Submission uses a link only; no file upload. | Proposed |
+| D-13 | Email is unique and compared case-insensitively. | Proposed |
+| D-14 | Password change is out of scope. | Decided |
+| D-15 | `group_work_specs_v1.pdf` was reviewed; the earlier proposal-approval slice is removed. | Decided 2026-11-06 |

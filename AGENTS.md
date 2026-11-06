@@ -6,8 +6,8 @@ Read this file before changing the project. These instructions combine the team'
 
 - Project: CPE 334 Course Project Management System (CPMS).
 - Developers: Drarun Yookphan (67070501016, GitHub display name `N0M3KM`) and Jinnakan Chaviengpob (67070501010, GitHub display name `Jinnakan`). Both must understand the requirements, tests, design decisions, and released behavior.
-- Product problem: proposals tracked through chat/spreadsheets leave students unsure of status and supervisors unable to see assigned workload.
-- Sprint 1 actors: Student and Supervisor. Student submits and reads own proposals. Supervisor reviews assigned proposals and reads own assigned workload. Seeded accounts only; no self-registration or password recovery.
+- Product problem (Theme 6): milestone work, deadlines and feedback are tracked through chat and spreadsheets, so teams miss deadlines and supervisors cannot see team progress.
+- Sprint 1 actors: Student and Supervisor. A Supervisor creates milestones for supervised teams and records feedback. A Student team member submits title, description and link for a team milestone and reads feedback. Teams, membership and accounts are seeded; no self-registration or password recovery.
 - Sprint 1 must deliver a working UI -> API/application layer -> PostgreSQL journey, including a Login screen and related authentication code.
 - Current documentation layout:
   - `docs/srs.md`, `docs/features.md`, `docs/traceability.md`, `docs/system-sds.md` — product-level Parts A–C.
@@ -64,9 +64,9 @@ Each sprint has its own staging branch; every feature in that sprint is based on
 | Sprint 2 integration | `sprint-2-staging` |
 | Sprint 3 integration | `sprint-3-staging` |
 | Sprint 1 F-01 authentication | `feature/01-authentication` |
-| Sprint 1 F-02 role/ownership | `feature/02-role-ownership` |
-| Sprint 2 F-07 milestones | `feature/07-milestones` |
-| Sprint 3 F-10 search | `feature/10-search` |
+| Sprint 1 F-02 role/team ownership | `feature/02-role-ownership` |
+| Sprint 2 F-08 revisions | `feature/08-revisions` |
+| Sprint 3 F-12 search | `feature/12-search` |
 
 Create each sprint staging branch from the preceding accepted release on `main` (Sprint 1 from the agreed project base). Name each feature branch `feature/<two-digit-feature-number>-<short-name>` (for example, `feature/01-authentication`). Create the feature branch from its matching sprint staging branch, and set its PR base to that same staging branch. Review-fix commits stay on the same feature branch. Never send one sprint's feature PR to a different sprint's staging branch.
 

@@ -1,32 +1,35 @@
 # CPMS Three-Sprint Plan (Part D)
 
-**Version:** 1.0 (draft for review)
+**Version:** 2.0 (draft for review)
 **Related:** [Features](../features.md) · [Traceability](../traceability.md) · [Sprint 1 plan](sprint-1/plan.md)
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
-| 1.0 | 2026-11-06 | Moved from `docs/plans/project-plan.md`; added course checkpoints and the Sprint 1 scope explanation. |
+| 2.0 | 2026-11-06 | Reworked for Theme 6; Sprint 2 and 3 allocation follows the theme's later-sprint list. |
+| 1.0 | 2026-11-06 | Initial (proposal domain, superseded). |
 
 ## Sprint overview
 
 | Sprint | Goal | Features | Depends on | Completion outcome | Checkpoint |
 |---|---|---|---|---|---|
-| 1 | Secure proposal lifecycle with UI, API and persistence | F-06, F-01, F-02, F-05, F-03, F-04 | none | Student logs in, submits, reloads and sees the saved proposal. Assigned Supervisor logs in, sees queue and workload, is stopped by an invalid rejection, then decides. Persisted records are visible only to permitted roles. BR-01 to BR-06 pass. | Deliverable 1, 8 Nov |
-| 2 (proposed) | Add progress collaboration to approved proposals | F-07, F-08 | Sprint 1 identity, ownership, proposal model | Approved proposals carry progress and discussion with agreed role boundaries and tests. | Deliverable 2, 29 Nov |
-| 3 (proposed) | Remaining features, integration, hardening | F-09, F-10, X-01 | Sprint 2 model; admin role decision for F-09 | Remaining features complete, access boundaries enforced, product hardened. | Progress 29 Nov, complete 13 Dec |
+| 1 | Small deployable product: auth, team-scoped access, and the milestone to submission to feedback slice | F-06, F-01, F-02, F-07, F-03, F-04, F-05 | none | Supervisor creates a milestone for a supervised team. A team member submits work and reads it back after reload. A late or duplicate submission is rejected. The supervisor records feedback; the team sees it. Another team sees nothing. | Deliverable 1, 8 Nov |
+| 2 (proposed) | Core expansion of milestone workflows | F-08 revisions and history, F-09 milestone management, F-10 grades | Sprint 1 release on `main` | Teams can revise within a policy with history preserved; supervisors manage milestones; grades follow a visibility rule. Integrated and tested. | Deliverable 2, 29 Nov |
+| 3 (proposed) | Completion and hardening | F-11 progress board and reports, F-12 search and filter, X-01 deployment, regression and defect fixes | Sprint 2 | Remaining features complete, failure handling and usability polished, regression suite green, released. | Progress 29 Nov, complete 13 Dec |
 
-Collectively the sprints cover every baseline requirement in the [SRS](../srs.md). Sprints 2 and 3 are candidates until authorized and specified; only Sprint 1 has detailed contracts.
+Together the sprints cover every baseline requirement (FR-01 to FR-12) in the [SRS](../srs.md). Only Sprint 1 has detailed contracts; Sprints 2 and 3 are proposed until authorized.
 
 ## Dependencies
 
-F-06 to F-01 to F-02 to F-05 to F-03 to F-04 inside Sprint 1. Sprint 2 needs the accepted Sprint 1 release on `main`. Sprint 3 needs Sprint 2 and, for F-09, a decision on whether an admin role exists. Docker, CI/CD and GCP deployment (X-01) land in Lab 5.
+Inside Sprint 1: F-06, then F-01, F-02, F-07, then F-03, F-04, F-05. Sprint 2 needs the accepted Sprint 1 release. F-10 needs F-05 and F-08. Sprint 3 needs Sprint 2 data. Docker, CI/CD and GCP deployment (X-01) land in Lab 5 on 15 Nov, before Deliverable 2, and are maintained afterwards.
 
-## Why Sprint 1 is feasible and what it contains
+## Sprint 1 scope and feasibility
 
-Sprint 1 is the smallest slice that proves the whole stack and the core rules: login, role enforcement, one real transaction (submit) and one real state transition with rules (review). It has six features and 41 acceptance criteria, two owners with swapped review, and no deployment work. Out of scope: self-registration, password recovery, admin UI, uploads, notifications, milestones, grading, Docker, CI/CD, GCP.
+Sprint 1 meets the Theme 6 minimum: authentication, authorization, UI to API to database persistence, one real transaction chain (create milestone, submit, feedback) and tested business rules (one submission, deadline, link validation, feedback comment, ownership). It has seven features, 41 acceptance criteria and two end-to-end journeys. Two owners review each other's work.
+
+Out of scope: self-registration, password recovery, grades, revisions, milestone editing, file upload, notifications, admin UI, Docker, CI/CD, GCP.
 
 ## Branching
 
-Each sprint has a staging branch and every feature branch comes from and returns to it, per [AGENTS.md](../../AGENTS.md). Sprint 1 integrates on the Sprint 1 staging branch, then a reviewed release PR goes to `main`.
+Each sprint has a staging branch; every feature branch comes from and returns to it, per [AGENTS.md](../../AGENTS.md). Sprint 1 integrates on `sprint-1-staging`, then a reviewed release PR goes to `main` and is tagged.
