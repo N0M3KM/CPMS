@@ -1,0 +1,298 @@
+# F-05 red run: new tests plus a permissive stub (src/feedback/policy.ts) and no feedback route yet
+
+
+> cpms@0.1.0 test
+> npm test -w server
+
+
+> cpms-server@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "cpms_test", schema "public" at "127.0.0.1:5433"
+
+1 migration found in prisma/migrations
+
+
+No pending migrations to apply.
+ ❯ tests/security.test.ts (34 tests | 1 failed) 1835ms
+   ❯ route matrix (SEC-06): every route is accounted for (1)
+     × has no unlisted route and every protected route returns 401 anonymously 68ms
+ ❯ tests/feedback-db.test.ts (11 tests | 9 failed) 5099ms
+   ❯ F-05 supervisor feedback (11)
+     × TEST-27 saves feedback linked to the submission and marks the milestone reviewed 510ms
+     × TEST-27 accepts 2000 characters, trims the comment and stores hostile text as data 458ms
+     × TEST-28 rejects invalid comments, spoofed fields and malformed IDs without storing anything 460ms
+     × TEST-29 keeps the first feedback when a second one arrives 457ms
+     × TEST-29 creates exactly one record for two simultaneous requests 465ms
+     × TEST-31 refuses students and anonymous callers and stores nothing 452ms
+     × TEST-32 shows feedback to the team and its supervisor only 455ms
+     × keeps auth, role and origin checks ahead of body errors on this route 456ms
+     × rejects an expired session 463ms
+ ❯ tests/feedback-policy.test.ts (17 tests | 8 failed) 8ms
+   ❯ feedbackSchema (BR-05) (17)
+     × trims the stored comment 3ms
+     × rejects empty 1ms
+     × rejects whitespace only 0ms
+     × rejects 9 characters 0ms
+     × rejects 9 characters padded with spaces 0ms
+     × rejects 2001 characters 0ms
+     × rejects NUL character 0ms
+     × rejects escape character 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/feedback-db.test.ts > F-05 supervisor feedback > TEST-27 saves feedback linked to the submission and marks the milestone reviewed
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/feedback-db.test.ts:68:74
+     66| describe('F-05 supervisor feedback', () => {
+     67|   it('TEST-27 saves feedback linked to the submission and marks the mi…
+     68|     const res = await give(OPEN_B, s1).send({ comment: 'c'.repeat(10) …
+       |                                                                          ^
+     69|     expect(res.body).toEqual({
+     70|       id: expect.any(String), submissionId: OPEN_B, comment: 'c'.repea…
+ ❯ Test._assertStatus ../node_modules/supertest/lib/test.js:404:14
+ ❯ ../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  tests/feedback-db.test.ts > F-05 supervisor feedback > TEST-27 accepts 2000 characters, trims the comment and stores hostile text as data
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/feedback-db.test.ts:80:91
+     78|
+     79|   it('TEST-27 accepts 2000 characters, trims the comment and stores ho…
+     80|     const long = await give(OPEN_C, s2).send({ comment: '  ' + 'c'.rep…
+       |                                                                                           ^
+     81|     expect(long.body.comment).toBe('c'.repeat(2000));
+     82|     const hostile = '<script>alert(1)</script> \'; DROP TABLE "User";-…
+ ❯ Test._assertStatus ../node_modules/supertest/lib/test.js:404:14
+ ❯ ../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  tests/feedback-db.test.ts > F-05 supervisor feedback > TEST-28 rejects invalid comments, spoofed fields and malformed IDs without storing anything
+Error: expected 400 "Bad Request", got 404 "Not Found"
+ ❯ tests/feedback-db.test.ts:97:63
+     95|     ];
+     96|     for (const body of bad) {
+     97|       const res = await give(OPEN_B, s1).send(body as object).expect(4…
+       |                                                               ^
+     98|       expect(res.body.error.code).toBe('VALIDATION_ERROR');
+     99|     }
+ ❯ Test._assertStatus ../node_modules/supertest/lib/test.js:404:14
+ ❯ ../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  tests/feedback-db.test.ts > F-05 supervisor feedback > TEST-29 keeps the first feedback when a second one arrives
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/feedback-db.test.ts:105:40
+    103|
+    104|   it('TEST-29 keeps the first feedback when a second one arrives', asy…
+    105|     await give(OPEN_B, s1).send(valid).expect(201);
+       |                                        ^
+    106|     const again = await give(OPEN_B, s1).send({ comment: 'A different …
+    107|     expect(again.body.error.code).toBe('FEEDBACK_EXISTS');
+ ❯ Test._assertStatus ../node_modules/supertest/lib/test.js:404:14
+ ❯ ../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  tests/feedback-db.test.ts > F-05 supervisor feedback > TEST-29 creates exactly one record for two simultaneous requests
+AssertionError: expected [ 404, 404 ] to deeply equal [ 201, 409 ]
+
+- Expected
++ Received
+
+  [
+-   201,
+-   409,
++   404,
++   404,
+  ]
+
+ ❯ tests/feedback-db.test.ts:116:49
+    114|   it('TEST-29 creates exactly one record for two simultaneous requests…
+    115|     const results = await Promise.all([give(OPEN_B, s1).send(valid), g…
+    116|     expect(results.map((r) => r.status).sort()).toEqual([201, 409]);
+       |                                                 ^
+    117|     expect(await prisma.feedback.count({ where: { submissionId: OPEN_B…
+    118|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  tests/feedback-db.test.ts > F-05 supervisor feedback > TEST-31 refuses students and anonymous callers and stores nothing
+Error: expected 403 "Forbidden", got 404 "Not Found"
+ ❯ tests/feedback-db.test.ts:132:56
+    130|   it('TEST-31 refuses students and anonymous callers and stores nothin…
+    131|     const before = await count();
+    132|     const student = await give(OPEN_B, b1).send(valid).expect(403);
+       |                                                        ^
+    133|     expect(student.body.error.code).toBe('FORBIDDEN');
+    134|     await give(OPEN_B, '').send(valid).expect(401);
+ ❯ Test._assertStatus ../node_modules/supertest/lib/test.js:404:14
+ ❯ ../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  tests/feedback-db.test.ts > F-05 supervisor feedback > TEST-32 shows feedback to the team and its supervisor only
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/feedback-db.test.ts:139:40
+    137|
+    138|   it('TEST-32 shows feedback to the team and its supervisor only', asy…
+    139|     await give(OPEN_B, s1).send(valid).expect(201);
+       |                                        ^
+    140|     for (const cookie of [b1, b2, s1]) {
+    141|       const res = await api.get(`/api/milestones/${MILESTONE_B}`).set(…
+ ❯ Test._assertStatus ../node_modules/supertest/lib/test.js:404:14
+ ❯ ../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  tests/feedback-db.test.ts > F-05 supervisor feedback > keeps auth, role and origin checks ahead of body errors on this route
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ tests/feedback-db.test.ts:152:39
+    150|   it('keeps auth, role and origin checks ahead of body errors on this …
+    151|     const broken = (cookie: string) => give(OPEN_B, cookie).type('json…
+    152|     expect((await broken('')).status).toBe(401);
+       |                                       ^
+    153|     expect((await broken(b1)).status).toBe(403);
+    154|     expect((await broken(s1)).status).toBe(400);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  tests/feedback-db.test.ts > F-05 supervisor feedback > rejects an expired session
+Error: expected 401 "Unauthorized", got 404 "Not Found"
+ ❯ tests/feedback-db.test.ts:173:40
+    171|   it('rejects an expired session', async () => {
+    172|     clock.advance(2 * 3_600_000);
+    173|     await give(OPEN_B, s1).send(valid).expect(401);
+       |                                        ^
+    174|   });
+    175| });
+ ❯ Test._assertStatus ../node_modules/supertest/lib/test.js:404:14
+ ❯ ../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+ FAIL  tests/feedback-policy.test.ts > feedbackSchema (BR-05) > trims the stored comment
+AssertionError: expected '   Good structure overall.   ' to be 'Good structure overall.' // Object.is equality
+
+Expected: "Good structure overall."
+Received: "   Good structure overall.   "
+
+ ❯ tests/feedback-policy.test.ts:13:51
+     11|   it('trims the stored comment', () => {
+     12|     const parsed = feedbackSchema.safeParse({ comment: '   Good struct…
+     13|     expect(parsed.success && parsed.data.comment).toBe('Good structure…
+       |                                                   ^
+     14|   });
+     15|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯
+
+ FAIL  tests/feedback-policy.test.ts > feedbackSchema (BR-05) > rejects empty
+ FAIL  tests/feedback-policy.test.ts > feedbackSchema (BR-05) > rejects whitespace only
+ FAIL  tests/feedback-policy.test.ts > feedbackSchema (BR-05) > rejects 9 characters
+ FAIL  tests/feedback-policy.test.ts > feedbackSchema (BR-05) > rejects 9 characters padded with spaces
+ FAIL  tests/feedback-policy.test.ts > feedbackSchema (BR-05) > rejects 2001 characters
+ FAIL  tests/feedback-policy.test.ts > feedbackSchema (BR-05) > rejects NUL character
+ FAIL  tests/feedback-policy.test.ts > feedbackSchema (BR-05) > rejects escape character
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/feedback-policy.test.ts:32:52
+     30|     ['unknown field id', { comment: 'Good structure overall.', id: 'x'…
+     31|   ])('rejects %s', (_name, body) => {
+     32|     expect(feedbackSchema.safeParse(body).success).toBe(false);
+       |                                                    ^
+     33|   });
+     34|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯
+
+ FAIL  tests/security.test.ts > route matrix (SEC-06): every route is accounted for > has no unlisted route and every protected route returns 401 anonymously
+AssertionError: expected [ 'GET /api/auth/me', …(9) ] to deeply equal [ 'GET /api/auth/me', …(10) ]
+
+- Expected
++ Received
+
+@@ -6,8 +6,7 @@
+    "GET /api/teams",
+    "GET /api/teams/:teamId",
+    "POST /api/auth/login",
+    "POST /api/auth/logout",
+    "POST /api/milestones/:milestoneId/submission",
+-   "POST /api/submissions/:submissionId/feedback",
+    "POST /api/teams/:teamId/milestones",
+  ]
+
+ ❯ tests/security.test.ts:335:20
+    333|       'POST /api/submissions/:submissionId/feedback': 'protected',
+    334|     };
+    335|     expect(routes).toEqual(Object.keys(matrix).sort());
+       |                    ^
+    336|     for (const [key, access] of Object.entries(matrix)) {
+    337|       if (access !== 'protected') continue;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯
+
+
+ Test Files  3 failed | 16 passed (19)
+      Tests  18 failed | 162 passed (180)
+   Start at  23:50:10
+   Duration  22.41s (tests 92%, import 8%)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+npm error workspace cpms-server@0.1.0
+npm error location /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+npm error command failed
+npm error command sh -c vitest run
