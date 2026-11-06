@@ -1,0 +1,9 @@
+{
+  "name": "cpms-deliverable-builder",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Builds the single self-contained Deliverable 1 PDF from the repository documents and recorded evidence.",
+  "scripts": { "build": "node build.mjs" },
+  "dependencies": { "marked": "^15.0.0", "mermaid": "^11.4.0" }
+}

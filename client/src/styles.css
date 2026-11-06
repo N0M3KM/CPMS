@@ -1,0 +1,56 @@
+:root {
+  --text: #17243b;
+  --page: #edf2fa;
+  --surface: #fff;
+  --accent: #184995;
+  --pending: #4e6282;
+  --error: #a02032;
+  color: var(--text);
+  background: var(--page);
+  font: 100%/1.5 system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+.shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 1.25rem;
+}
+.card {
+  width: min(100%, 28rem);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  border: 1px solid #bccce3;
+  border-radius: 1rem;
+  background: var(--surface);
+}
+.workspace-card { width: min(100%, 52rem); overflow-wrap: anywhere; }
+h1 { margin: 0.25rem 0 0; line-height: 1.2; }
+p { margin: 0.5rem 0 1rem; }
+.brand { color: var(--accent); font-weight: 750; letter-spacing: 0.08em; }
+a { color: var(--accent); }
+form { display: grid; gap: 0.55rem; }
+label { font-weight: 650; margin-top: 0.4rem; }
+input, textarea, button { font: inherit; border-radius: 0.45rem; padding: 0.65rem 0.8rem; }
+input, textarea { width: 100%; border: 1px solid #637895; color: inherit; }
+input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--error); }
+button {
+  border: 1px solid transparent;
+  color: var(--surface);
+  background: var(--accent);
+  font-weight: 650;
+  cursor: pointer;
+}
+form button { margin-top: 0.6rem; }
+button:disabled { cursor: wait; background: var(--pending); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.error { margin: 0; color: var(--error); }
+.account-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+.view-list { padding: 0; list-style: none; }
+.view-list > li { border-top: 1px solid #bccce3; padding: 0.75rem 0; }
+.view-list h3 { margin: 0 0 0.5rem; }
+.progress-list { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; padding: 0; list-style: none; }
+.status-badge { display: inline-block; padding: 0.1rem 0.55rem; border-radius: 0.45rem; background: var(--page); }
+.view-description { white-space: pre-wrap; }
+.milestone-fields { display: grid; gap: 0.55rem; margin: 0; padding: 0; border: 0; min-width: 0; }

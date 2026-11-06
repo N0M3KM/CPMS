@@ -1,0 +1,155 @@
+# Red run for review findings 1 and 2 (tests added before the fixes)
+# Tested on top of commit 2e8c38a with the new tests uncommitted.
+
+
+> cpms@0.1.0 test
+> npm test -w server
+
+
+> cpms-server@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "cpms_test", schema "public" at "127.0.0.1:5433"
+
+1 migration found in prisma/migrations
+
+
+No pending migrations to apply.
+ ❯ tests/security.test.ts (34 tests | 3 failed) 1829ms
+   ❯ request-check ordering: auth and role come before body parsing (review finding 1) (4)
+     × logout without a session returns 401 even with a malformed JSON body 58ms
+     × an anonymous request gets 401 before a non-JSON body (415) or an oversized body (413) 56ms
+     × a wrong-role request gets 403 before a malformed, oversized or non-JSON body 57ms
+ ❯ tests/scope.test.ts (5 tests | 1 failed) 5ms
+   ❯ AuthorizedTeamAccess (3)
+     × returns the generic validation error for a malformed team ID and never queries (review finding 2) 2ms
+ ❯ tests/team-access-db.test.ts (4 tests | 1 failed) 153ms
+   ❯ team scope against PostgreSQL (BR-06) (4)
+     × treats SQL-looking ids as data, never as a query 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/scope.test.ts > AuthorizedTeamAccess > returns the generic validation error for a malformed team ID and never queries (review finding 2)
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/scope.test.ts:39:40
+     37|       const err = await access.requireTeam({ userId: 'u1', role: 'STUD…
+     38|       expect(err).toBeInstanceOf(AppError);
+     39|       expect((err as AppError).status).toBe(400);
+       |                                        ^
+     40|       expect((err as AppError).code).toBe('VALIDATION_ERROR');
+     41|       expect((err as AppError).message).not.toContain(bad || 'x');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/security.test.ts > request-check ordering: auth and role come before body parsing (review finding 1) > logout without a session returns 401 even with a malformed JSON body
+AssertionError: expected 400 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 400
+
+ ❯ tests/security.test.ts:204:24
+    202|     const { api } = await createFixture({ mountRoutes });
+    203|     const res = await api.post('/api/auth/logout').set('Origin', ORIGI…
+    204|     expect(res.status).toBe(401);
+       |                        ^
+    205|     expect(res.body).toEqual(envelope('UNAUTHENTICATED'));
+    206|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/security.test.ts > request-check ordering: auth and role come before body parsing (review finding 1) > an anonymous request gets 401 before a non-JSON body (415) or an oversized body (413)
+AssertionError: expected 415 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 415
+
+ ❯ tests/security.test.ts:213:63
+    211|     const big = await api.post('/api/probe/supervisor-only').set('Orig…
+    212|     const broken = await api.post('/api/probe/supervisor-only').set('O…
+    213|     for (const res of [form, big, broken]) expect(res.status).toBe(401…
+       |                                                               ^
+    214|   });
+    215|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/security.test.ts > request-check ordering: auth and role come before body parsing (review finding 1) > a wrong-role request gets 403 before a malformed, oversized or non-JSON body
+AssertionError: expected 400 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 400
+
+ ❯ tests/security.test.ts:224:26
+    222|     const form = await api.post('/api/probe/supervisor-only').set('Ori…
+    223|     for (const res of [broken, big, form]) {
+    224|       expect(res.status).toBe(403);
+       |                          ^
+    225|       expect(res.body).toEqual(envelope('FORBIDDEN'));
+    226|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/team-access-db.test.ts > team scope against PostgreSQL (BR-06) > treats SQL-looking ids as data, never as a query
+AssertionError: expected AppError: Not found. { …(2) } to match object { status: 400, …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "code": "VALIDATION_ERROR",
+-   "status": 400,
++ AppError {
++   "code": "NOT_FOUND",
++   "status": 404,
+  }
+
+ ❯ tests/team-access-db.test.ts:56:64
+     54|
+     55|   it('treats SQL-looking ids as data, never as a query', async () => {
+     56|     await expect(access.requireTeam(student(11), "' OR 1=1--")).reject…
+       |                                                                ^
+     57|     expect(await prisma.team.count()).toBe(3);
+     58|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  3 failed | 9 passed (12)
+      Tests  5 failed | 83 passed (88)
+   Start at  22:32:38
+   Duration  7.02s (tests 90%, import 8%, transform 1%)
+
+    Isolate  12 workers spawned · ~47ms startup each (spawn + environment, per file)
+             at least ~515ms faster with isolate: false — reuses workers across files instead of one per file
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+npm error workspace cpms-server@0.1.0
+npm error location /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+npm error command failed
+npm error command sh -c vitest run
