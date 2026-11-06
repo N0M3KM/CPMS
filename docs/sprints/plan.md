@@ -25,7 +25,7 @@ F-06 to F-01 to F-02 to F-05 to F-03 to F-04 inside Sprint 1. Sprint 2 needs the
 
 ## Why Sprint 1 is feasible and what it contains
 
-Sprint 1 is the smallest slice that proves the whole stack and the core rules: login, role enforcement, one real transaction (submit) and one real state transition with rules (review). It has six features and 35 acceptance criteria, two owners with swapped review, and no deployment work. Out of scope: self-registration, password recovery, admin UI, uploads, notifications, milestones, grading, Docker, CI/CD, GCP.
+Sprint 1 is the smallest slice that proves the whole stack and the core rules: login, role enforcement, one real transaction (submit) and one real state transition with rules (review). It has six features and 41 acceptance criteria, two owners with swapped review, and no deployment work. Out of scope: self-registration, password recovery, admin UI, uploads, notifications, milestones, grading, Docker, CI/CD, GCP.
 
 ## Branching
 

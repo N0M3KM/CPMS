@@ -8,6 +8,8 @@ Repository-wide working, Git, security, and review rules are in [AGENTS.md](../A
 - [Feature inventory](features.md) and [traceability](traceability.md): Part B.
 - [System SDS](system-sds.md): Part C, architecture, data model, API, permissions, auth, config, deployment.
 - [Three-sprint plan](sprints/plan.md): Part D.
+- [Product architecture plan](architecture.md): modules and patterns for all features.
+- [Security test plan](security-test-plan.md): SEC-01 to SEC-20.
 
 ## Sprint 1 (Part E)
 

@@ -27,6 +27,12 @@ Test IDs are planned identifiers. No test file exists or has run yet.
 | NFR-04 | F-05 | 1 | AC-34 | TEST-34 |
 | NFR-05 | F-05 | 1 | AC-35 | TEST-35 |
 | NFR-06 | F-06, X-01 | 1, Lab 5 | AC-29, AC-30 (env only) | TEST-29, TEST-30; clean-clone run |
+| NFR-07 | F-02, F-03, F-04 | 1 | AC-36 | TEST-36 (SEC cases in the [security plan](security-test-plan.md)) |
+| NFR-08 | F-02 | 1 | AC-37 | TEST-37 (SEC cases in the [security plan](security-test-plan.md)) |
+| NFR-09 | F-01 | 1 | AC-38 | TEST-38 (SEC cases in the [security plan](security-test-plan.md)) |
+| NFR-10 | F-01, F-02 | 1 | AC-39 | TEST-39 (SEC cases in the [security plan](security-test-plan.md)) |
+| NFR-11 | F-02, F-05 | 1 | AC-40 | TEST-40 (SEC cases in the [security plan](security-test-plan.md)) |
+| NFR-12 | F-06, F-02 | 1 | AC-41 | TEST-41 (SEC cases in the [security plan](security-test-plan.md)) |
 | FR-07 | F-07 | 2 | Not yet written | Not yet written |
 | FR-08 | F-08 | 2 | Not yet written | Not yet written |
 | FR-09 | F-09 | 3 | Not yet written | Not yet written |
@@ -45,9 +51,8 @@ Later-sprint rows need a feature and sprint now, not elaborated AC or tests.
 
 - FR-07 to FR-10 and F-07 to F-10 are proposed only; no AC or tests until a sprint is authorized.
 - `group_work_specs.docx` was not available; theme requirements may add rows (SRS D-07).
-- The 403-versus-404 policy (SRS D-05) is open; tests accept either with no private data.
 - NFR-05 needs its measurement environment recorded when run.
 
 ## Approved changes
 
-None recorded. Renaming `A01..A35` / `T01..T35` to `AC-01..AC-35` / `TEST-01..TEST-35` is an editorial change, noted in the [Sprint 1 version history](sprints/sprint-1/sts.md#version-history).
+Approved 2026-11-06: NFR-07 to NFR-12 (security) in Sprint 1, and uniform 404 for inaccessible proposals (SRS D-05). Renaming `A01..A35` / `T01..T35` to `AC-01..AC-35` / `TEST-01..TEST-35` is an editorial change, noted in the [Sprint 1 version history](sprints/sprint-1/sts.md#version-history).

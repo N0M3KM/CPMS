@@ -8,6 +8,7 @@
 | Version | Date | Change |
 |---|---|---|
 | 0.1 to 0.6 | 2026-11-05 to 2026-11-06 | Drafts as `docs/sprints/sprint-1/specification.md`. |
+| 1.1 | 2026-11-06 | Added AC-36 to AC-41 and TEST-36 to TEST-41 for approved NFR-07 to NFR-12; DoD extended. |
 | 1.0 | 2026-11-06 | Split into per-feature contracts and this STS. Renamed `A01..A35` to `AC-01..AC-35` and `T01..T35` to `TEST-01..TEST-35` (editorial, no behavior change). Moved FR/BR/NFR to the SRS. Added F-06 contract and `NFR-06`. |
 
 ## Software Test Specification
@@ -52,7 +53,27 @@ Test IDs are planned. No test file exists and nothing has run. Levels: unit, API
 | TEST-34 | AC-34 | Unit or documented check | Final tokens | Compute contrast | Ratios at least 4.5:1 |
 | TEST-35 | AC-35 | Manual | Local seeded env | Time auth, list, detail, submit, review | Method, conditions and latency recorded; typical under 500 ms |
 
-Every AC-01 to AC-35 maps to at least one test above.
+### Security acceptance criteria and tests (NFR-07 to NFR-12)
+
+Detailed cases are in the [security test plan](../../security-test-plan.md). Each TEST below is the group of `SEC` cases that verifies the AC.
+
+| Test | AC | Requirement | Cases | Expected result |
+|---|---|---|---|---|
+| TEST-36 | AC-36 | NFR-07 | SEC-01, 02, 04, 11, 12 | XSS, SQL, SSRF, traversal and command payloads have no effect; no private or system data returned |
+| TEST-37 | AC-37 | NFR-08 | SEC-03 | Foreign Origin or non-JSON state-changing request rejected |
+| TEST-38 | AC-38 | NFR-09 | SEC-07, 09, 10 | No username enumeration, no login flow bypass or redirect, fresh session ID, tampered cookies rejected |
+| TEST-39 | AC-39 | NFR-10 | SEC-08, 16 | 429 with `Retry-After` after threshold; normal use unaffected |
+| TEST-40 | AC-40 | NFR-11 | SEC-05, 06, 13, 14, 15 | Unknown fields rejected; responses contain whitelisted fields only; BOLA matrix denied |
+| TEST-41 | AC-41 | NFR-12 | SEC-17, 18, 19, 20 | Headers, CORS, size cap, clean dependency audit, no secrets |
+
+- **AC-36:** Hostile input cannot cause script, SQL, command, file-path or server-side request effects.
+- **AC-37:** State-changing requests from a foreign Origin or with a non-JSON body are rejected.
+- **AC-38:** Login reveals nothing about registered emails, ignores extra fields and redirect inputs, issues a fresh session ID, and tampered cookies fail.
+- **AC-39:** Repeated failed logins and request bursts are throttled with 429.
+- **AC-40:** Unknown request fields are rejected and responses expose only whitelisted fields.
+- **AC-41:** Security headers, strict CORS, body cap, clean audit and no secrets in repo or bundle.
+
+Every AC-01 to AC-41 maps to at least one test above.
 
 ## TDD expectations
 
@@ -61,7 +82,7 @@ For BR-01 (TEST-11, TEST-12), BR-02 (TEST-19), BR-03 (TEST-17), BR-04 (TEST-21) 
 ## Product Definition of Done
 
 - F-01 to F-06 implemented to these contracts; BR-01 to BR-06 enforced on the backend.
-- Every AC-01 to AC-35 verified by its mapped test; actual results, counts, commands and tested commit recorded.
+- Every AC-01 to AC-41 verified by its mapped test; actual results, counts, commands and tested commit recorded.
 - Real login, logout and `me`; two roles; a persisted submit and a persisted review through UI, API and database.
 - Loading, empty, error and success states present; contrast and timing evidence recorded.
 - Additive migration, idempotent seed, env-only secrets, health and ready endpoints work from a clean clone using the README.

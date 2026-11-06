@@ -8,6 +8,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-11-06 | Approved NFR-07 to NFR-12 for Sprint 1; decided D-05 as uniform 404. |
 | 1.0 | 2026-11-06 | Split out of the former project plan and Sprint 1 specification. Renamed AC/test IDs to `AC-nn` / `TEST-nn`. Added proposed FR-07 to FR-10 for Sprints 2 and 3 (unapproved). |
 
 ## 1. Stakeholder problem and context
@@ -80,6 +81,19 @@ FR-07 to FR-10 are placeholders so the three sprints cover a whole-product basel
 | NFR-05 | Typical API responses take under 500 ms on local seeded data. | Manual timing record with endpoint and conditions (TEST-35) | 1 |
 | NFR-06 | The app builds and runs from environment variables alone, with no secrets in Git or client code. | Review of `.env.example` and a clean-clone setup run | 1, re-verified in Lab 5 |
 
+### Security NFRs (approved 2026-11-06 for Sprint 1)
+
+| ID | Requirement and measurable target | Verification | Sprint |
+|---|---|---|---:|
+| NFR-07 | User-supplied input cannot cause script execution, SQL, command, file-path or server-side request effects. | SEC-01, 02, 04, 11, 12 | 1 |
+| NFR-08 | State-changing requests from a foreign `Origin` or non-JSON body are rejected. | SEC-03 | 1 |
+| NFR-09 | Login does not reveal whether an email is registered, ignores unanticipated fields and redirect inputs, and issues a fresh session ID; tampered cookies are rejected. | SEC-07, 09, 10 | 1 |
+| NFR-10 | Repeated failed logins and request bursts are throttled with 429 (proposed: 5 failures per 15 min per IP and email; 100 requests per minute per IP). | SEC-08, 16 | 1 |
+| NFR-11 | Request schemas reject unknown fields; responses contain only whitelisted fields. | SEC-13, 14 | 1 |
+| NFR-12 | Security headers, strict CORS, body size cap and no high or critical dependency vulnerabilities. | SEC-17, 18, 19 | 1 |
+
+See the [security test plan](security-test-plan.md) and the [architecture plan](architecture.md).
+
 ## 7. Assumptions, decisions and open questions
 
 | ID | Decision or assumption | Status |
@@ -88,7 +102,7 @@ FR-07 to FR-10 are placeholders so the three sprints cover a whole-product basel
 | D-02 | Accounts are seeded; no self-registration or recovery. | Decided (brief, course PDF) |
 | D-03 | Authentication uses database-backed expiring sessions in a secure cookie. | Decided (brief) |
 | D-04 | Rejected proposals stay as history and allow resubmission when no active proposal exists. | Decided (BR-01) |
-| D-05 | An inaccessible proposal ID may return 403 or 404, provided no private data is returned. | Open; either compliant. Pick one before implementing F-02. |
+| D-05 | Another user's proposal and a nonexistent proposal both return the same 404 body (no existence leak). 403 remains for wrong role. | Decided 2026-11-06 |
 | D-06 | Sprint order is dependency-driven; no calendar or effort estimates are fixed beyond course checkpoints. | Decided |
 | D-07 | `group_work_specs.docx` was not available. | Open gap; reconcile if obtained |
 | D-08 | Email is unique and compared case-insensitively. | Proposed; brief is silent |

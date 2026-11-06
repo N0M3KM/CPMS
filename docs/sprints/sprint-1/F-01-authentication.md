@@ -1,6 +1,6 @@
 # F-01 Authentication and current user
 
-**Owner:** Drarun 1016 · **Reviewer:** Jinnakan 1010 · **Requirements:** FR-01, NFR-01, NFR-02, NFR-03 · **Depends on:** F-06
+**Owner:** Drarun 1016 · **Reviewer:** Jinnakan 1010 · **Requirements:** FR-01, NFR-01, NFR-02, NFR-03, NFR-09, NFR-10 · **Depends on:** F-06
 
 ## Behavior and workflow
 
@@ -33,5 +33,7 @@ Uses `User` and `Session` from the [system SDS](../../system-sds.md). Migration 
 - **AC-03:** Invalid email or password returns generic 401, creates no session, and discloses nothing.
 - **AC-04:** `me` returns the session user while valid; after logout or expiry the session cannot reach protected routes (401).
 - **AC-32:** The database stores only bcrypt hashes, never plaintext.
+- **AC-38:** Login does not reveal registered emails (same status, body and timing), ignores extra fields and redirect inputs, issues a fresh session ID, and rejects tampered cookies.
+- **AC-39:** Repeated failed logins are throttled with 429 (5 failures per 15 minutes per IP and email, placeholder); behavior is the same for unknown emails.
 
-Tests: TEST-01 to TEST-04, TEST-32 in the [STS](sts.md).
+Tests: TEST-01 to TEST-04, TEST-32, TEST-38, TEST-39 in the [STS](sts.md).
