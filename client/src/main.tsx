@@ -105,7 +105,7 @@ function App() {
             <Route path="/teams/:teamId" element={renderSignedIn(
               'Team detail', <TeamView canCreate={user?.role === 'SUPERVISOR'} />,
             )} />
-            <Route path="/milestones/:milestoneId" element={renderSignedIn('Milestone detail', <MilestoneView />)} />
+            <Route path="/milestones/:milestoneId" element={renderSignedIn('Milestone detail', <MilestoneView canSubmit={user?.role === 'STUDENT'} />)} />
             <Route path="*" element={<Navigate replace to={destination} />} />
           </Routes>
         )}

@@ -12,6 +12,10 @@ Rules:
 - BR-01: one submission per milestone. The unique index on `milestoneId` makes concurrent submits by two members safe; the loser gets 409 `DUPLICATE_SUBMISSION`.
 - BR-07: Supervisors cannot submit.
 
+Order of checks (decided in implementation): auth (401), role (403), body syntax and size (400, 413, 415), field validation (400), milestone not yours or missing (404), already submitted (409 `DUPLICATE_SUBMISSION`), deadline passed (409 `DEADLINE_PASSED`). A milestone that is both submitted and past due reports the duplicate.
+
+Titles and links reject control characters; the description allows tab and newline; titles and descriptions are trimmed before their length is checked. Links with embedded credentials (`user:pw@`) are rejected.
+
 Failure cases: invalid fields or link (400); no session (401); Supervisor (403); non-member or nonexistent milestone (uniform 404); duplicate or late (409). Nothing is stored on failure.
 
 ## UI
@@ -42,3 +46,9 @@ Creates a `Submission` row. The migration adds the table, unique index on `miles
 - **AC-26:** A Supervisor attempting to submit gets 403 and nothing is stored (BR-07).
 
 Tests: TEST-21 to TEST-26 and TEST-42 (E2E) in the [STS](sts.md). TDD evidence is required for BR-01, BR-02 and the link rule.
+
+## Version history
+
+| Date | Change |
+|---|---|
+| 2026-11-06 | Recorded the order of checks, control-character and embedded-credential rules, and trimming. |

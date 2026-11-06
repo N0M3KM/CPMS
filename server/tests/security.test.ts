@@ -313,7 +313,11 @@ describe('AC-16 headers, CORS and size limits (NFR-12)', () => {
 describe('route matrix (SEC-06): every route is accounted for', () => {
   it('has no unlisted route and every protected route returns 401 anonymously', async () => {
     const { listRoutes } = await import('./helpers/routes.js');
-    const { app, api } = await createFixture();
+    const { mountFeatureRoutes } = await import('../src/routes.js');
+    // The real composition with a stub database: anonymous requests are stopped before any query.
+    const { app, api } = await createFixture({
+      mountRoutes: (a, kit) => mountFeatureRoutes(a, kit, {} as never, { now: () => new Date() }),
+    });
     const routes = listRoutes(app, ['/api/auth']);
     const matrix: Record<string, 'public' | 'protected'> = {
       'GET /api/health': 'public',
@@ -321,13 +325,18 @@ describe('route matrix (SEC-06): every route is accounted for', () => {
       'POST /api/auth/login': 'public',
       'GET /api/auth/me': 'protected',
       'POST /api/auth/logout': 'protected',
+      'GET /api/teams': 'protected',
+      'GET /api/teams/:teamId': 'protected',
+      'POST /api/teams/:teamId/milestones': 'protected',
+      'GET /api/milestones/:milestoneId': 'protected',
+      'POST /api/milestones/:milestoneId/submission': 'protected',
     };
     expect(routes).toEqual(Object.keys(matrix).sort());
     for (const [key, access] of Object.entries(matrix)) {
       if (access !== 'protected') continue;
-      const [method, path] = key.split(' ') as ['GET' | 'POST', string];
-      const req = method === 'GET' ? api.get(path) : api.post(path).set('Origin', ORIGIN);
-      const res = await req;
+      const [method, rawPath] = key.split(' ') as ['GET' | 'POST', string];
+      const path = rawPath.replace(/:\w+/g, '99999999-9999-4999-8999-999999999999');
+      const res = await (method === 'GET' ? api.get(path) : api.post(path).set('Origin', ORIGIN));
       expect(res.status, key).toBe(401);
       expect(res.body, key).toEqual(envelope('UNAUTHENTICATED'));
     }

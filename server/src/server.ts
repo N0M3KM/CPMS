@@ -1,21 +1,17 @@
 import { prismaAuthStore } from './auth/store.js';
-import { mountMilestoneWrites } from './milestones/routes.js';
 import { createApp } from './platform/app.js';
 import { systemClock } from './platform/clock.js';
 import { loadConfig } from './platform/config.js';
 import { createPrisma, dbChecker } from './platform/db.js';
 import { prismaTeamAccess } from './security/team-access.js';
-import { mountScopedViews } from './views/routes.js';
+import { mountFeatureRoutes } from './routes.js';
 
 const config = loadConfig(process.env);
 const prisma = createPrisma(config.databaseUrl);
 const app = createApp({
   checkDb: dbChecker(prisma),
   teamAccess: prismaTeamAccess(prisma),
-  mountRoutes(app, security) {
-    mountScopedViews(app, security, prisma, systemClock);
-    mountMilestoneWrites(app, security, prisma, systemClock);
-  },
+  mountRoutes: (app, security) => mountFeatureRoutes(app, security, prisma, systemClock),
   auth: {
     store: prismaAuthStore(prisma),
     clock: systemClock,

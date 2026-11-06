@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { User } from './auth-api';
 import { NewMilestoneForm } from './NewMilestoneForm';
+import { SubmitWorkForm } from './SubmitWorkForm';
 
 const statusLabels = {
   NOT_SUBMITTED: 'Not submitted',
@@ -183,11 +184,11 @@ function SubmissionLink({ value }: { value: string }) {
   return <span>{value}</span>;
 }
 
-export function MilestoneView() {
+export function MilestoneView({ canSubmit = false }: { canSubmit?: boolean }) {
   const { milestoneId = '' } = useParams();
   return (
     <DataView<Milestone> key={milestoneId} path={`/milestones/${encodeURIComponent(milestoneId)}`}>
-      {milestone => (
+      {(milestone, reload) => (
         <section aria-labelledby="milestone-name">
           <Link to={`/teams/${milestone.teamId}`}>Back to team</Link>
           <h2 id="milestone-name">{milestone.title}</h2>
@@ -210,7 +211,9 @@ export function MilestoneView() {
                 </>
               ) : <p>No feedback yet.</p>}
             </>
-          ) : <p>No submission yet.</p>}
+          ) : milestone.status === 'OVERDUE' ? <p>The deadline has passed and no work was submitted.</p>
+            : canSubmit ? <SubmitWorkForm milestoneId={milestone.id} onSubmitted={reload} />
+            : <p>No submission yet.</p>}
         </section>
       )}
     </DataView>
