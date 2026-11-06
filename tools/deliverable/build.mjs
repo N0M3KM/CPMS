@@ -15,6 +15,7 @@ const inputs = existsSync(join(here, 'inputs.json')) ? readJson(join(here, 'inpu
 const TESTED = read(join(EV, 'commit.txt')).trim();
 const SHA = (process.env.RELEASE_SHA ?? TESTED).trim();
 const TAG = (process.env.RELEASE_TAG ?? '').trim();
+const BRANCH = (process.env.RELEASE_BRANCH ?? '').trim();
 const REPO_URL = 'https://github.com/N0M3KM/CPMS';
 const docs = (rel) => read(join(repo, 'docs', rel));
 const short = (s) => s.slice(0, 7);
@@ -109,6 +110,7 @@ function partF() {
   const e2eLines = e2eText.split('\n').filter((l) => /✓|✘|passed|failed/.test(l)).join('\n');
   const releaseLine = releasedToMain
     ? `Release tag <code>${esc(TAG)}</code> on <code>main</code>, commit <code>${esc(SHA)}</code>.`
+    : BRANCH ? `<b>Submitted version:</b> commit <code>${esc(SHA)}</code> on branch <code>${esc(BRANCH)}</code> (no tag; not merged into <code>main</code>). Evidence below`
     : `<b>Not yet released to <code>main</code>.</b> Evidence below was collected on commit <code>${esc(TESTED)}</code>; the release PR from <code>sprint-1-staging</code> to <code>main</code> and its tag are recorded when it is merged.`;
 
   out.push(heading(1, 'Part F — Working Sprint 1 and verification'));
@@ -290,7 +292,7 @@ npm run test:e2e            # two browser journeys on cpms_test (resets and re-s
       ['Substantive review', `<i>${esc(people[firstChange?.author.login]?.name.split(' ')[0] ?? '')} (${esc((firstChange?.state ?? '').toLowerCase().replace('_', ' '))}, ${esc((firstChange?.submittedAt ?? '').slice(0, 10))}):</i> ${q(firstChange)}`],
       ['Approval', last ? `<i>${esc(people[last.author.login]?.name.split(' ')[0])} (approved, ${esc(last.submittedAt.slice(0, 10))}):</i> ${q(last)}` : '—'],
       ['Integration', `Merged into <code>sprint-1-staging</code> on ${esc((d.mergedAt ?? '').slice(0, 10))} by ${esc(people[d.mergedBy?.login]?.name ?? '')}, merge commit <code>${esc(short(d.mergeCommit?.oid ?? ''))}</code>.`],
-      ['Release to main', releasedToMain ? `Tag <code>${esc(TAG)}</code>, commit <code>${esc(SHA)}</code>.` : 'Pending at the time of this evidence run.'],
+      ['Release to main', releasedToMain ? `Tag <code>${esc(TAG)}</code>, commit <code>${esc(SHA)}</code>.` : BRANCH ? `Not merged into <code>main</code>. The Sprint 1 increment is submitted as commit <code>${esc(short(SHA))}</code> on branch <code>${esc(BRANCH)}</code>.` : 'Pending at the time of this evidence run.'],
     ]);
   };
   out.push(sample(14, 2, 'F-02; FR-02; BR-06, BR-07; NFR-01, NFR-03, NFR-07 to NFR-12; AC-08 to AC-16; TEST-08 to TEST-16'));
@@ -328,7 +330,7 @@ npm run test:e2e            # two browser journeys on cpms_test (resets and re-s
   // F.9 limitations
   out.push(heading(2, 'F.9 Known limitations and incomplete work'));
   const items = [
-    `Release record: ${releasedToMain ? `released to main as ${TAG}.` : 'the release PR from sprint-1-staging to main and the tag were not yet done when this evidence was collected.'}`,
+    `Release record: ${releasedToMain ? `released to main as ${TAG}.` : BRANCH ? `the submitted version is commit ${short(SHA)} on branch ${BRANCH}; it has no tag and has not been merged into main, so the course requirement of an accepted release on main is not met by this record.` : 'the release PR from sprint-1-staging to main and the tag were not yet done when this evidence was collected.'}`,
     'Failed or skipped tests: none in the recorded run (0 failed, 0 skipped). The local-secrets check in secrets.test.ts skips automatically if no .env file exists.',
     'Partial verification (see F.4): AC-06 timing parity (sampled by hand), AC-13 browser rendering of hostile text, AC-38 loading and error UI states (no automated test, no empty-state screenshot), AC-41 hidden UI actions (checked for the student milestone form only). AC-40 is a manual check.',
     'Test-first evidence differs by feature: F-05 has genuine separate red and green commits (bd010cb, 860f442); F-04 has separate red and green commits but its recorded red run failed in test setup for the database tests (login throttle 429), so the deadline rule relies on a reconstructed red run (evidence/F-04-red-reconstructed.txt); the review fixes to F-02 do too; for F-02 TEST-09 to TEST-11 only a labelled reconstruction exists (process exception in evidence/F-02.md, team decision still marked pending there); F-01, F-03 and F-06 evidence records the failing run in prose or output files without separate red commits; the Playwright journeys, contrast test and latency script were added after the implementation.',
@@ -348,7 +350,7 @@ npm run test:e2e            # two browser journeys on cpms_test (resets and re-s
     ['C. System-Level SDS', 'Part C; <code>docs/system-sds.md</code>', 'Architecture, data model, API, role matrix, auth, config, deployment; v2.1', 'Implemented as designed for Sprint 1; deployment is a plan (Lab 5)'],
     ['D. Three-sprint plan', 'Part D; <code>docs/sprints/plan.md</code>, <code>docs/sprints/sprint-1/plan.md</code>', 'Sprints 1 to 3; v2.1', 'Sprint 1 delivered; Sprints 2 and 3 planned'],
     ['E. Sprint 1 contracts', 'Part E; <code>docs/sprints/sprint-1/</code>', 'F-01 to F-07, AC-01 to AC-41, TEST-01 to TEST-43, DoD', 'See F.4 and F.5'],
-    ['F. Working release', 'Part F; <code>tools/deliverable/</code>, <code>docs/sprints/sprint-1/evidence/</code>', `Commit ${short(TESTED)}${releasedToMain ? `, tag ${TAG}` : ' (not yet released)'}`, `${totals.pass} of ${totals.tests} tests and 2 of 2 journeys passed`],
+    ['F. Working release', 'Part F; <code>tools/deliverable/</code>, <code>docs/sprints/sprint-1/evidence/</code>', `Commit ${short(TESTED)}${releasedToMain ? `, tag ${TAG}` : BRANCH ? `, branch ${BRANCH} (no tag)` : ' (not yet released)'}`, `${totals.pass} of ${totals.tests} tests and 2 of 2 journeys passed`],
   ]));
   return out.join('\n');
 }
@@ -403,6 +405,7 @@ function frontMatter(pageOf) {
   ]);
   const releaseText = releasedToMain
     ? `Tag <code>${esc(TAG)}</code>, commit <code>${esc(SHA)}</code> on <code>main</code>`
+    : BRANCH ? `Commit <code>${esc(SHA)}</code> on branch <code>${esc(BRANCH)}</code> (no tag; not merged into <code>main</code>)`
     : `<b>Release candidate</b> commit <code>${esc(SHA)}</code>; <b>not yet released to main</b> (no tag)`;
   return `
 <div class="cover">
@@ -420,7 +423,7 @@ function frontMatter(pageOf) {
     ['Roles in Sprint 1', 'Student and Supervisor (seeded accounts)'],
     ['Due', '8 November 2026, 23:59 (LEB2)'],
   ])}
-  ${releasedToMain ? '' : '<div class="box warn">This copy was built before the release PR to <code>main</code> was merged. Rebuild after the release tag exists.</div>'}
+  ${releasedToMain || BRANCH ? '' : '<div class="box warn">This copy was built before the release PR to <code>main</code> was merged. Rebuild after the release tag exists.</div>'}
 </div>
 <h1>Navigation table</h1>
 <p>Page numbers are positions in this PDF.</p>
