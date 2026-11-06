@@ -1,4 +1,5 @@
 import { prismaAuthStore } from './auth/store.js';
+import { mountMilestoneWrites } from './milestones/routes.js';
 import { createApp } from './platform/app.js';
 import { systemClock } from './platform/clock.js';
 import { loadConfig } from './platform/config.js';
@@ -11,7 +12,10 @@ const prisma = createPrisma(config.databaseUrl);
 const app = createApp({
   checkDb: dbChecker(prisma),
   teamAccess: prismaTeamAccess(prisma),
-  mountRoutes: (app, security) => mountScopedViews(app, security, prisma, systemClock),
+  mountRoutes(app, security) {
+    mountScopedViews(app, security, prisma, systemClock);
+    mountMilestoneWrites(app, security, prisma, systemClock);
+  },
   auth: {
     store: prismaAuthStore(prisma),
     clock: systemClock,

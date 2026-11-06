@@ -32,9 +32,9 @@ p { margin: 0.5rem 0 1rem; }
 a { color: var(--accent); }
 form { display: grid; gap: 0.55rem; }
 label { font-weight: 650; margin-top: 0.4rem; }
-input, button { font: inherit; border-radius: 0.45rem; padding: 0.65rem 0.8rem; }
-input { width: 100%; border: 1px solid #637895; color: inherit; }
-input[aria-invalid="true"] { border-color: var(--error); }
+input, textarea, button { font: inherit; border-radius: 0.45rem; padding: 0.65rem 0.8rem; }
+input, textarea { width: 100%; border: 1px solid #637895; color: inherit; }
+input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--error); }
 button {
   border: 1px solid transparent;
   color: var(--surface);
@@ -53,3 +53,4 @@ button:disabled { cursor: wait; background: var(--pending); }
 .progress-list { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; padding: 0; list-style: none; }
 .status-badge { display: inline-block; padding: 0.1rem 0.55rem; border-radius: 0.45rem; background: var(--page); }
 .view-description { white-space: pre-wrap; }
+.milestone-fields { display: grid; gap: 0.55rem; margin: 0; padding: 0; border: 0; min-width: 0; }
