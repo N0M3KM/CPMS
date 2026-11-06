@@ -195,6 +195,45 @@ describe('AC-14 origin and content type (NFR-08)', () => {
   });
 });
 
+describe('request-check ordering: auth and role come before body parsing (review finding 1)', () => {
+  const MALFORMED = '{"title":';
+
+  it('logout without a session returns 401 even with a malformed JSON body', async () => {
+    const { api } = await createFixture({ mountRoutes });
+    const res = await api.post('/api/auth/logout').set('Origin', ORIGIN).type('json').send(MALFORMED);
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual(envelope('UNAUTHENTICATED'));
+  });
+
+  it('an anonymous request gets 401 before a non-JSON body (415) or an oversized body (413)', async () => {
+    const { api } = await createFixture({ mountRoutes });
+    const form = await api.post('/api/probe/supervisor-only').set('Origin', ORIGIN).type('form').send({ a: 'b' });
+    const big = await api.post('/api/probe/supervisor-only').set('Origin', ORIGIN).send({ title: 'a'.repeat(11 * 1024) });
+    const broken = await api.post('/api/probe/supervisor-only').set('Origin', ORIGIN).type('json').send(MALFORMED);
+    for (const res of [form, big, broken]) expect(res.status).toBe(401);
+  });
+
+  it('a wrong-role request gets 403 before a malformed, oversized or non-JSON body', async () => {
+    const { api, login } = await createFixture({ mountRoutes });
+    const cookie = await login(A1);
+    const before = supervisorOnlyCalls;
+    const broken = await api.post('/api/probe/supervisor-only').set('Origin', ORIGIN).set('Cookie', cookie).type('json').send(MALFORMED);
+    const big = await api.post('/api/probe/supervisor-only').set('Origin', ORIGIN).set('Cookie', cookie).send({ title: 'a'.repeat(11 * 1024) });
+    const form = await api.post('/api/probe/supervisor-only').set('Origin', ORIGIN).set('Cookie', cookie).type('form').send({ a: 'b' });
+    for (const res of [broken, big, form]) {
+      expect(res.status).toBe(403);
+      expect(res.body).toEqual(envelope('FORBIDDEN'));
+    }
+    expect(supervisorOnlyCalls).toBe(before);
+  });
+
+  it('keeps Origin protection ahead of everything else', async () => {
+    const { api } = await createFixture({ mountRoutes });
+    const res = await api.post('/api/auth/logout').set('Origin', 'https://evil.example').type('json').send(MALFORMED);
+    expect(res.status).toBe(403);
+  });
+});
+
 describe('AC-15 strict schemas and response whitelist (NFR-11)', () => {
   it('rejects unknown fields including mass-assignment attempts', async () => {
     const { api, login } = await createFixture({ mountRoutes });

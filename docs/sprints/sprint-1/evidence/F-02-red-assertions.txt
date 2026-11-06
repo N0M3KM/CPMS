@@ -1,0 +1,169 @@
+# Reconstructed red run for TEST-09, TEST-10, TEST-11 (BR-06, BR-07)
+# Source: commit 2e8c38a with ONLY these two behaviors disabled:
+#  - src/security/require-role.ts: role check removed (every role passes)
+#  - src/security/team-access.ts: requireTeam ignores scope and returns any well-formed team
+# The original red run (F-02-red.txt) stopped at module resolution, so this run shows the assertions executing.
+
+# diff --git a/server/src/security/require-role.ts b/server/src/security/require-role.ts
+# index 69ca2f4..49f99ae 100644
+# --- a/server/src/security/require-role.ts
+# +++ b/server/src/security/require-role.ts
+# @@ -7,7 +7,7 @@ import './principal.js';
+#  export function requireRole(...roles: Role[]): RequestHandler {
+#    return (req, _res, next) => {
+#      if (!req.principal) throw AppError.unauthenticated();
+# -    if (!roles.includes(req.principal.role)) throw AppError.forbidden();
+# +    // RED STUB: role check disabled
+#      next();
+#    };
+#  }
+# diff --git a/server/src/security/team-access.ts b/server/src/security/team-access.ts
+# index 18f6fe3..1f618e5 100644
+# --- a/server/src/security/team-access.ts
+# +++ b/server/src/security/team-access.ts
+# @@ -29,9 +29,8 @@ export class AuthorizedTeamAccess {
+#  
+#    async requireTeam(principal: Principal, teamId: string): Promise<TeamRef> {
+#      if (!uuidSchema.safeParse(teamId).success) throw AppError.notFound();
+# -    const team = await this.repo.findTeamInScope(scopeFor(principal), teamId);
+# -    if (!team) throw AppError.notFound();
+# -    return team;
+# +    void principal;
+# +    return { id: teamId, supervisorId: '' }; // RED STUB: scope check disabled
+#    }
+#  }
+#  
+
+
+ RUN  v5.1.0 /private/var/folders/w2/3sww2s0d4hx5wbdvk8tkfv6w0000gn/T/f02red/server
+
+ ❯ tests/scope.test.ts (4 tests | 2 failed) 6ms
+   ❯ AuthorizedTeamAccess (2)
+     × queries with the principal scope and returns the team when found 4ms
+     × throws the same not-found error whether the team is foreign or missing 1ms
+ ❯ tests/security.test.ts (30 tests | 4 failed) 1613ms
+   ❯ AC-09 role guards (BR-07) (1)
+     × returns 403 for the wrong role and runs no handler 61ms
+   ❯ AC-10 and AC-11 team scope with uniform 404 (BR-06) (3)
+     × lets a student read only their own team and hides others exactly like missing ones 59ms
+     × lets a supervisor read only supervised teams and hides others exactly like missing ones 59ms
+     × never trusts a client-supplied user, role or team 58ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/scope.test.ts > AuthorizedTeamAccess > queries with the principal scope and returns the team when found
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+    "id": "11111111-1111-4111-8111-111111111111",
+-   "supervisorId": "s",
++   "supervisorId": "",
+  }
+
+ ❯ tests/scope.test.ts:18:18
+     16|     const repo: TeamAccessRepo = { findTeamInScope: vi.fn().mockResolv…
+     17|     const team = await new AuthorizedTeamAccess(repo).requireTeam({ us…
+     18|     expect(team).toEqual({ id: '11111111-1111-4111-8111-111111111111',…
+       |                  ^
+     19|     expect(repo.findTeamInScope).toHaveBeenCalledWith({ kind: 'STUDENT…
+     20|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/scope.test.ts > AuthorizedTeamAccess > throws the same not-found error whether the team is foreign or missing
+AssertionError: expected { …(2) } to be an instance of AppError
+ ❯ tests/scope.test.ts:27:15
+     25|     const a = await access.requireTeam({ userId: 'u1', role: 'STUDENT'…
+     26|     const b = await access.requireTeam({ userId: 'u1', role: 'STUDENT'…
+     27|     expect(a).toBeInstanceOf(AppError);
+       |               ^
+     28|     expect((a as AppError).status).toBe(404);
+     29|     expect((b as AppError).code).toBe((a as AppError).code);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  tests/security.test.ts > AC-09 role guards (BR-07) > returns 403 for the wrong role and runs no handler
+AssertionError: expected 201 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 201
+
+ ❯ tests/security.test.ts:71:28
+     69|     const supervisorCookie = await login(S1);
+     70|     const student = await api.post('/api/probe/supervisor-only').set('…
+     71|     expect(student.status).toBe(403);
+       |                            ^
+     72|     expect(student.body).toEqual(envelope('FORBIDDEN'));
+     73|     expect(supervisorOnlyCalls).toBe(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  tests/security.test.ts > AC-10 and AC-11 team scope with uniform 404 (BR-06) > lets a student read only their own team and hides others exactly like missing ones
+AssertionError: expected 200 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 200
+
+ ❯ tests/security.test.ts:89:28
+     87|     const foreign = await api.get(`/api/probe/teams/${TEAM_B}`).set('C…
+     88|     const missing = await api.get(`/api/probe/teams/${MISSING_TEAM}`).…
+     89|     expect(foreign.status).toBe(404);
+       |                            ^
+     90|     expect(foreign.status).toBe(missing.status);
+     91|     expect(foreign.body).toEqual(missing.body);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  tests/security.test.ts > AC-10 and AC-11 team scope with uniform 404 (BR-06) > lets a supervisor read only supervised teams and hides others exactly like missing ones
+AssertionError: expected 200 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 200
+
+ ❯ tests/security.test.ts:102:28
+    100|     const foreign = await api.get(`/api/probe/teams/${TEAM_C}`).set('C…
+    101|     const missing = await api.get(`/api/probe/teams/${MISSING_TEAM}`).…
+    102|     expect(foreign.status).toBe(404);
+       |                            ^
+    103|     expect(foreign.body).toEqual(missing.body);
+    104|     const s2 = await login(S2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  tests/security.test.ts > AC-10 and AC-11 team scope with uniform 404 (BR-06) > never trusts a client-supplied user, role or team
+AssertionError: expected 200 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 200
+
+ ❯ tests/security.test.ts:117:24
+    115|       .set('X-User-Id', 's1')
+    116|       .set('X-Role', 'SUPERVISOR');
+    117|     expect(res.status).toBe(404);
+       |                        ^
+    118|   });
+    119| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  6 failed | 28 passed (34)
+   Start at  22:32:18
+   Duration  1.85s (tests 88%, import 8%, transform 4%)
+

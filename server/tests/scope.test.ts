@@ -29,4 +29,17 @@ describe('AuthorizedTeamAccess', () => {
     expect((b as AppError).code).toBe((a as AppError).code);
     expect((b as AppError).message).toBe((a as AppError).message);
   });
+
+  it('returns the generic validation error for a malformed team ID and never queries (review finding 2)', async () => {
+    const repo: TeamAccessRepo = { findTeamInScope: vi.fn() };
+    const access = new AuthorizedTeamAccess(repo);
+    for (const bad of ['not-a-uuid', "' OR 1=1--", '../../etc/passwd', '', '1234']) {
+      const err = await access.requireTeam({ userId: 'u1', role: 'STUDENT' }, bad).catch((e: unknown) => e);
+      expect(err).toBeInstanceOf(AppError);
+      expect((err as AppError).status).toBe(400);
+      expect((err as AppError).code).toBe('VALIDATION_ERROR');
+      expect((err as AppError).message).not.toContain(bad || 'x');
+    }
+    expect(repo.findTeamInScope).not.toHaveBeenCalled();
+  });
 });

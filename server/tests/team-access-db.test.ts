@@ -53,7 +53,7 @@ describe('team scope against PostgreSQL (BR-06)', () => {
   });
 
   it('treats SQL-looking ids as data, never as a query', async () => {
-    await expect(access.requireTeam(student(11), "' OR 1=1--")).rejects.toBeDefined();
+    await expect(access.requireTeam(student(11), "' OR 1=1--")).rejects.toMatchObject({ status: 400, code: 'VALIDATION_ERROR' });
     expect(await prisma.team.count()).toBe(3);
   });
 });
