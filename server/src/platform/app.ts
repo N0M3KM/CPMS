@@ -1,14 +1,11 @@
 import express, { type Express } from 'express';
 import { createAuthRouter, type AuthOptions } from '../auth/routes.js';
 import { securityHeaders } from '../security/headers.js';
-import { jsonOnly } from '../security/json-only.js';
 import { createSecurityKit, type SecurityKit } from '../security/kit.js';
 import { createOriginCheck } from '../security/origin-check.js';
 import type { TeamAccessRepo } from '../security/team-access.js';
 import { errorHandler } from './errors.js';
 import { clientIp, createRateLimit, rateLimited } from './rate-limit.js';
-
-const MAX_BODY = '10kb';
 
 export interface AppDeps {
   // Resolves when the database answers, rejects otherwise.
@@ -51,8 +48,9 @@ export function createApp(deps: AppDeps): Express {
       }
       next();
     });
-    // Order: foreign Origin (403), non-JSON body (415), body size and syntax (413, 400).
-    app.use('/api', createOriginCheck(deps.auth.allowedOrigin), jsonOnly, express.json({ limit: MAX_BODY }));
+    // Only the Origin check is app-wide. JSON parsing lives in each route chain (security.jsonBody)
+    // after authentication and authorization, so 401 and 403 are never masked by body errors.
+    app.use('/api', createOriginCheck(deps.auth.allowedOrigin));
     app.use('/api/auth', createAuthRouter(deps.auth));
     deps.mountRoutes?.(app, createSecurityKit(deps.auth, deps.teamAccess));
   }

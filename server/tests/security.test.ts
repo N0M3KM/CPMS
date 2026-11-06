@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { AppError } from '../src/platform/errors.js';
 import { pickFields } from '../src/security/dto.js';
-import { parse, uuidSchema } from '../src/security/validate.js';
+import { parse } from '../src/security/validate.js';
 import { A1, B1, MISSING_TEAM, ORIGIN, S1, S2, TEAM_A, TEAM_B, TEAM_C, createFixture } from './helpers/fake-auth.js';
 import type { AppDeps } from '../src/platform/app.js';
 
@@ -11,8 +11,7 @@ let supervisorOnlyCalls = 0;
 // Probe routes stand in for the real feature routes that arrive in F-03 to F-07.
 const mountRoutes: NonNullable<AppDeps['mountRoutes']> = (app, kit) => {
   app.get('/api/probe/teams/:teamId', kit.requireAuth, async (req, res) => {
-    const teamId = parse(uuidSchema, req.params.teamId);
-    const team = await kit.teams.requireTeam(req.principal!, teamId);
+    const team = await kit.teams.requireTeam(req.principal!, String(req.params.teamId));
     res.json({ id: team.id });
   });
   app.post('/api/probe/supervisor-only', kit.requireAuth, kit.requireRole('SUPERVISOR'), (_req, res) => {
@@ -22,7 +21,7 @@ const mountRoutes: NonNullable<AppDeps['mountRoutes']> = (app, kit) => {
   app.post('/api/probe/student-only', kit.requireAuth, kit.requireRole('STUDENT'), (_req, res) => {
     res.status(201).json({ ok: true });
   });
-  app.post('/api/probe/echo', kit.requireAuth, (req, res) => {
+  app.post('/api/probe/echo', kit.requireAuth, ...kit.jsonBody, (req, res) => {
     const body = parse(z.strictObject({ title: z.string().min(1).max(100) }), req.body);
     res.status(200).json(body);
   });

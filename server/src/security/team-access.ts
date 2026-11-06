@@ -23,12 +23,12 @@ export interface TeamAccessRepo {
 }
 
 // Protection proxy over team lookups: callers get a team only if it is in the principal's scope.
-// Foreign and nonexistent teams raise the same error, so they cannot be told apart.
+// A malformed ID is a 400. Foreign and nonexistent teams raise the same 404, so they cannot be told apart.
 export class AuthorizedTeamAccess {
   constructor(private readonly repo: TeamAccessRepo) {}
 
   async requireTeam(principal: Principal, teamId: string): Promise<TeamRef> {
-    if (!uuidSchema.safeParse(teamId).success) throw AppError.notFound();
+    if (!uuidSchema.safeParse(teamId).success) throw AppError.validation();
     const team = await this.repo.findTeamInScope(scopeFor(principal), teamId);
     if (!team) throw AppError.notFound();
     return team;
