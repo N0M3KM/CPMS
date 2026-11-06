@@ -3,11 +3,13 @@ import { createApp } from './platform/app.js';
 import { systemClock } from './platform/clock.js';
 import { loadConfig } from './platform/config.js';
 import { createPrisma, dbChecker } from './platform/db.js';
+import { prismaTeamAccess } from './security/team-access.js';
 
 const config = loadConfig(process.env);
 const prisma = createPrisma(config.databaseUrl);
 const app = createApp({
   checkDb: dbChecker(prisma),
+  teamAccess: prismaTeamAccess(prisma),
   auth: {
     store: prismaAuthStore(prisma),
     clock: systemClock,

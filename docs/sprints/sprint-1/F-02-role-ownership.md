@@ -10,6 +10,8 @@ Check order: 401 (no or bad session), 403 (wrong role), uniform 404 (team not yo
 
 Team scope: a Student's scope is the one team they belong to; a Supervisor's scope is the teams where they are the supervisor. Every query includes the scope, so out-of-scope rows are never loaded.
 
+Team ID guard: `requireTeam` returns 400 for a malformed ID and the uniform 404 for a well-formed foreign or missing ID.
+
 Failure and boundary cases: expired session; Student calling a Supervisor-only route; Supervisor calling a Student-only route; an ID belonging to another team; a nonexistent ID; malformed UUID (400).
 
 ## Shared security middleware owned here
@@ -17,7 +19,7 @@ Failure and boundary cases: expired session; Student calling a Supervisor-only r
 | Control | Behavior |
 |---|---|
 | Origin check | State-changing methods require `Origin` equal to `ALLOWED_ORIGIN`; otherwise 403 (NFR-08). |
-| Content type | JSON only for bodies; otherwise 415. Body size cap (placeholder 10 KB) returns 413. |
+| Body handling | `security.jsonBody` (JSON only, otherwise 415; size cap 10 KB, otherwise 413; malformed JSON 400) is part of each route chain, placed after `requireAuth` and `requireRole`. Only the Origin check is app-wide. A missing session (401) or wrong role (403) is never masked by a body error. |
 | Strict schemas | Zod `.strict()` on every body, params and query; unknown fields return 400 (NFR-11). |
 | Response whitelist | Output DTOs list fields explicitly; no password hash, session ID or out-of-scope data (NFR-11). |
 | Rate limiter | General limit per IP (placeholder 100 per minute) returns 429; login limit is in F-01 (NFR-10). |

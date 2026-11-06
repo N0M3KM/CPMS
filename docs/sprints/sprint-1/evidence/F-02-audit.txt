@@ -1,0 +1,21 @@
+# F-02 dependency audit (AC-16)
+# Base commit: 55e9a74 plus the package.json override and regenerated package-lock.json in the working tree
+# Fix: root package.json overrides deepmerge-ts to ^8.0.2 (advisory GHSA-ggr8-5vv4-36mx affects <8.0.0).
+# Prisma CLI 6.19.3 declares deepmerge-ts 7.1.5, so 'npm ls' reports it as 'invalid' by design (an override).
+
+$ npm audit
+found 0 vulnerabilities
+
+$ npm ls deepmerge-ts
+cpms@0.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS
+`-- cpms-server@0.1.0 -> ./server
+  `-- prisma@6.19.3
+    `-- @prisma/config@6.19.3
+      `-- deepmerge-ts@8.0.2 invalid: "7.1.5" from node_modules/@prisma/config
+
+npm error code ELSPROBLEMS
+npm error invalid: deepmerge-ts@8.0.2 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/node_modules/deepmerge-ts
+
+$ npx -w server prisma validate && npm run db:deploy -w server
+Prisma CLI Version : 6.19.3
+No pending migrations to apply.
