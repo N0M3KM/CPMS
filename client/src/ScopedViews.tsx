@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { User } from './auth-api';
+import { NewMilestoneForm } from './NewMilestoneForm';
 
 const statusLabels = {
   NOT_SUBMITTED: 'Not submitted',
@@ -42,7 +43,7 @@ type LoadState<T> =
   | { status: 'error'; message: string }
   | { status: 'ready'; data: T };
 
-function DataView<T>({ path, children }: { path: string; children: (data: T) => ReactNode }) {
+function DataView<T>({ path, children }: { path: string; children: (data: T, reload: () => void) => ReactNode }) {
   const [state, setState] = useState<LoadState<T>>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
 
@@ -66,15 +67,17 @@ function DataView<T>({ path, children }: { path: string; children: (data: T) => 
     return () => controller.abort();
   }, [attempt, path]);
 
+  function reload() {
+    setState({ status: 'loading' });
+    setAttempt(previous => previous + 1);
+  }
+
   if (state.status === 'loading') return <p role="status">Loading…</p>;
-  if (state.status === 'ready') return children(state.data);
+  if (state.status === 'ready') return children(state.data, reload);
   return (
     <>
       <p className="error" role="alert">{state.message}</p>
-      <button type="button" onClick={() => {
-        setState({ status: 'loading' });
-        setAttempt(previous => previous + 1);
-      }}>Try again</button>
+      <button type="button" onClick={reload}>Try again</button>
     </>
   );
 }
@@ -127,37 +130,45 @@ export function ScopedHome({ role }: { role: User['role'] }) {
   );
 }
 
-function TeamData({ teamId }: { teamId: string }) {
+function TeamData({ teamId, canCreate = false }: { teamId: string; canCreate?: boolean }) {
+  const [created, setCreated] = useState(false);
   return (
-    <DataView<Team> key={teamId} path={`/teams/${encodeURIComponent(teamId)}`}>
-      {team => (
-        <section aria-labelledby="team-name">
-          <h2 id="team-name">{team.name}</h2>
-          <p>Supervisor: {team.supervisor.name}</p>
-          <h3>Members</h3>
-          {team.members.length === 0 ? <p>No members yet.</p> : (
-            <ul>{team.members.map(member => <li key={member.id}>{member.name}</li>)}</ul>
-          )}
-          <h3>Milestones</h3>
-          {team.milestones.length === 0 ? <p>No milestones yet.</p> : (
-            <ul className="view-list">
-              {team.milestones.map(milestone => (
-                <li key={milestone.id}>
-                  <MilestoneItem milestone={milestone} />
-                  {' '}<span className="status-badge">{statusLabels[milestone.status]}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
-    </DataView>
+    <>
+      {canCreate && <div role="status">{created ? 'Milestone created.' : ''}</div>}
+      <DataView<Team> key={teamId} path={`/teams/${encodeURIComponent(teamId)}`}>
+        {(team, reload) => (
+          <section aria-labelledby="team-name">
+            <h2 id="team-name">{team.name}</h2>
+            <p>Supervisor: {team.supervisor.name}</p>
+            <h3>Members</h3>
+            {team.members.length === 0 ? <p>No members yet.</p> : (
+              <ul>{team.members.map(member => <li key={member.id}>{member.name}</li>)}</ul>
+            )}
+            <h3>Milestones</h3>
+            {team.milestones.length === 0 ? <p>No milestones yet.</p> : (
+              <ul className="view-list">
+                {team.milestones.map(milestone => (
+                  <li key={milestone.id}>
+                    <MilestoneItem milestone={milestone} />
+                    {' '}<span className="status-badge">{statusLabels[milestone.status]}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {canCreate && <NewMilestoneForm teamId={team.id} onCreated={() => {
+              setCreated(true);
+              reload();
+            }} />}
+          </section>
+        )}
+      </DataView>
+    </>
   );
 }
 
-export function TeamView() {
+export function TeamView({ canCreate }: { canCreate: boolean }) {
   const { teamId = '' } = useParams();
-  return <TeamData teamId={teamId} />;
+  return <TeamData key={teamId} teamId={teamId} canCreate={canCreate} />;
 }
 
 function SubmissionLink({ value }: { value: string }) {

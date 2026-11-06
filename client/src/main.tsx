@@ -102,7 +102,9 @@ function App() {
             <Route path="/login" element={user ? <Navigate replace to={destination} /> : <Login onSignIn={setUser} />} />
             <Route path="/student" element={renderHome('/student')} />
             <Route path="/supervisor" element={renderHome('/supervisor')} />
-            <Route path="/teams/:teamId" element={renderSignedIn('Team detail', <TeamView />)} />
+            <Route path="/teams/:teamId" element={renderSignedIn(
+              'Team detail', <TeamView canCreate={user?.role === 'SUPERVISOR'} />,
+            )} />
             <Route path="/milestones/:milestoneId" element={renderSignedIn('Milestone detail', <MilestoneView />)} />
             <Route path="*" element={<Navigate replace to={destination} />} />
           </Routes>

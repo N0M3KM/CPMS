@@ -29,7 +29,7 @@ Errors: 400 `VALIDATION_ERROR`, 401, 403, 404, 429.
 
 ## Data
 
-Creates a `Milestone` row. The migration adds the table, FK to `Team` and an index on `(teamId, dueAt)`.
+Creates a `Milestone` row using the table, team foreign key and `(teamId, dueAt)` index from the F-06 foundation migration.
 
 ## Acceptance criteria
 
@@ -41,3 +41,9 @@ Creates a `Milestone` row. The migration adds the table, FK to `Team` and an ind
 A Supervisor of another team gets the uniform 404 (AC-11).
 
 Tests: TEST-17 to TEST-20 and TEST-42 (E2E) in the [STS](sts.md).
+
+## Version history
+
+| Date | Change |
+|---|---|
+| 2026-11-06 | Recorded that F-03 uses the milestone schema already installed by F-06. |
