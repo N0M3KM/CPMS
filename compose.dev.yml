@@ -1,0 +1,16 @@
+# Local development database only. The application container is Lab 5 work.
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: cpms-postgres
+    environment:
+      POSTGRES_USER: cpms
+      POSTGRES_PASSWORD: ${CPMS_DB_PASSWORD:?set CPMS_DB_PASSWORD in .env}
+      POSTGRES_DB: cpms_dev
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - cpms-pgdata:/var/lib/postgresql/data
+      - ./scripts/db-init.sql:/docker-entrypoint-initdb.d/10-test-db.sql:ro
+volumes:
+  cpms-pgdata:
