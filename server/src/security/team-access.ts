@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { AppError } from '../platform/errors.js';
 import type { Principal } from './principal.js';
 import { uuidSchema } from './validate.js';
@@ -16,6 +16,12 @@ export function scopeFor(principal: Principal): TeamScope {
   return principal.role === 'STUDENT'
     ? { kind: 'STUDENT', studentId: principal.userId }
     : { kind: 'SUPERVISOR', supervisorId: principal.userId };
+}
+
+export function teamWhere(scope: TeamScope): Prisma.TeamWhereInput {
+  return scope.kind === 'STUDENT'
+    ? { members: { some: { studentId: scope.studentId } } }
+    : { supervisorId: scope.supervisorId };
 }
 
 export interface TeamAccessRepo {
@@ -38,11 +44,10 @@ export class AuthorizedTeamAccess {
 export function prismaTeamAccess(prisma: PrismaClient): TeamAccessRepo {
   return {
     findTeamInScope(scope, teamId) {
-      const where =
-        scope.kind === 'STUDENT'
-          ? { id: teamId, members: { some: { studentId: scope.studentId } } }
-          : { id: teamId, supervisorId: scope.supervisorId };
-      return prisma.team.findFirst({ where, select: { id: true, supervisorId: true } });
+      return prisma.team.findFirst({
+        where: { ...teamWhere(scope), id: teamId },
+        select: { id: true, supervisorId: true },
+      });
     },
   };
 }

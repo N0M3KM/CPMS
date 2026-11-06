@@ -10,6 +10,8 @@ Computed milestone status: `REVIEWED` if feedback exists; else `SUBMITTED` if a 
 
 Boundary cases: a Student with no team, or a Supervisor with no teams, sees an empty state; a milestone at exactly `dueAt` is not yet overdue.
 
+Next due means the earliest milestone with status `NOT_SUBMITTED`. It is `null` when the team has no upcoming unsubmitted work.
+
 ## UI
 
 - Student home: team name, members, supervisor name, milestone list with status badges and due dates.
@@ -22,7 +24,7 @@ Boundary cases: a Student with no team, or a Supervisor with no teams, sees an e
 
 | Call | Access | Response |
 |---|---|---|
-| `GET /api/teams` | Authenticated | `{teams:[{id,name,supervisor:{id,name},members:[{id,name}],progress:{notSubmitted,submitted,reviewed,overdue}}]}` scoped to the user |
+| `GET /api/teams` | Authenticated | `{teams:[{id,name,supervisor:{id,name},members:[{id,name}],progress:{notSubmitted,submitted,reviewed,overdue},nextDue}]}` scoped to the user. `nextDue` is `{id,title,dueAt}` or `null`. |
 | `GET /api/teams/:teamId` | Team member or team supervisor | Team with `milestones:[{id,title,dueAt,status}]` |
 | `GET /api/milestones/:milestoneId` | Team member or team supervisor | Milestone with `submission` and its `feedback`, or `null` |
 
@@ -43,3 +45,9 @@ No new entities. Read queries only.
 - **AC-41:** Role-inappropriate actions are hidden in the UI and direct API calls remain denied.
 
 Tests: TEST-35 to TEST-41, TEST-42, TEST-43 in the [STS](sts.md).
+
+## Version history
+
+| Date | Change |
+|---|---|
+| 2026-11-06 | Documented the additive `nextDue` field and the status filter used by the supervisor dashboard. |

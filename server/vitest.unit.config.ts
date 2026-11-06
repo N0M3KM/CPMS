@@ -8,6 +8,7 @@ export default defineConfig({
       'tests/code-gates.test.ts',
       'tests/config.test.ts',
       'tests/health.test.ts',
+      'tests/milestone-status.test.ts',
       'tests/scope.test.ts',
       'tests/secrets.test.ts',
       'tests/security.test.ts',
