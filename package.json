@@ -2,12 +2,15 @@
   "name": "cpms",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["server"],
+  "workspaces": ["server", "client"],
   "scripts": {
-    "dev": "npm run dev -w server",
-    "build": "npm run build -w server",
+    "dev": "concurrently --kill-others --names api,web \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w server && npm run build -w client",
     "test": "npm test -w server",
     "db:migrate": "npm run db:migrate -w server",
     "db:seed": "npm run db:seed -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

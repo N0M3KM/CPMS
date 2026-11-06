@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
 import type { PrismaClient } from '@prisma/client';
+import { BCRYPT_ROUNDS } from '../auth/service.js';
 import type { Clock } from '../platform/clock.js';
 
-const BCRYPT_ROUNDS = 10;
 const MIN_PASSWORD_LENGTH = 8;
 const DAY_MS = 86_400_000;
 

@@ -1,12 +1,13 @@
 # CPMS Sprint 1 Software Test Specification and Definition of Done
 
-**Version:** 2.0 (draft for review)
+**Version:** 2.1
 **Related:** [Sprint 1 plan](plan.md) · [Traceability](../../traceability.md) · [Security test plan](../../security-test-plan.md) · feature contracts `F-01` to `F-07` in this folder
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
+| 2.1 | 2026-11-06 | Aligned TEST-06 with the F-01 request validation and redirect behavior. |
 | 2.0 | 2026-11-06 | Reworked for Theme 6. AC-01 to AC-41 and TEST-01 to TEST-43 renumbered by feature; security cases grouped into AC-06, 07, 13 to 16. |
 | 1.1 | 2026-11-06 | Added security ACs for NFR-07 to NFR-12 (proposal domain, superseded). |
 | 1.0 | 2026-11-06 | Initial split (proposal domain, superseded). |
@@ -24,7 +25,7 @@ Seed users used below: Student A1, A2 (Team A), B1 (Team B), C1 (Team C); Superv
 | TEST-03 | AC-03 | API | No session | Invalid email, then invalid password | Identical generic 401; no session row |
 | TEST-04 | AC-04 | API | Valid, revoked and expired sessions | `me`, logout, protected call; repeat for expiry | Identity while valid; 401 afterward |
 | TEST-05 | AC-05 | DB integration | Seeded user | Inspect credential column | bcrypt hash only |
-| TEST-06 | AC-06 | API | Registered and unknown emails | SEC-07, SEC-09, SEC-10 | Same status, body, timing; extras and redirects ignored; fresh session ID; tampered cookies 401 |
+| TEST-06 | AC-06 | API | Registered and unknown emails | SEC-07, SEC-09, SEC-10 | Same status and body with comparable timing; unknown JSON fields 400; redirect query parameters ignored; fresh session ID; tampered cookies 401 |
 | TEST-07 | AC-07 | API | One IP, repeated failures and bursts | SEC-08, SEC-16 | 429 with `Retry-After` after threshold; same for unknown emails; normal use unaffected |
 | TEST-08 | AC-08 | API | No cookie | Call each protected route | 401; no private fields |
 | TEST-09 | AC-09 | API | Student and Supervisor sessions | Student creates milestone and feedback; Supervisor submits | 403 each; nothing created |

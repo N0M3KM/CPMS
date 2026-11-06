@@ -1,0 +1,40 @@
+:root {
+  color: #17243b;
+  background: #edf2fa;
+  font: 100%/1.5 system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+.shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 1.25rem;
+}
+.card {
+  width: min(100%, 28rem);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  border: 1px solid #bccce3;
+  border-radius: 1rem;
+  background: #fff;
+}
+h1 { margin: 0.25rem 0 0; line-height: 1.2; }
+p { margin: 0.5rem 0 1rem; }
+.brand { color: #184995; font-weight: 750; letter-spacing: 0.08em; }
+form { display: grid; gap: 0.55rem; }
+label { font-weight: 650; margin-top: 0.4rem; }
+input, button { font: inherit; border-radius: 0.45rem; padding: 0.65rem 0.8rem; }
+input { width: 100%; border: 1px solid #637895; color: inherit; }
+input[aria-invalid="true"] { border-color: #a02032; }
+button {
+  border: 1px solid transparent;
+  color: #fff;
+  background: #184995;
+  font-weight: 650;
+  cursor: pointer;
+}
+form button { margin-top: 0.6rem; }
+button:disabled { cursor: wait; background: #4e6282; }
+:focus-visible { outline: 3px solid #184995; outline-offset: 3px; }
+.error { margin: 0; color: #a02032; }
