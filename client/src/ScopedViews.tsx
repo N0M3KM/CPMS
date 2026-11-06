@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { User } from './auth-api';
+import { FeedbackForm } from './FeedbackForm';
 import { NewMilestoneForm } from './NewMilestoneForm';
 import { SubmitWorkForm } from './SubmitWorkForm';
 
@@ -31,6 +32,7 @@ type Milestone = MilestoneSummary & {
   teamId: string;
   description: string;
   submission: {
+    id: string;
     title: string;
     description: string;
     link: string;
@@ -184,7 +186,7 @@ function SubmissionLink({ value }: { value: string }) {
   return <span>{value}</span>;
 }
 
-export function MilestoneView({ canSubmit = false }: { canSubmit?: boolean }) {
+export function MilestoneView({ canSubmit = false, canReview = false }: { canSubmit?: boolean; canReview?: boolean }) {
   const { milestoneId = '' } = useParams();
   return (
     <DataView<Milestone> key={milestoneId} path={`/milestones/${encodeURIComponent(milestoneId)}`}>
@@ -209,7 +211,8 @@ export function MilestoneView({ canSubmit = false }: { canSubmit?: boolean }) {
                   <p className="view-description">{milestone.submission.feedback.comment}</p>
                   <p>Recorded <DateTime value={milestone.submission.feedback.createdAt} /></p>
                 </>
-              ) : <p>No feedback yet.</p>}
+              ) : canReview ? <FeedbackForm submissionId={milestone.submission.id} onSaved={reload} />
+                : <p>No feedback yet.</p>}
             </>
           ) : milestone.status === 'OVERDUE' ? <p>The deadline has passed and no work was submitted.</p>
             : canSubmit ? <SubmitWorkForm milestoneId={milestone.id} onSubmitted={reload} />

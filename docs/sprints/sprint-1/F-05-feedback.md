@@ -12,6 +12,8 @@ Rules (BR-05):
 - One feedback per submission, enforced by a unique index on `submissionId`. Feedback is immutable in Sprint 1 and always linked to its submission by foreign key, so the submission and feedback association is preserved.
 - Visibility (SRS D-10): the team's members and the team's supervisor only.
 
+Order of checks (decided in implementation): auth (401), role (403), body syntax and size (400, 413, 415), comment validation (400), submission not in the supervisor's scope or missing (404), feedback exists (409 `FEEDBACK_EXISTS`). Control characters other than tab and newline are rejected. There is no route to edit or delete feedback; PUT, PATCH and DELETE on the resource return 404.
+
 Failure cases: invalid comment (400); no session (401); Student (403); submission outside the supervisor's scope or nonexistent (uniform 404); feedback exists (409). Nothing is stored on failure.
 
 ## UI
@@ -44,3 +46,9 @@ Creates a `Feedback` row. The migration adds the table, unique index on `submiss
 - **AC-32:** Members of the submission's team can read its feedback; a student of another team cannot (uniform 404) (BR-06).
 
 Tests: TEST-27 to TEST-32 and TEST-43 (E2E) in the [STS](sts.md).
+
+## Version history
+
+| Date | Change |
+|---|---|
+| 2026-11-06 | Recorded the order of checks, control-character rule and the absence of edit and delete routes. |
