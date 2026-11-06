@@ -23,12 +23,16 @@ const OPEN_C = id(205);
 const DUE_A = new Date('2026-11-22T12:00:00Z');
 const valid = { title: 'Design report', description: 'A report describing our design in detail.', link: 'https://example.test/report' };
 
-const api = request(createApp({
-  checkDb: dbChecker(prisma),
-  auth: { store: prismaAuthStore(prisma), clock, ttlHours: 1, secure: false, allowedOrigin: origin },
-  teamAccess: prismaTeamAccess(prisma),
-  mountRoutes: (app, security) => mountFeatureRoutes(app, security, prisma, clock),
-}));
+// A fresh app per test gives each test its own rate-limit window (the clock is fixed).
+function buildApi() {
+  return request(createApp({
+    checkDb: dbChecker(prisma),
+    auth: { store: prismaAuthStore(prisma), clock, ttlHours: 1, secure: false, allowedOrigin: origin },
+    teamAccess: prismaTeamAccess(prisma),
+    mountRoutes: (app, security) => mountFeatureRoutes(app, security, prisma, clock),
+  }));
+}
+let api = buildApi();
 
 function setNow(date: Date) {
   clock.advance(date.getTime() - clock.now().getTime());
@@ -46,12 +50,17 @@ const count = () => prisma.submission.count();
 let a1: string; let a2: string; let b1: string; let c1: string; let c2: string; let s1: string;
 
 beforeEach(async () => {
+  api = buildApi();
   setNow(SEED_NOW);
   await resetDb(prisma);
   await seedDatabase(prisma, { studentPassword: password, supervisorPassword: password, clock, logger: { log() {} } });
-  [a1, a2, b1, c1, c2, s1] = (await Promise.all(
-    ['student.a1', 'student.a2', 'student.b1', 'student.c1', 'student.c2', 'supervisor1'].map((n) => login(`${n}@example.test`)),
-  )) as [string, string, string, string, string, string];
+  // Sequential on purpose: the login throttle counts simultaneous attempts per IP (limit 5).
+  a1 = await login('student.a1@example.test');
+  a2 = await login('student.a2@example.test');
+  b1 = await login('student.b1@example.test');
+  c1 = await login('student.c1@example.test');
+  c2 = await login('student.c2@example.test');
+  s1 = await login('supervisor1@example.test');
 });
 afterAll(() => prisma.$disconnect());
 
