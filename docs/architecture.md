@@ -1,16 +1,17 @@
 # CPMS Product Architecture Plan (all features)
 
-**Version:** 1.0 (draft for review)
+**Version:** 1.1 (Sprint 1 baseline)
 **Related:** [System SDS](system-sds.md) · [Sprint 1 pattern plan](sprints/sprint-1/architecture.md) · [Security test plan](security-test-plan.md) · [Features](features.md)
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 1.0 | 2026-11-06 | Reworked for Theme 6 (F-01 to F-12, X-01). |
 | 0.1 | 2026-11-06 | Proposal-domain draft, superseded. |
 
-Plan only. No code exists. Sprint 1 (F-01 to F-07) is the authorized baseline. F-08 to F-12 are proposed in the [SRS](srs.md); their architecture is a direction, not a contract.
+Sprint 1 (F-01 to F-07) is implemented and is the authorized baseline. F-08 to F-12 are proposed in the [SRS](srs.md); their architecture is a direction, not a contract.
 
 ## 1. Principles
 

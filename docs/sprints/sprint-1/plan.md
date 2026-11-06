@@ -200,4 +200,4 @@ See the Product Definition of Done in [sts.md](sts.md). In short: F-01 to F-07 b
 
 ## Current status
 
-F-06 is integrated in Sprint 1 staging. F-01 is in feature development. The Sprint 1 release is pending integration and acceptance checks.
+F-01 to F-07 are implemented and merged into `sprint-1-staging`. The release to `main`, its tag and the observed test results are recorded in the submission PDF (Part F) and in `evidence/`.

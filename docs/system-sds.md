@@ -1,12 +1,13 @@
 # CPMS System-Level Software Design Specification (Part C)
 
-**Version:** 2.0 (draft for review)
+**Version:** 2.1 (Sprint 1 baseline)
 **Related:** [SRS](srs.md) · [Architecture plan](architecture.md) · [Sprint 1 plan](sprints/sprint-1/plan.md) · [AGENTS.md](../AGENTS.md)
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
+| 2.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 2.0 | 2026-11-06 | Data model, API, UI and permission matrix reworked for Theme 6. |
 | 1.0 | 2026-11-06 | Initial (proposal domain, superseded). |
 

@@ -1,9 +1,9 @@
 # CPMS Traceability (Part B)
 
-**Version:** 2.0 (draft for review)
+**Version:** 2.1 (Sprint 1 baseline)
 **Related:** [SRS](srs.md) · [Features](features.md) · [Sprint 1 STS](sprints/sprint-1/sts.md) · [Security test plan](security-test-plan.md)
 
-Test IDs are planned. No test file exists or has run. `TEST-nn` verifies `AC-nn` one to one for AC-01 to AC-41; TEST-42 and TEST-43 are end-to-end journeys.
+`TEST-nn` verifies `AC-nn` one to one for AC-01 to AC-41; TEST-42 and TEST-43 are end-to-end browser journeys. Test files exist for every row; observed results, the actual test names and any gaps are in Part F of the submission and in `docs/sprints/sprint-1/evidence/`.
 
 ## Requirement to feature to sprint and verification
 
@@ -55,6 +55,10 @@ Later-sprint rows need a feature and sprint now, not elaborated AC or tests.
 - FR-08 to FR-12 and F-08 to F-12 are proposed only; no AC or tests until a sprint is authorized.
 - SRS decisions D-05 to D-08, D-10 to D-13 are proposed answers to Theme 6 ambiguities and need instructor or TA confirmation.
 - NFR-05 needs its measurement environment recorded when run.
+
+## Version note
+
+2.1 (2026-11-07): status text updated after implementation; no requirement, rule or acceptance-criteria change.
 
 ## Approved changes
 

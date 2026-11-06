@@ -1,6 +1,6 @@
 # CPMS Software Requirements Specification (Part A)
 
-**Version:** 2.0 (draft for review)
+**Version:** 2.1 (Sprint 1 baseline)
 **Product:** Course Project Management System (CPMS), CPE 334, Theme 6
 **Related:** [Features](features.md) · [Traceability](traceability.md) · [System SDS](system-sds.md) · [Sprint plan](sprints/plan.md) · [Security test plan](security-test-plan.md)
 
@@ -8,6 +8,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 2.0 | 2026-11-06 | Reworked from a proposal approve/reject product to the Theme 6 domain in `group_work_specs_v1.pdf`: teams, milestones, submissions, feedback, progress. Requirement, rule, AC and test IDs renumbered. Closes D-07. |
 | 1.1 | 2026-11-06 | Approved NFR-07 to NFR-12. |
 | 1.0 | 2026-11-06 | Initial split SRS (proposal domain, superseded). |

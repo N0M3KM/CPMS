@@ -7,6 +7,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 2.1 | 2026-11-06 | Aligned TEST-06 with the F-01 request validation and redirect behavior. |
 | 2.0 | 2026-11-06 | Reworked for Theme 6. AC-01 to AC-41 and TEST-01 to TEST-43 renumbered by feature; security cases grouped into AC-06, 07, 13 to 16. |
 | 1.1 | 2026-11-06 | Added security ACs for NFR-07 to NFR-12 (proposal domain, superseded). |
@@ -14,7 +15,7 @@
 
 ## Software Test Specification
 
-Test IDs are planned. No test file exists and nothing has run. Levels: unit, API (Vitest and Supertest on a separate test DB), DB integration, E2E (Playwright), manual. `TEST-nn` verifies `AC-nn`.
+Test IDs are stable identifiers; test files exist for each row and actual results are recorded in Part F of the submission and in `evidence/`. Levels: unit, API (Vitest and Supertest on a separate test DB), DB integration, E2E (Playwright), manual. `TEST-nn` verifies `AC-nn`.
 
 Seed users used below: Student A1, A2 (Team A), B1 (Team B), C1 (Team C); Supervisor S1 (Teams A and B), S2 (Team C).
 
