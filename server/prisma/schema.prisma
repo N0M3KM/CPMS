@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  SUPERVISOR
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  sessions          Session[]
+  supervisedTeams   Team[]
+  membership        TeamMember?
+  createdMilestones Milestone[]
+  submissions       Submission[]
+  feedbackGiven     Feedback[]
+}
+
+model Session {
+  id        String   @id
+  userId    String   @db.Uuid
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Team {
+  id           String @id @default(uuid()) @db.Uuid
+  name         String @unique
+  supervisorId String @db.Uuid
+
+  supervisor User         @relation(fields: [supervisorId], references: [id])
+  members    TeamMember[]
+  milestones Milestone[]
+
+  @@index([supervisorId])
+}
+
+// A student belongs to exactly one team (SRS D-05): studentId is unique.
+model TeamMember {
+  teamId    String @db.Uuid
+  studentId String @unique @db.Uuid
+
+  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  student User @relation(fields: [studentId], references: [id])
+
+  @@id([teamId, studentId])
+}
+
+model Milestone {
+  id          String   @id @default(uuid()) @db.Uuid
+  teamId      String   @db.Uuid
+  title       String
+  description String   @default("")
+  dueAt       DateTime
+  createdById String   @db.Uuid
+  createdAt   DateTime @default(now())
+
+  team       Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdBy  User        @relation(fields: [createdById], references: [id])
+  submission Submission?
+
+  @@index([teamId, dueAt])
+}
+
+// One submission per milestone (BR-01): milestoneId is unique.
+model Submission {
+  id            String   @id @default(uuid()) @db.Uuid
+  milestoneId   String   @unique @db.Uuid
+  title         String
+  description   String
+  link          String
+  submittedById String   @db.Uuid
+  submittedAt   DateTime
+
+  milestone   Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  submittedBy User      @relation(fields: [submittedById], references: [id])
+  feedback    Feedback?
+}
+
+// One feedback per submission (BR-05): submissionId is unique.
+model Feedback {
+  id           String   @id @default(uuid()) @db.Uuid
+  submissionId String   @unique @db.Uuid
+  supervisorId String   @db.Uuid
+  comment      String
+  createdAt    DateTime @default(now())
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  supervisor User       @relation(fields: [supervisorId], references: [id])
+}

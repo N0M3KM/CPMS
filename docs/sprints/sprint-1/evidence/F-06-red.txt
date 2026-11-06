@@ -1,0 +1,136 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - `__dirname` (vitest.config.ts:5:25). Use `import.meta.dirname` instead
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Error: Could not load schema from `prisma/schema.prisma` provided by "prisma.schema" config of `package.json`: file or directory not found
+No test files found, exiting with code 1
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/.git/**
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: Command failed: npx prisma migrate deploy
+ ❯ genericNodeError node:internal/errors:985:15
+ ❯ wrappedFn node:internal/errors:539:14
+ ❯ checkExecSyncError node:child_process:925:11
+ ❯ execFileSync node:child_process:961:15
+ ❯ Object.setup tests/globalSetup.ts:11:3
+      9|     throw new Error('Refusing to run tests: TEST_DATABASE_URL must poi…
+     10|   }
+     11|   execFileSync('npx', ['prisma', 'migrate', 'deploy'], {
+       |   ^
+     12|     stdio: 'inherit',
+     13|     env: { ...process.env, DATABASE_URL: url },
+ ❯ TestProject._initializeGlobalSetup ../node_modules/vitest/dist/chunks/index.Di8au7q4.js:6602:50
+ ❯ Vitest.initializeGlobalSetup ../node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13573:35
+ ❯ ../node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13413:6
+ ❯ ../node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13440:11
+ ❯ ../node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13304:45
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { status: 1, signal: null, output: [ null, null, null ], pid: 47525, stdout: null, stderr: null }
+
+
+
+../../../../../../../private/var/folders/w2/3sww2s0d4hx5wbdvk8tkfv6w0000gn/T/vitest.unit.red.ts (1:383) [33m[UNRESOLVED_IMPORT] [0mCould not resolve 'vitest/config' in ../../../../../../../private/var/folders/w2/3sww2s0d4hx5wbdvk8tkfv6w0000gn/T/vitest.unit.red.ts
+   [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m ../../../../../../../private/var/folders/w2/3sww2s0d4hx5wbdvk8tkfv6w0000gn/T/vitest.unit.red.ts:1:384 [38;5;246m][0m
+   [38;5;246m│[0m
+ [38;5;246m1 │[0m [38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m_[0m[38;5;249m_[0m[38;5;249mv[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249m_[0m[38;5;249mi[0m[38;5;249mn[0m[38;5;249mj[0m[38;5;249me[0m[38;5;249mc[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249md[0m[38;5;249m_[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mi[0m[38;5;249mg[0m[38;5;249mi[0m[38;5;249mn[0m[38;5;249ma[0m[38;5;249ml[0m[38;5;249m_[0m[38;5;249md[0m[38;5;249mi[0m[38;5;249mr[0m[38;5;249mn[0m[38;5;249ma[0m[38;5;249mm[0m[38;5;249me[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0m[38;5;249m"[0m[38;5;249m/[0m[38;5;249mp[0m[38;5;249mr[0m[38;5;249mi[0m[38;5;249mv[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249m/[0m[38;5;249mv[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249m/[0m[38;5;249mf[0m[38;5;249mo[0m[38;5;249ml[0m[38;5;249md[0m[38;5;249me[0m[38;5;249mr[0m[38;5;249ms[0m[38;5;249m/[0m[38;5;249mw[0m[38;5;249m2[0m[38;5;249m/[0m[38;5;249m3[0m[38;5;249ms[0m[38;5;249mw[0m[38;5;249mw[0m[38;5;249m2[0m[38;5;249ms[0m[38;5;249m0[0m[38;5;249md[0m[38;5;249m4[0m[38;5;249mh[0m[38;5;249mx[0m[38;5;249m5[0m[38;5;249mw[0m[38;5;249mb[0m[38;5;249md[0m[38;5;249mv[0m[38;5;249mk[0m[38;5;249m8[0m[38;5;249mt[0m[38;5;249mk[0m[38;5;249mf[0m[38;5;249mv[0m[38;5;249m6[0m[38;5;249mw[0m[38;5;249m0[0m[38;5;249m0[0m[38;5;249m0[0m[38;5;249m0[0m[38;5;249mg[0m[38;5;249mn[0m[38;5;249m/[0m[38;5;249mT[0m[38;5;249m"[0m[38;5;249m;[0m[38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m_[0m[38;5;249m_[0m[38;5;249mv[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249m_[0m[38;5;249mi[0m[38;5;249mn[0m[38;5;249mj[0m[38;5;249me[0m[38;5;249mc[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249md[0m[38;5;249m_[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mi[0m[38;5;249mg[0m[38;5;249mi[0m[38;5;249mn[0m[38;5;249ma[0m[38;5;249ml[0m[38;5;249m_[0m[38;5;249mf[0m[38;5;249mi[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249mn[0m[38;5;249ma[0m[38;5;249mm[0m[38;5;249me[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0m[38;5;249m"[0m[38;5;249m/[0m[38;5;249mp[0m[38;5;249mr[0m[38;5;249mi[0m[38;5;249mv[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249m/[0m[38;5;249mv[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249m/[0m[38;5;249mf[0m[38;5;249mo[0m[38;5;249ml[0m[38;5;249md[0m[38;5;249me[0m[38;5;249mr[0m[38;5;249ms[0m[38;5;249m/[0m[38;5;249mw[0m[38;5;249m2[0m[38;5;249m/[0m[38;5;249m3[0m[38;5;249ms[0m[38;5;249mw[0m[38;5;249mw[0m[38;5;249m2[0m[38;5;249ms[0m[38;5;249m0[0m[38;5;249md[0m[38;5;249m4[0m[38;5;249mh[0m[38;5;249mx[0m[38;5;249m5[0m[38;5;249mw[0m[38;5;249mb[0m[38;5;249md[0m[38;5;249mv[0m[38;5;249mk[0m[38;5;249m8[0m[38;5;249mt[0m[38;5;249mk[0m[38;5;249mf[0m[38;5;249mv[0m[38;5;249m6[0m[38;5;249mw[0m[38;5;249m0[0m[38;5;249m0[0m[38;5;249m0[0m[38;5;249m0[0m[38;5;249mg[0m[38;5;249mn[0m[38;5;249m/[0m[38;5;249mT[0m[38;5;249m/[0m[38;5;249mv[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m.[0m[38;5;249mu[0m[38;5;249mn[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249m.[0m[38;5;249mr[0m[38;5;249me[0m[38;5;249md[0m[38;5;249m.[0m[38;5;249mt[0m[38;5;249ms[0m[38;5;249m"[0m[38;5;249m;[0m[38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m_[0m[38;5;249m_[0m[38;5;249mv[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249m_[0m[38;5;249mi[0m[38;5;249mn[0m[38;5;249mj[0m[38;5;249me[0m[38;5;249mc[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249md[0m[38;5;249m_[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mi[0m[38;5;249mg[0m[38;5;249mi[0m[38;5;249mn[0m[38;5;249ma[0m[38;5;249ml[0m[38;5;249m_[0m[38;5;249mi[0m[38;5;249mm[0m[38;5;249mp[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mt[0m[38;5;249m_[0m[38;5;249mm[0m[38;5;249me[0m[38;5;249mt[0m[38;5;249ma[0m[38;5;249m_[0m[38;5;249mu[0m[38;5;249mr[0m[38;5;249ml[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0m[38;5;249m"[0m[38;5;249mf[0m[38;5;249mi[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249m:[0m[38;5;249m/[0m[38;5;249m/[0m[38;5;249m/[0m[38;5;249mp[0m[38;5;249mr[0m[38;5;249mi[0m[38;5;249mv[0m[38;5;249ma[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249m/[0m[38;5;249mv[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249m/[0m[38;5;249mf[0m[38;5;249mo[0m[38;5;249ml[0m[38;5;249md[0m[38;5;249me[0m[38;5;249mr[0m[38;5;249ms[0m[38;5;249m/[0m[38;5;249mw[0m[38;5;249m2[0m[38;5;249m/[0m[38;5;249m3[0m[38;5;249ms[0m[38;5;249mw[0m[38;5;249mw[0m[38;5;249m2[0m[38;5;249ms[0m[38;5;249m0[0m[38;5;249md[0m[38;5;249m4[0m[38;5;249mh[0m[38;5;249mx[0m[38;5;249m5[0m[38;5;249mw[0m[38;5;249mb[0m[38;5;249md[0m[38;5;249mv[0m[38;5;249mk[0m[38;5;249m8[0m[38;5;249mt[0m[38;5;249mk[0m[38;5;249mf[0m[38;5;249mv[0m[38;5;249m6[0m[38;5;249mw[0m[38;5;249m0[0m[38;5;249m0[0m[38;5;249m0[0m[38;5;249m0[0m[38;5;249mg[0m[38;5;249mn[0m[38;5;249m/[0m[38;5;249mT[0m[38;5;249m/[0m[38;5;249mv[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249me[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m.[0m[38;5;249mu[0m[38;5;249mn[0m[38;5;249mi[0m[38;5;249mt[0m[38;5;249m.[0m[38;5;249mr[0m[38;5;249me[0m[38;5;249md[0m[38;5;249m.[0m[38;5;249mt[0m[38;5;249ms[0m[38;5;249m"[0m[38;5;249m;[0m[38;5;249mi[0m[38;5;249mm[0m[38;5;249mp[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m{[0m[38;5;249m [0m[38;5;249md[0m[38;5;249me[0m[38;5;249mf[0m[38;5;249mi[0m[38;5;249mn[0m[38;5;249me[0m[38;5;249mC[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249mf[0m[38;5;249mi[0m[38;5;249mg[0m[38;5;249m [0m[38;5;249m}[0m[38;5;249m [0m[38;5;249mf[0m[38;5;249mr[0m[38;5;249mo[0m[38;5;249mm[0m[38;5;249m [0m'vitest/config'[38;5;249m;[0m
+ [38;5;240m  │[0m                                                                                                                                                                                                                                                                                                                                                                                                ───────┬───────  
+ [38;5;240m  │[0m                                                                                                                                                                                                                                                                                                                                                                                                       ╰───────── Module not found, treating it as an external dependency
+[38;5;246m───╯[0m
+
+failed to load config from /var/folders/w2/3sww2s0d4hx5wbdvk8tkfv6w0000gn/T/vitest.unit.red.ts
+
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error: Cannot find module 'vitest/config'
+Require stack:
+- /private/var/folders/w2/3sww2s0d4hx5wbdvk8tkfv6w0000gn/T/vitest.unit.red.ts
+- /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/node_modules/vite/dist/node/chunks/node.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1456:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1066:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1071:22)
+    at Module._load (node:internal/modules/cjs/loader:1242:25)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1556:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (/private/var/folders/w2/3sww2s0d4hx5wbdvk8tkfv6w0000gn/T/vitest.unit.red.ts:1:35)
+    at Module._compile (node:internal/modules/cjs/loader:1812:14)
+    at _require.extensions.<computed> [as .js] (file:///Users/jinnakanchaviengpob/Desktop/3rd%20Year/CPE_334/CPMS/node_modules/vite/dist/node/chunks/node.js:38158:42) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/private/var/folders/w2/3sww2s0d4hx5wbdvk8tkfv6w0000gn/T/vitest.unit.red.ts',
+    '/Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/node_modules/vite/dist/node/chunks/node.js'
+  ]
+}
+
+
+
+
+===== DB-free tests (npm run test:unit -w server) =====
+
+> cpms-server@0.1.0 test:unit
+> vitest run --config vitest.unit.config.ts
+
+
+ RUN  v5.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+
+ ❯ tests/clock.test.ts (0 test)
+ ❯ tests/config.test.ts (0 test)
+ ❯ tests/health.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/clock.test.ts [ tests/clock.test.ts ]
+Error: Cannot find module '../src/platform/clock.js' imported from /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server/tests/clock.test.ts
+ ❯ tests/clock.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { fixedClock, systemClock } from '../src/platform/clock.js';
+       | ^
+      3|
+      4| describe('clock', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/config.test.ts [ tests/config.test.ts ]
+Error: Cannot find module '../src/platform/config.js' imported from /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server/tests/config.test.ts
+ ❯ tests/config.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { loadConfig } from '../src/platform/config.js';
+       | ^
+      3|
+      4| const base = { DATABASE_URL: 'postgresql://u:p@127.0.0.1:5433/cpms_dev…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/health.test.ts [ tests/health.test.ts ]
+Error: Cannot find module '../src/platform/app.js' imported from /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server/tests/health.test.ts
+ ❯ tests/health.test.ts:3:1
+      1| import request from 'supertest';
+      2| import { describe, expect, it, vi } from 'vitest';
+      3| import { createApp } from '../src/platform/app.js';
+       | ^
+      4|
+      5| describe('health and ready endpoints', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  no tests
+   Start at  21:22:10
+   Duration  166ms (worker 97%, environment 3%)
+
+npm error Lifecycle script `test:unit` failed with error:
+npm error code 1
+npm error path /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+npm error workspace cpms-server@0.1.0
+npm error location /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+npm error command failed
+npm error command sh -c vitest run --config vitest.unit.config.ts
