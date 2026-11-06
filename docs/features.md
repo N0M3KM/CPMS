@@ -1,6 +1,6 @@
 # CPMS Feature Inventory (Part B)
 
-**Version:** 2.0 (draft for review)
+**Version:** 2.1 (Sprint 1 baseline)
 **Related:** [SRS](srs.md) · [Traceability](traceability.md) · [Sprint plan](sprints/plan.md)
 
 | ID | Feature | Description | Requirements | Depends on | Sprint |

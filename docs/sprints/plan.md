@@ -1,12 +1,13 @@
 # CPMS Three-Sprint Plan (Part D)
 
-**Version:** 2.0 (draft for review)
+**Version:** 2.1 (Sprint 1 baseline)
 **Related:** [Features](../features.md) · [Traceability](../traceability.md) · [Sprint 1 plan](sprint-1/plan.md)
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
+| 2.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 2.0 | 2026-11-06 | Reworked for Theme 6; Sprint 2 and 3 allocation follows the theme's later-sprint list. |
 | 1.0 | 2026-11-06 | Initial (proposal domain, superseded). |
 

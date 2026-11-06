@@ -9,6 +9,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 2.2 | 2026-11-07 | Sequence diagrams split into four, one per journey, for readability; no behavior change. |
 | 2.1 | 2026-11-06 | Sprint 1 plan approved. Clarified F-01 login validation, throttling limits and test expectations. |
 | 2.0 | 2026-11-06 | Reworked for Theme 6 (teams, milestones, submissions, feedback). New sequence diagrams and ownership. |
 | 1.x | 2026-11-05 to 2026-11-06 | Proposal-domain drafts, superseded. |
@@ -61,19 +62,18 @@ Both developers understand the full design. Neither approves their own PR. Apply
 
 ## Sequence diagrams
 
-Lifelines are the swimlanes across actor, browser UI, API and auth middleware, application service and database.
+Lifelines are the swimlanes across actor, browser UI, API, auth middleware, application service and database. Each journey is drawn as its own diagram so the text stays readable.
 
 | Diagram | Owner | Reviewer | Required branches |
 |---|---|---|---|
-| Supervisor creates milestone, member submits | Drarun 1016 | Jinnakan 1010 | Invalid milestone; unsupervised team; deadline passed; duplicate; success and readback. |
+| Supervisor creates milestone; member submits | Drarun 1016 | Jinnakan 1010 | Invalid milestone; unsupervised team; deadline passed; duplicate; success and readback. |
 | Supervisor records feedback | Jinnakan 1010 | Drarun 1016 | Invalid comment; unassigned supervisor; feedback exists; success; member reads feedback. |
 
-### Supervisor creates milestone and member submits
+### Supervisor creates a milestone
 
 ```mermaid
 sequenceDiagram
   participant Supervisor
-  participant Student
   participant UI
   participant API
   participant Auth
@@ -102,6 +102,18 @@ sequenceDiagram
     DB-->>Service: Return milestone
     API-->>UI: Return created milestone
   end
+```
+
+### A team member submits work
+
+```mermaid
+sequenceDiagram
+  participant Student
+  participant UI
+  participant API
+  participant Auth
+  participant Service
+  participant DB
   Student->>UI: Open milestone and submit title description link
   UI->>API: Send submission with session cookie
   API->>Auth: Validate session and student role
@@ -133,7 +145,6 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   participant Supervisor
-  participant Student
   participant UI
   participant API
   participant Auth
@@ -170,6 +181,18 @@ sequenceDiagram
     DB-->>Service: Return feedback
     API-->>UI: Return created feedback
   end
+```
+
+### The team reads the feedback
+
+```mermaid
+sequenceDiagram
+  participant Student
+  participant UI
+  participant API
+  participant Auth
+  participant Service
+  participant DB
   Student->>UI: Open milestone
   UI->>API: Request milestone detail
   API->>Auth: Validate session and membership
@@ -200,4 +223,4 @@ See the Product Definition of Done in [sts.md](sts.md). In short: F-01 to F-07 b
 
 ## Current status
 
-F-06 is integrated in Sprint 1 staging. F-01 is in feature development. The Sprint 1 release is pending integration and acceptance checks.
+F-01 to F-07 are implemented and merged into `sprint-1-staging`. The release to `main`, its tag and the observed test results are recorded in the submission PDF (Part F) and in `evidence/`.

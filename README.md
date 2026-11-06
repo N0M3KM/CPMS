@@ -2,12 +2,13 @@
 
 CPE 334 group project, Theme 6. Documentation index: [docs/README.md](docs/README.md). Working rules: [AGENTS.md](AGENTS.md).
 
-Status: Sprint 1 in progress. F-06 (foundation and seed) is integrated in staging. F-01 adds login, role-specific home screens and logout on its feature branch.
+Status: Sprint 1 (F-01 to F-07) is implemented and merged into `sprint-1-staging`. Tests, evidence and the release record are described in `docs/sprints/sprint-1/evidence/`.
 
 ## Prerequisites
 
 - Node.js 24 and npm 11 (other recent versions probably work; these were used).
 - Docker (only for the local PostgreSQL container).
+- Google Chrome (only for `npm run test:e2e`; set `E2E_CHANNEL` to use another Playwright channel).
 
 ## Setup
 
@@ -33,6 +34,7 @@ The container creates two databases: `cpms_dev` and `cpms_test`. Seed accounts u
 | `npm run dev` | Start the API on `PORT` (default 3000) and the client at `http://localhost:5173`. |
 | `npm run build` | Type-check and build the server and client. |
 | `npm test` | Run all tests against `cpms_test` (applies migrations first). |
+| `npm run test:e2e` | Run the two browser journeys (TEST-42, TEST-43) against `cpms_test` with the real API and client. Resets and re-seeds `cpms_test`. Ports 3000 and 5173 must be free. |
 | `npm run test:unit -w server` | Run only the database-free tests. |
 | `npm run db:migrate` | Create and apply a migration on the dev database. |
 | `npm run db:seed` | Idempotent synthetic seed. Safe to run repeatedly. |
@@ -45,7 +47,7 @@ Tests refuse to run unless `TEST_DATABASE_URL` points at a database whose name e
 
 ## Not yet available
 
-`npm run test:e2e` and the milestone, submission and feedback workflows arrive with the remaining Sprint 1 features. Docker packaging, CI/CD and GCP deployment are Lab 5.
+Docker packaging, CI/CD and GCP deployment are Lab 5.
 
 ## Known limitations
 

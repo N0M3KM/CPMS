@@ -1,6 +1,6 @@
 # CPMS Sprint 1 Software Architecture and Design Patterns
 
-**Version:** 1.0 (draft for review)
+**Version:** 1.1 (Sprint 1 baseline)
 **Related:** [System SDS](../../system-sds.md) · [Product architecture plan](../../architecture.md) · [Sprint 1 plan](plan.md) · feature contracts `F-01` to `F-07`
 
 Design only. No code exists. A pattern is used only where it removes a real problem here (TypeScript, Express, Prisma, React). Skipped patterns are listed at the end.
@@ -9,6 +9,7 @@ Design only. No code exists. A pattern is used only where it removes a real prob
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 1.0 | 2026-11-06 | Reworked for Theme 6. Seven patterns kept; State replaced by a deadline and status policy plus Clock. |
 | 0.1 to 0.2 | 2026-11-06 | Proposal-domain drafts, superseded. |
 

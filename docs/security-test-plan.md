@@ -1,14 +1,15 @@
 # CPMS Security Test Plan
 
-**Version:** 1.0 (draft for review)
+**Version:** 1.1 (Sprint 1 baseline)
 **Related:** [SRS NFR-07 to NFR-12](srs.md) · [Architecture](architecture.md) · [Sprint 1 STS](sprints/sprint-1/sts.md)
 
-Plan only. No security test exists or has run. `SEC-nn` are planned identifiers, grouped into TEST-06, 07, 13 to 16 in the STS.
+`SEC-nn` are stable identifiers, grouped into TEST-06, 07, 13 to 16 in the STS. Where a case has an automated test it is named in Part F; cases that are checked only by a command or a code gate are marked there.
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 1.0 | 2026-11-06 | Reworked for Theme 6 endpoints, fields and users. |
 | 0.2 | 2026-11-06 | NFR-07 to NFR-12 approved (proposal domain, superseded). |
 
