@@ -10,6 +10,7 @@ export default defineConfig({
       'tests/health.test.ts',
       'tests/milestone-status.test.ts',
       'tests/scope.test.ts',
+      'tests/submission-policy.test.ts',
       'tests/secrets.test.ts',
       'tests/security.test.ts',
     ] },

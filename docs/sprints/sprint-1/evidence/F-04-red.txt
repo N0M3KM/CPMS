@@ -1,0 +1,303 @@
+# F-04 red run: new tests plus permissive stubs (src/domain/deadline.ts, src/submissions/policy.ts) and no submission route yet
+# Tests on this commit: see summary at the end.
+
+
+> cpms@0.1.0 test
+> npm test -w server
+
+
+> cpms-server@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "cpms_test", schema "public" at "127.0.0.1:5433"
+
+1 migration found in prisma/migrations
+
+
+No pending migrations to apply.
+ ❯ tests/submit-work-db.test.ts (13 tests | 13 failed) 2197ms
+   ❯ F-04 submit milestone work (13)
+     × TEST-21 saves boundary-length submissions with the session student and reads them back 171ms
+     × TEST-21 stores hostile text as inert data and trims the title 173ms
+     × TEST-22 rejects invalid data, spoofed fields and malformed IDs without storing anything 171ms
+     × TEST-23 rejects a second submission and keeps the first 163ms
+     × TEST-23 creates exactly one record when two members submit at the same time 163ms
+     × TEST-24 one second before the deadline 173ms
+     × TEST-24 exactly at the deadline 158ms
+     × TEST-24 one second after the deadline 170ms
+     × TEST-24 refuses an already overdue milestone and reports a duplicate before a late one 185ms
+     × TEST-25 gives a non-member the same 404 as a missing milestone and stores nothing 166ms
+     × TEST-26 refuses supervisors and anonymous callers and stores nothing 165ms
+     × keeps auth, role and origin checks ahead of body errors on this route 178ms
+     × rejects an expired session 157ms
+ ❯ tests/security.test.ts (34 tests | 1 failed) 1831ms
+   ❯ route matrix (SEC-06): every route is accounted for (1)
+     × has no unlisted route and every protected route returns 401 anonymously 66ms
+ ❯ tests/submission-policy.test.ts (40 tests | 30 failed) 9ms
+   ❯ isPastDue (shared deadline rule) (1)
+     × is false before and exactly at the deadline, true one millisecond later 3ms
+   ❯ assertBeforeDeadline (BR-02) (2)
+     × rejects after the deadline with 409 DEADLINE_PASSED 1ms
+   ❯ isAllowedLink (BR-04) (22)
+     × rejects "javascript:alert(1)" 0ms
+     × rejects "JaVaScRiPt:alert(1)" 0ms
+     × rejects "data:text/html,<script>1</script>" 0ms
+     × rejects "file:///etc/passwd" 0ms
+     × rejects "ftp://example.test/x" 0ms
+     × rejects "mailto:a@example.test" 0ms
+     × rejects "/relative/path" 0ms
+     × rejects "//evil.example/x" 0ms
+     × rejects "example.test/report" 0ms
+     × rejects "" 0ms
+     × rejects "https://" 0ms
+     × rejects "http:///nohost" 0ms
+     × rejects "https://exa mple.test" 0ms
+     × rejects "https://example.test/\u0000" 0ms
+     × rejects "https://example.test/\nx" 0ms
+     × rejects " https://example.test" 0ms
+     × rejects "https://user:pw@example.test" 0ms
+     × accepts 500 characters and rejects 501 0ms
+   ❯ submissionSchema (BR-04) (15)
+     × rejects title too short 0ms
+     × rejects title too long 0ms
+     × rejects title blank after trim 0ms
+     × rejects description too short 0ms
+     × rejects description too long 0ms
+     × rejects NUL in title 0ms
+     × rejects NUL in description 0ms
+     × rejects javascript link 0ms
+     × allows newlines and tabs in the description but not in the title 0ms
+     × trims the title before measuring it 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 44 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/security.test.ts > route matrix (SEC-06): every route is accounted for > has no unlisted route and every protected route returns 401 anonymously
+AssertionError: expected [ 'GET /api/auth/me', …(8) ] to deeply equal [ 'GET /api/auth/me', …(9) ]
+
+- Expected
++ Received
+
+@@ -5,8 +5,7 @@
+    "GET /api/ready",
+    "GET /api/teams",
+    "GET /api/teams/:teamId",
+    "POST /api/auth/login",
+    "POST /api/auth/logout",
+-   "POST /api/milestones/:milestoneId/submission",
+    "POST /api/teams/:teamId/milestones",
+  ]
+
+ ❯ tests/security.test.ts:334:20
+    332|       'POST /api/milestones/:milestoneId/submission': 'protected',
+    333|     };
+    334|     expect(routes).toEqual(Object.keys(matrix).sort());
+       |                    ^
+    335|     for (const [key, access] of Object.entries(matrix)) {
+    336|       if (access !== 'protected') continue;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/44]⎯
+
+ FAIL  tests/submission-policy.test.ts > isPastDue (shared deadline rule) > is false before and exactly at the deadline, true one millisecond later
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/submission-policy.test.ts:13:61
+     11|     expect(isPastDue(dueAt, new Date(dueAt.getTime() - 1000))).toBe(fa…
+     12|     expect(isPastDue(dueAt, dueAt)).toBe(false);
+     13|     expect(isPastDue(dueAt, new Date(dueAt.getTime() + 1))).toBe(true);
+       |                                                             ^
+     14|   });
+     15| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/44]⎯
+
+ FAIL  tests/submission-policy.test.ts > assertBeforeDeadline (BR-02) > rejects after the deadline with 409 DEADLINE_PASSED
+AssertionError: expected undefined to be an instance of AppError
+ ❯ tests/submission-policy.test.ts:30:17
+     28|       }
+     29|     })();
+     30|     expect(err).toBeInstanceOf(AppError);
+       |                 ^
+     31|     expect((err as AppError).status).toBe(409);
+     32|     expect((err as AppError).code).toBe('DEADLINE_PASSED');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/44]⎯
+
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "javascript:alert(1)"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "JaVaScRiPt:alert(1)"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "data:text/html,<script>1</script>"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "file:///etc/passwd"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "ftp://example.test/x"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "mailto:a@example.test"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "/relative/path"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "//evil.example/x"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "example.test/report"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects ""
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "https://"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "http:///nohost"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "https://exa mple.test"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "https://example.test/\u0000"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "https://example.test/\nx"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects " https://example.test"
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > rejects "https://user:pw@example.test"
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/submission-policy.test.ts:45:58
+     43|     'mailto:a@example.test', '/relative/path', '//evil.example/x', 'ex…
+     44|     'https://exa mple.test', 'https://example.test/\u0000', 'https://e…
+     45|   ])('rejects %j', (link) => expect(isAllowedLink(link)).toBe(false));
+       |                                                          ^
+     46|   it('accepts 500 characters and rejects 501', () => {
+     47|     const base = 'https://example.test/';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/44]⎯
+
+ FAIL  tests/submission-policy.test.ts > isAllowedLink (BR-04) > accepts 500 characters and rejects 501
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/submission-policy.test.ts:49:65
+     47|     const base = 'https://example.test/';
+     48|     expect(isAllowedLink(base + 'a'.repeat(500 - base.length))).toBe(t…
+     49|     expect(isAllowedLink(base + 'a'.repeat(501 - base.length))).toBe(f…
+       |                                                                 ^
+     50|   });
+     51| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/44]⎯
+
+ FAIL  tests/submission-policy.test.ts > submissionSchema (BR-04) > rejects title too short
+ FAIL  tests/submission-policy.test.ts > submissionSchema (BR-04) > rejects title too long
+ FAIL  tests/submission-policy.test.ts > submissionSchema (BR-04) > rejects title blank after trim
+ FAIL  tests/submission-policy.test.ts > submissionSchema (BR-04) > rejects description too short
+ FAIL  tests/submission-policy.test.ts > submissionSchema (BR-04) > rejects description too long
+ FAIL  tests/submission-policy.test.ts > submissionSchema (BR-04) > rejects NUL in title
+ FAIL  tests/submission-policy.test.ts > submissionSchema (BR-04) > rejects NUL in description
+ FAIL  tests/submission-policy.test.ts > submissionSchema (BR-04) > rejects javascript link
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/submission-policy.test.ts:72:72
+     70|     ['javascript link', { link: 'javascript:alert(1)' }],
+     71|   ])('rejects %s', (_name, patch) => {
+     72|     expect(submissionSchema.safeParse({ ...valid, ...patch }).success)…
+       |                                                                        ^
+     73|   });
+     74|   it('allows newlines and tabs in the description but not in the title…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/44]⎯
+
+ FAIL  tests/submission-policy.test.ts > submissionSchema (BR-04) > allows newlines and tabs in the description but not in the title
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/submission-policy.test.ts:76:87
+     74|   it('allows newlines and tabs in the description but not in the title…
+     75|     expect(submissionSchema.safeParse({ ...valid, description: 'Line o…
+     76|     expect(submissionSchema.safeParse({ ...valid, title: 'Design\nrepo…
+       |                                                                                       ^
+     77|   });
+     78|   it('trims the title before measuring it', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/44]⎯
+
+ FAIL  tests/submission-policy.test.ts > submissionSchema (BR-04) > trims the title before measuring it
+AssertionError: expected '  Design report  ' to be 'Design report' // Object.is equality
+
+Expected: "Design report"
+Received: "  Design report  "
+
+ ❯ tests/submission-policy.test.ts:80:49
+     78|   it('trims the title before measuring it', () => {
+     79|     const parsed = submissionSchema.safeParse({ ...valid, title: '  De…
+     80|     expect(parsed.success && parsed.data.title).toBe('Design report');
+       |                                                 ^
+     81|   });
+     82| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/44]⎯
+
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-21 saves boundary-length submissions with the session student and reads them back
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-21 stores hostile text as inert data and trims the title
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-22 rejects invalid data, spoofed fields and malformed IDs without storing anything
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-23 rejects a second submission and keeps the first
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-23 creates exactly one record when two members submit at the same time
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-24 one second before the deadline
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-24 exactly at the deadline
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-24 one second after the deadline
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-24 refuses an already overdue milestone and reports a duplicate before a late one
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-25 gives a non-member the same 404 as a missing milestone and stores nothing
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > TEST-26 refuses supervisors and anonymous callers and stores nothing
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > keeps auth, role and origin checks ahead of body errors on this route
+ FAIL  tests/submit-work-db.test.ts > F-04 submit milestone work > rejects an expired session
+Error: expected 200 "OK", got 429 "Too Many Requests"
+ ❯ login tests/submit-work-db.test.ts:38:97
+     36|
+     37| async function login(email: string): Promise<string> {
+     38|   const res = await api.post('/api/auth/login').set('Origin', origin).…
+       |                                                                                                 ^
+     39|   return (res.headers['set-cookie']?.[0] ?? '').split(';')[0] ?? '';
+     40| }
+ ❯ tests/submit-work-db.test.ts:53:102
+ ❯ tests/submit-work-db.test.ts:53:91
+ ❯ Test._assertStatus ../node_modules/supertest/lib/test.js:404:14
+ ❯ ../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../node_modules/supertest/lib/test.js:220:38
+ ❯ finish ../node_modules/supertest/lib/test.js:233:7
+ ❯ fn ../node_modules/superagent/src/node/index.js:1196:3
+ ❯ callback ../node_modules/superagent/src/node/index.js:1552:18
+ ❯ fn ../node_modules/superagent/src/node/parsers/json.js:24:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/44]⎯
+
+
+ Test Files  3 failed | 14 passed (17)
+      Tests  44 failed | 108 passed (152)
+   Start at  23:31:14
+   Duration  11.01s (tests 89%, import 10%, transform 1%)
+
+    Isolate  17 workers spawned · ~47ms startup each (spawn + environment, per file)
+             at least ~755ms faster with isolate: false — reuses workers across files instead of one per file
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+npm error workspace cpms-server@0.1.0
+npm error location /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+npm error command failed
+npm error command sh -c vitest run
