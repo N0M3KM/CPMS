@@ -41,7 +41,7 @@ export const fakeTeamRepo: TeamAccessRepo = {
 
 let passwordHash: string | undefined;
 
-export async function createFixture(options: { mountRoutes?: AppDeps['mountRoutes'] } = {}) {
+export async function createFixture(options: { mountRoutes?: AppDeps['mountRoutes']; trustProxy?: number } = {}) {
   passwordHash ??= await bcrypt.hash(PASSWORD, 4);
   const clock = fixedClock(new Date('2026-11-06T08:00:00Z'));
   const users: UserCredentials[] = USERS.map((u) => ({ ...u, passwordHash: passwordHash! }));
@@ -68,6 +68,7 @@ export async function createFixture(options: { mountRoutes?: AppDeps['mountRoute
     auth: { store, clock, ttlHours: 1, secure: false, allowedOrigin: ORIGIN },
     teamAccess: fakeTeamRepo,
     ...(options.mountRoutes ? { mountRoutes: options.mountRoutes } : {}),
+    ...(options.trustProxy ? { trustProxy: options.trustProxy } : {}),
   });
   const api = request(app);
 

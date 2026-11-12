@@ -28,6 +28,8 @@ export interface AppConfig {
   sessionSecret: string | undefined;
   sessionTtlHours: number;
   allowedOrigin: string;
+  trustProxy: number;
+  clientDist: string | undefined;
 }
 
 // Validates the environment once at startup. Error messages name variables, never values.
@@ -46,5 +48,7 @@ export function loadConfig(env: Record<string, string | undefined>): AppConfig {
     sessionSecret: e.SESSION_SECRET,
     sessionTtlHours: e.SESSION_TTL_HOURS,
     allowedOrigin: e.ALLOWED_ORIGIN,
+    trustProxy: 0, // RED STUB
+    clientDist: undefined, // RED STUB
   };
 }

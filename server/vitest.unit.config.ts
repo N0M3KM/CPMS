@@ -13,7 +13,9 @@ export default defineConfig({
       'tests/milestone-status.test.ts',
       'tests/scope.test.ts',
       'tests/submission-policy.test.ts',
+      'tests/trust-proxy.test.ts',
       'tests/secrets.test.ts',
+      'tests/static.test.ts',
       'tests/security.test.ts',
     ] },
 });

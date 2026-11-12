@@ -12,6 +12,9 @@ export interface AppDeps {
   checkDb: () => Promise<void>;
   auth?: AuthOptions;
   teamAccess?: TeamAccessRepo;
+  // RED STUB: accepted but not used yet.
+  trustProxy?: number;
+  staticDir?: string;
   // Feature modules register their routes here, behind the shared security chain.
   mountRoutes?: (app: Express, security: SecurityKit) => void;
 }
