@@ -49,6 +49,10 @@ Tests refuse to run unless `TEST_DATABASE_URL` points at a database whose name e
 
 Docker packaging, CI/CD and GCP deployment are Lab 5.
 
+## Running in containers and deploying
+
+`docker compose up --build` runs PostgreSQL, a migrate-and-seed job and the app (API and built client) on http://localhost:3000. Deployment to Google Cloud Run, the CI pipeline, the release and rollback procedure and every environment variable are in [docs/labs/lab-05/deployment.md](docs/labs/lab-05/deployment.md).
+
 ## Known limitations
 
 - Rate limits are per server process and reset on restart. The local server uses the socket IP and ignores forwarded IP headers.
