@@ -27,7 +27,7 @@ describe('loadConfig', () => {
   it('requires a SESSION_SECRET of at least 16 characters in production', () => {
     expect(() => loadConfig({ ...base, NODE_ENV: 'production' })).toThrow(/SESSION_SECRET/);
     expect(() => loadConfig({ ...base, NODE_ENV: 'production', SESSION_SECRET: 'short' })).toThrow(/SESSION_SECRET/);
-    expect(loadConfig({ ...base, NODE_ENV: 'production', SESSION_SECRET: 'x'.repeat(16) }).nodeEnv).toBe('production');
+    expect(loadConfig({ ...base, NODE_ENV: 'production', SESSION_SECRET: 'x'.repeat(16), ALLOWED_ORIGIN: 'https://cpms.example.test' }).nodeEnv).toBe('production');
   });
 
   it('does not echo secret values in error messages', () => {

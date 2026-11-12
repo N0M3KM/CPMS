@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { prismaAuthStore } from './auth/store.js';
 import { createApp } from './platform/app.js';
 import { systemClock } from './platform/clock.js';
@@ -8,8 +10,14 @@ import { mountFeatureRoutes } from './routes.js';
 
 const config = loadConfig(process.env);
 const prisma = createPrisma(config.databaseUrl);
+// Serve the built client when asked to, or by default in production (single container).
+const clientDist = config.clientDist ?? (config.nodeEnv === 'production' ? resolve(process.cwd(), '../client/dist') : undefined);
+
 const app = createApp({
   checkDb: dbChecker(prisma),
+  trustProxy: config.trustProxy,
+  ...(process.env.APP_COMMIT ? { commit: process.env.APP_COMMIT } : {}),
+  ...(clientDist && existsSync(join(clientDist, 'index.html')) ? { staticDir: clientDist } : {}),
   teamAccess: prismaTeamAccess(prisma),
   mountRoutes: (app, security) => mountFeatureRoutes(app, security, prisma, systemClock),
   auth: {

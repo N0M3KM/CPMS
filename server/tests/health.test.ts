@@ -37,4 +37,19 @@ describe('health and ready endpoints', () => {
     const res = await request(createApp({ checkDb: async () => undefined })).get('/api/health');
     expect(res.headers['x-powered-by']).toBeUndefined();
   });
+
+  it('GET /api/version reports the commit baked into the image (R-08)', async () => {
+    const sha = '0123456789abcdef0123456789abcdef01234567';
+    const res = await request(createApp({ checkDb: async () => undefined, commit: sha })).get('/api/version');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ commit: sha });
+  });
+
+  it('GET /api/version says "unknown" when no commit was set and never touches the database', async () => {
+    const checkDb = vi.fn().mockRejectedValue(new Error('db down'));
+    const res = await request(createApp({ checkDb })).get('/api/version');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ commit: 'unknown' });
+    expect(checkDb).not.toHaveBeenCalled();
+  });
 });

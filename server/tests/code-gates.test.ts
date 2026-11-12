@@ -29,8 +29,18 @@ describe('code gates (SEC-02, SEC-04, SEC-11, SEC-12)', () => {
   it('makes no server-side outbound requests (SEC-04)', () => {
     expect(offenders(serverSources, /\bfetch\(|axios|http\.request|https\.request|node:https?'/)).toEqual([]);
   });
+  // The single file read in the server is the client's index.html, read once at startup in
+  // platform/static.ts. Everything else must not read files or load modules at all.
+  const STATIC_MODULE = '/server/src/platform/static.ts';
+  const FS_READ = /\breadFile(Sync)?\(|sendFile\(|createReadStream\(|import\(\s*(req|[a-z]+\.)|require\(\s*req/;
   it('reads no files and loads no modules from request-derived paths (SEC-11)', () => {
-    expect(offenders(serverSources, /\breadFile(Sync)?\(|sendFile\(|createReadStream\(|import\(\s*(req|[a-z]+\.)|require\(\s*req/)).toEqual([]);
+    expect(offenders(serverSources, FS_READ).filter((f) => f !== STATIC_MODULE)).toEqual([]);
+  });
+  it('limits file reads in static.ts to the fixed index.html read at startup (SEC-11)', () => {
+    const source = readFileSync(join(root, 'server/src/platform/static.ts'), 'utf8');
+    const reads = source.split('\n').filter((l) => /\b(readFileSync|readFile|sendFile|createReadStream)\(/.test(l)).map((l) => l.trim());
+    expect(reads).toEqual(["const indexHtml = readFileSync(join(root, 'index.html'), 'utf8');"]);
+    expect(source).not.toMatch(/sendFile|createReadStream|\breq\.(params|query|body|url|originalUrl)\b/);
   });
   it('never evaluates strings as code', () => {
     expect(offenders(serverSources, /\beval\(|new Function\(/)).toEqual([]);
