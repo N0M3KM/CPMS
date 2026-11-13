@@ -1,0 +1,58 @@
+# Runs the whole app in production mode on your machine: PostgreSQL, a one-shot migrate-and-seed
+# job, and the app on http://localhost:3000. Needs a .env (copy .env.example). Not used on GCP.
+#   docker compose up --build
+# Stop and keep the data:      docker compose down
+# Stop and delete the data:    docker compose down -v
+name: cpms-app
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cpms
+      POSTGRES_PASSWORD: ${CPMS_DB_PASSWORD:?set CPMS_DB_PASSWORD in .env}
+      POSTGRES_DB: cpms
+    volumes:
+      - cpms-compose-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cpms -d cpms"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build: .
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://cpms:${CPMS_DB_PASSWORD}@db:5432/cpms?schema=public
+      SEED_STUDENT_PASSWORD: ${SEED_STUDENT_PASSWORD:?set SEED_STUDENT_PASSWORD in .env}
+      SEED_SUPERVISOR_PASSWORD: ${SEED_SUPERVISOR_PASSWORD:?set SEED_SUPERVISOR_PASSWORD in .env}
+    command: ["sh", "-c", "npx prisma migrate deploy && npx tsx src/seed/run.ts"]
+
+  app:
+    build:
+      context: .
+      args:
+        APP_COMMIT: ${APP_COMMIT:-local}
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: postgresql://cpms:${CPMS_DB_PASSWORD}@db:5432/cpms?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-8}
+      ALLOWED_ORIGIN: http://localhost:3000
+      TRUST_PROXY: "0"
+
+volumes:
+  cpms-compose-data:

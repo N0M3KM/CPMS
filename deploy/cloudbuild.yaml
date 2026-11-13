@@ -1,0 +1,14 @@
+# Cloud Build recipe used by deploy/deploy.sh (gcloud builds submit --config).
+# Substitutions: _IMAGE = registry path without a tag, _COMMIT = the full Git commit SHA.
+# The commit is baked into the image (APP_COMMIT) so GET /api/version reports what is running.
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --build-arg
+      - APP_COMMIT=${_COMMIT}
+      - -t
+      - ${_IMAGE}:${_COMMIT}
+      - .
+images:
+  - ${_IMAGE}:${_COMMIT}

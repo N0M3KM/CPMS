@@ -1,0 +1,120 @@
+# ##############################################################################
+# CI: "CI & Docker Build"
+# ##############################################################################
+# Runs on every Pull Request (into staging and into main), by hand, and as a reusable workflow
+# called by deploy.yml so a deployment starts only after these checks pass.
+#
+# Job `test-and-docker` is the required status check for the rulesets on staging and main.
+# DO NOT RENAME the job id: the ruleset selects it by name.
+#
+# Steps: deploy-script tests (offline, no GCP) -> install -> type-check -> build -> dependency
+# audit -> unit, API and database tests on a real PostgreSQL -> two browser journeys (Playwright,
+# Chrome) -> build the production image -> run that image against PostgreSQL, smoke-test it and run the
+# acceptance scenarios (deploy/acceptance.py).
+# Nothing is deployed or pushed here. All passwords below are throw-away CI values, not secrets.
+# ##############################################################################
+name: CI & Docker Build
+
+on:
+  workflow_call:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: cpms
+          POSTGRES_PASSWORD: cpms_ci_only
+          POSTGRES_DB: cpms_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # The tests refuse any database whose name does not end in _test.
+      TEST_DATABASE_URL: postgresql://cpms:cpms_ci_only@localhost:5432/cpms_test
+      SEED_STUDENT_PASSWORD: ci-only-student-password-1
+      SEED_SUPERVISOR_PASSWORD: ci-only-supervisor-password-1
+    steps:
+      # Third-party actions are pinned to a commit SHA (the comment shows the version).
+      # Dependabot proposes updates weekly (.github/dependabot.yml).
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Setup Python 3.14
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+
+      # Guards deploy.sh, release.sh and smoke_test.py so a broken script is caught before a deployment.
+      - name: Check deployment scripts without accessing GCP
+        run: |
+          bash -n deploy/deploy.sh deploy/teardown.sh deploy/release.sh
+          bash deploy/tests/test_deploy_stub.sh
+          bash deploy/tests/test_release_stub.sh
+          python3 -m unittest discover -s deploy/tests -p 'test_smoke.py'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check the server and its tests
+        run: npm run typecheck
+
+      - name: Build server and client
+        run: npm run build
+
+      - name: Audit dependencies (fail on high or critical)
+        run: npm audit --audit-level=high
+
+      # A failing test fails this job, and so blocks the merge. The database tests apply the
+      # migrations to cpms_test first.
+      - name: Unit, API and database tests (Vitest)
+        run: npm test
+
+      - name: Browser journeys (Playwright with Chrome)
+        run: npm run test:e2e
+
+      - name: Build the production image
+        run: docker build -t cpms:ci .
+
+      # Proves the image builds from a clean clone and runs from environment values only:
+      # migrate and seed in a separate container, start the app, then smoke-test it.
+      - name: Run the image against PostgreSQL and smoke-test it
+        run: |
+          PGPASSWORD=cpms_ci_only psql -h localhost -U cpms -d postgres -c 'CREATE DATABASE cpms_smoke'
+          DB='postgresql://cpms:cpms_ci_only@localhost:5432/cpms_smoke?schema=public'
+          docker run --rm --network host -e NODE_ENV=production -e DATABASE_URL="$DB" \
+            -e SEED_STUDENT_PASSWORD -e SEED_SUPERVISOR_PASSWORD \
+            cpms:ci sh -c 'npx prisma migrate deploy && npx tsx src/seed/run.ts'
+          docker run -d --name cpms-app --network host -e NODE_ENV=production -e PORT=3000 \
+            -e DATABASE_URL="$DB" -e SESSION_SECRET=ci-only-session-secret-0123456789 \
+            -e ALLOWED_ORIGIN=http://localhost:3000 cpms:ci
+          SMOKE_EMAIL=student.a1@example.test SMOKE_PASSWORD="$SEED_STUDENT_PASSWORD" \
+            python3 deploy/smoke_test.py http://localhost:3000 || { docker logs cpms-app | tail -30; exit 1; }
+          # The same workflow, rule-rejection and forbidden-access checks that run after the first deployment.
+          ACCEPT_STUDENT_PASSWORD="$SEED_STUDENT_PASSWORD" ACCEPT_SUPERVISOR_PASSWORD="$SEED_SUPERVISOR_PASSWORD" \
+            python3 deploy/acceptance.py http://localhost:3000 || { docker logs cpms-app | tail -30; exit 1; }
+          docker rm -f cpms-app

@@ -41,6 +41,13 @@ function toAppError(err: unknown): AppError | undefined {
   if (type === 'entity.parse.failed') return AppError.validation();
   if (type === 'entity.too.large') return AppError.payloadTooLarge();
   if (type === 'charset.unsupported' || type === 'encoding.unsupported') return AppError.unsupportedMediaType();
+  // Client errors raised by Express middleware (for example a malformed or NUL-containing URL).
+  const status = (err as { status?: unknown; statusCode?: unknown } | null)?.status ?? (err as { statusCode?: unknown } | null)?.statusCode;
+  if (typeof status === 'number' && status >= 400 && status < 500) {
+    if (status === 404) return AppError.notFound();
+    if (status === 403) return AppError.forbidden();
+    return new AppError(status, 'BAD_REQUEST', 'The request could not be processed.');
+  }
   return undefined;
 }
 

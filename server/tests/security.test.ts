@@ -322,6 +322,7 @@ describe('route matrix (SEC-06): every route is accounted for', () => {
     const matrix: Record<string, 'public' | 'protected'> = {
       'GET /api/health': 'public',
       'GET /api/ready': 'public',
+      'GET /api/version': 'public',
       'POST /api/auth/login': 'public',
       'GET /api/auth/me': 'protected',
       'POST /api/auth/logout': 'protected',

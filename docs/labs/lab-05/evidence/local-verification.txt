@@ -1,0 +1,65 @@
+# Lab 5 local verification (repo-side). Working tree has uncommitted Lab 5 changes on top of base commit 144770cf87008731515859a4a55962981d9ad936 (feature/lab5-docker-ci).
+# Date: 2026-11-12 19:56 +07; node v24.14.0; docker Docker version 29.2.1
+
+## 1. CI-equivalent steps with no .env file (only TEST_DATABASE_URL and SEED_* in the environment)
+$ npm run typecheck
+exit 0
+$ npm run build
+✓ built in 88ms
+exit 0
+$ npm audit --audit-level=high
+found 0 vulnerabilities
+exit 0
+$ npm test
+     ✓ throttles failed logins per client address, not for the whole proxy 362ms
+ Test Files  22 passed (22)
+      Tests  235 passed | 1 skipped (236)
+exit 0
+$ npm run test:e2e
+  2 passed (6.3s)
+exit 0
+
+## 2. Deploy script tests (stubbed gcloud, no GCP access)
+bash -n: ok
+PASS: first_run (exit, migration gate, credential handling, secret redaction)
+PASS: rerun (exit, migration gate, credential handling, secret redaction)
+PASS: partial (exit, migration gate, credential handling, secret redaction)
+PASS: job-fail (exit, migration gate, credential handling, secret redaction)
+PASS: dry run makes no gcloud calls
+PASS normal release uses digest and waits for migration
+PASS rollback reuses image without touching migration job
+PASS image failure blocks service update
+PASS migration failure blocks service update
+PASS invalid tag rejected before GCP calls
+Ran 10 tests in 0.004s
+OK
+
+## 3. Production image run with docker compose (fresh volume), then smoke test with the expected commit
+$ APP_COMMIT=144770cf87008731515859a4a55962981d9ad936 docker compose up -d --build
+ Container cpms-app-db-1 Healthy 
+ Container cpms-app-migrate-1 Exited 
+ Container cpms-app-app-1 Starting 
+ Container cpms-app-app-1 Started 
+$ docker compose logs migrate (seed line)
+migrate-1  | The following migration(s) have been applied:
+migrate-1  | All migrations have been successfully applied.
+migrate-1  | Seed complete: 2 supervisors, 6 students, 3 teams, 5 milestones, 2 submissions, 1 feedback.
+$ curl /api/version
+{"commit":"144770cf87008731515859a4a55962981d9ad936"}
+$ docker compose exec app id -un
+node
+$ python3 deploy/smoke_test.py http://localhost:3000 (EXPECTED_COMMIT set, student login check)
+PASS /api/health
+PASS /api/ready
+PASS /
+PASS /api/auth/me
+PASS /api/version
+PASS login, current user and team list
+PASS logout
+$ docker image ls (size)
+cpms-app-migrate 806MB
+cpms-app-app 806MB
+cpms 806MB
+$ docker history: any secret-looking ENV?
+0
+ Network cpms-app_default Removed 
