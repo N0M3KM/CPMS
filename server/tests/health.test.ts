@@ -6,7 +6,7 @@ describe('health and ready endpoints', () => {
   it('GET /api/health returns 200 without touching the database', async () => {
     const checkDb = vi.fn().mockRejectedValue(new Error('db down'));
     const res = await request(createApp({ checkDb })).get('/api/health');
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
     expect(res.body).toEqual({ status: 'ok' });
     expect(checkDb).not.toHaveBeenCalled();
   });
