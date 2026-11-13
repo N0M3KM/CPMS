@@ -5,6 +5,7 @@ import { createSecurityKit, type SecurityKit } from '../security/kit.js';
 import { createOriginCheck } from '../security/origin-check.js';
 import type { TeamAccessRepo } from '../security/team-access.js';
 import { errorHandler } from './errors.js';
+import { mountStatic } from './static.js';
 import { clientIp, createRateLimit, rateLimited } from './rate-limit.js';
 
 export interface AppDeps {
@@ -12,6 +13,12 @@ export interface AppDeps {
   checkDb: () => Promise<void>;
   auth?: AuthOptions;
   teamAccess?: TeamAccessRepo;
+  // Trusted proxy hops in front of the app (so req.ip is the real client). 0 = trust none.
+  trustProxy?: number;
+  // Built client directory to serve (single-container deployment).
+  staticDir?: string;
+  // Commit the running image was built from (APP_COMMIT build argument); shown by /api/version.
+  commit?: string;
   // Feature modules register their routes here, behind the shared security chain.
   mountRoutes?: (app: Express, security: SecurityKit) => void;
 }
@@ -22,10 +29,15 @@ export function createApp(deps: AppDeps): Express {
 
   const app = express();
   app.disable('x-powered-by');
-  app.use(securityHeaders());
+  if (deps.trustProxy) app.set('trust proxy', deps.trustProxy);
+  app.use(securityHeaders({ upgradeInsecureRequests: deps.auth ? deps.auth.allowedOrigin.startsWith('https://') : true }));
 
   app.get('/api/health', (_req, res) => {
     res.status(200).json({ status: 'ok' });
+  });
+
+  app.get('/api/version', (_req, res) => {
+    res.status(200).json({ commit: deps.commit ?? 'unknown' });
   });
 
   app.get('/api/ready', async (_req, res) => {
@@ -54,6 +66,8 @@ export function createApp(deps: AppDeps): Express {
     app.use('/api/auth', createAuthRouter(deps.auth));
     deps.mountRoutes?.(app, createSecurityKit(deps.auth, deps.teamAccess));
   }
+
+  if (deps.staticDir) mountStatic(app, deps.staticDir);
 
   app.use((_req, res) => {
     res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Not found.' } });

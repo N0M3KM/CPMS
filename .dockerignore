@@ -1,0 +1,17 @@
+# Keep the build context small and keep secrets out of the image.
+**/node_modules
+**/dist
+**/build
+.env
+.env.*
+!.env.example
+.git
+.github
+*.log
+test-results
+playwright-report
+submission
+tools
+e2e
+docs
+*.md

@@ -1,0 +1,266 @@
+
+ RUN  v5.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+
+ ❯ tests/config.test.ts (16 tests | 9 failed) 10ms
+   ❯ loadConfig for deployment (10)
+     × TRUST_PROXY defaults to 0 and accepts 0 to 5 hops 3ms
+     × rejects TRUST_PROXY="abc" 1ms
+     × rejects TRUST_PROXY="-1" 0ms
+     × rejects TRUST_PROXY="6" 0ms
+     × rejects TRUST_PROXY="1.5" 0ms
+     × rejects TRUST_PROXY="" 0ms
+     × reads an optional CLIENT_DIST 0ms
+     × requires an explicit ALLOWED_ORIGIN in production instead of the development default 0ms
+     × requires an https ALLOWED_ORIGIN in production, except for localhost 0ms
+ ❯ tests/static.test.ts (30 tests | 4 failed) 49ms
+   ❯ static client serving (30)
+     × serves index.html at / with no-cache and security headers 14ms
+     × serves hashed assets with long-lived immutable caching 3ms
+     × falls back to index.html for client routes without a file extension 1ms
+     × only answers GET and HEAD for pages 2ms
+ ❯ tests/trust-proxy.test.ts (4 tests | 3 failed) 648ms
+   ❯ proxy trust and rate limiting (4)
+     × counts clients separately when one proxy hop is trusted 90ms
+     × does not let one client address exhaust the limit for everyone else 88ms
+     × throttles failed logins per client address, not for the whole proxy 358ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/config.test.ts > loadConfig for deployment > TRUST_PROXY defaults to 0 and accepts 0 to 5 hops
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/config.test.ts:47:66
+     45|   it('TRUST_PROXY defaults to 0 and accepts 0 to 5 hops', () => {
+     46|     expect(loadConfig(base).trustProxy).toBe(0);
+     47|     expect(loadConfig({ ...base, TRUST_PROXY: '1' }).trustProxy).toBe(…
+       |                                                                  ^
+     48|     expect(loadConfig({ ...base, TRUST_PROXY: '5' }).trustProxy).toBe(…
+     49|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  tests/config.test.ts > loadConfig for deployment > rejects TRUST_PROXY="abc"
+ FAIL  tests/config.test.ts > loadConfig for deployment > rejects TRUST_PROXY="-1"
+ FAIL  tests/config.test.ts > loadConfig for deployment > rejects TRUST_PROXY="6"
+ FAIL  tests/config.test.ts > loadConfig for deployment > rejects TRUST_PROXY="1.5"
+ FAIL  tests/config.test.ts > loadConfig for deployment > rejects TRUST_PROXY=""
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ tests/config.test.ts:52:63
+     50|
+     51|   it.each(['abc', '-1', '6', '1.5', ''])('rejects TRUST_PROXY=%j', (va…
+     52|     expect(() => loadConfig({ ...base, TRUST_PROXY: value })).toThrow(…
+       |                                                               ^
+     53|   });
+     54|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  tests/config.test.ts > loadConfig for deployment > reads an optional CLIENT_DIST
+AssertionError: expected undefined to be '/app/client/dist' // Object.is equality
+
+- Expected:
+"/app/client/dist"
+
++ Received:
+undefined
+
+ ❯ tests/config.test.ts:57:81
+     55|   it('reads an optional CLIENT_DIST', () => {
+     56|     expect(loadConfig(base).clientDist).toBeUndefined();
+     57|     expect(loadConfig({ ...base, CLIENT_DIST: '/app/client/dist' }).cl…
+       |                                                                                 ^
+     58|   });
+     59|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  tests/config.test.ts > loadConfig for deployment > requires an explicit ALLOWED_ORIGIN in production instead of the development default
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ tests/config.test.ts:62:45
+     60|   it('requires an explicit ALLOWED_ORIGIN in production instead of the…
+     61|     const { ALLOWED_ORIGIN: _omit, ...withoutOrigin } = prod;
+     62|     expect(() => loadConfig(withoutOrigin)).toThrow(/ALLOWED_ORIGIN/);
+       |                                             ^
+     63|     expect(loadConfig(prod).allowedOrigin).toBe('https://cpms.example.…
+     64|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  tests/config.test.ts > loadConfig for deployment > requires an https ALLOWED_ORIGIN in production, except for localhost
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ tests/config.test.ts:67:87
+     65|
+     66|   it('requires an https ALLOWED_ORIGIN in production, except for local…
+     67|     expect(() => loadConfig({ ...prod, ALLOWED_ORIGIN: 'http://cpms.ex…
+       |                                                                                       ^
+     68|     expect(loadConfig({ ...prod, ALLOWED_ORIGIN: 'http://localhost:300…
+     69|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  tests/static.test.ts > static client serving > serves index.html at / with no-cache and security headers
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/static.test.ts:55:24
+     53|   it('serves index.html at / with no-cache and security headers', asyn…
+     54|     const res = await request(withSite()).get('/');
+     55|     expect(res.status).toBe(200);
+       |                        ^
+     56|     expect(res.get('Content-Type')).toMatch(/text\/html/);
+     57|     expect(res.text).toContain('<div id="root">');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  tests/static.test.ts > static client serving > serves hashed assets with long-lived immutable caching
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/static.test.ts:66:23
+     64|   it('serves hashed assets with long-lived immutable caching', async (…
+     65|     const js = await request(withSite()).get('/assets/app-abc123.js');
+     66|     expect(js.status).toBe(200);
+       |                       ^
+     67|     expect(js.get('Content-Type')).toMatch(/javascript/);
+     68|     expect(js.get('Cache-Control')).toMatch(/max-age=31536000/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  tests/static.test.ts > static client serving > falls back to index.html for client routes without a file extension
+AssertionError: /teams/11111111-1111-4111-8111-111111111111: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/static.test.ts:78:32
+     76|     for (const path of ['/teams/11111111-1111-4111-8111-111111111111',…
+     77|       const res = await request(withSite()).get(path);
+     78|       expect(res.status, path).toBe(200);
+       |                                ^
+     79|       expect(res.text, path).toContain('<div id="root">');
+     80|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  tests/static.test.ts > static client serving > only answers GET and HEAD for pages
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/static.test.ts:109:58
+    107|     expect((await request(withSite()).post('/')).status).toBe(404);
+    108|     expect((await request(withSite()).put('/login')).status).toBe(404);
+    109|     expect((await request(withSite()).head('/')).status).toBe(200);
+       |                                                          ^
+    110|   });
+    111|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  tests/trust-proxy.test.ts > proxy trust and rate limiting > counts clients separately when one proxy hop is trusted
+AssertionError: expected 429 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 429
+
+ ❯ tests/trust-proxy.test.ts:24:26
+     22|     expect(status).toBe(429);
+     23|     const other = await api.get('/api/auth/me').set(from('198.51.100.8…
+     24|     expect(other.status).toBe(401);
+       |                          ^
+     25|   });
+     26|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+ FAIL  tests/trust-proxy.test.ts > proxy trust and rate limiting > does not let one client address exhaust the limit for everyone else
+AssertionError: expected 429 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 429
+
+ ❯ tests/trust-proxy.test.ts:33:25
+     31|     const free = await api.get('/api/auth/me').set(from('198.51.100.10…
+     32|     expect(blocked.status).toBe(429);
+     33|     expect(free.status).toBe(401);
+       |                         ^
+     34|   });
+     35|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯
+
+ FAIL  tests/trust-proxy.test.ts > proxy trust and rate limiting > throttles failed logins per client address, not for the whole proxy
+AssertionError: expected 429 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 429
+
+ ❯ tests/trust-proxy.test.ts:42:69
+     40|     for (let i = 0; i < 5; i++) expect((await attempt('192.0.2.1', `no…
+     41|     expect((await attempt('192.0.2.1', A1.email, PASSWORD)).status).to…
+     42|     expect((await attempt('192.0.2.2', A1.email, PASSWORD)).status).to…
+       |                                                                     ^
+     43|   });
+     44| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  16 failed | 34 passed (50)
+   Start at  19:45:55
+   Duration  825ms (tests 72%, import 20%, transform 7%, worker 1%)
+

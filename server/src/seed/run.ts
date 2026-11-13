@@ -1,11 +1,12 @@
-import { loadConfig } from '../platform/config.js';
 import { systemClock } from '../platform/clock.js';
 import { createPrisma } from '../platform/db.js';
 import { seedDatabase } from './seed.js';
 
 async function main(): Promise<void> {
-  const config = loadConfig(process.env);
-  const prisma = createPrisma(config.databaseUrl);
+  // The migration job only has DATABASE_URL and the seed passwords, so it does not load the full app config.
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) throw new Error('DATABASE_URL is required');
+  const prisma = createPrisma(databaseUrl);
   try {
     await seedDatabase(prisma, {
       studentPassword: process.env.SEED_STUDENT_PASSWORD ?? '',
