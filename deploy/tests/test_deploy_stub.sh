@@ -8,6 +8,8 @@
 #     rerun     : everything exists   -> nothing replaced (credentials kept)
 #     partial   : DB secret missing   -> DB user password reset + secret created
 #     job-fail  : migration fails     -> script exits 1, service NOT deployed
+#   Every scenario also checks that the image is built from HEAD, tagged with that commit and
+#   deployed by that tag (never :latest), so /api/version can prove what is running.
 #   It also checks: `--edition=enterprise`, no project-wide secretAccessor role,
 #   DB password == password inside DATABASE_URL, and that no password/secret
 #   value leaks into the output. Finally DRY_RUN=1 must make zero gcloud calls.
@@ -118,6 +120,15 @@ for MODE in first_run rerun partial job-fail; do
   else
     grep -q '^run deploy ' "$GCLOUD_LOG"
   fi
+  # The image is built from one commit, tagged with it, and the same tag is deployed (never :latest).
+  grep -Eq -- '^builds submit .* --config .*deploy/cloudbuild.yaml --substitutions=_IMAGE=[^,]+,_COMMIT=[0-9a-f]{40} ' "$GCLOUD_LOG"
+  sha="$(sed -n 's/.*_COMMIT=\([0-9a-f]\{40\}\).*/\1/p' "$GCLOUD_LOG" | head -1)"
+  [ "$sha" = "$(git rev-parse HEAD)" ] || { echo 'FAIL: build is not for HEAD'; exit 1; }
+  if grep -q 'cpms:latest' "$GCLOUD_LOG"; then echo 'FAIL: an image is referenced by :latest'; exit 1; fi
+  if [ "$MODE" != job-fail ]; then
+    grep -q -- "^run deploy cpms --image .*cpms:${sha} " "$GCLOUD_LOG"
+  fi
+  grep -q -- "^run jobs deploy cpms-migrate --image .*cpms:${sha} " "$GCLOUD_LOG"
   if grep -q '^projects add-iam-policy-binding .*roles/secretmanager.secretAccessor' "$GCLOUD_LOG"; then
     echo 'FAIL: runtime has project-wide secret access'; exit 1
   fi
