@@ -169,7 +169,9 @@ account). Keep the service running until grading ends.
 - The smoke test's login check needs a seeded student account; it is optional.
 - Everything in section 1 marked "not created yet" must be done and evidenced before submission.
 
+
 ## Issue #24 CI failure evidence
 
-- Passing PR check: #31, commit 2a3628697e248bc7f6df0721137ba4a083c6738, 	est-and-docker succeeded, including tests, browser journeys, Docker build and image smoke test.
-- Deliberate failing PR check: #32, commit 8d49503dc3ddc54acda5606e1f7279aa6846a4bc, run [43442753199](https://github.com/N0M3KM/CPMS/actions/runs/43442753199). The Temporary issue step failed and subsequent build/test steps were skipped. The step intentionally exited 1 to verify GitHub failure reporting; this probe is removed in the follow-up commit.
+- Passing PR check: [PR #31 run 43438522847](https://github.com/N0M3KM/CPMS/actions/runs/43438522847) tested commit `a2a3628697e248bc7f6df0721137ba4a083c6738`; `test-and-docker` succeeded, including tests, browser journeys, Docker build and image smoke test.
+- Passing check for this PR: [PR #32 run 43443048368](https://github.com/N0M3KM/CPMS/actions/runs/43443048368) tested commit `737263e58efb52c7f67ce3f29f1f4251fd3be4db`; `test-and-docker` succeeded after the temporary probe was removed.
+- Deliberate failing check: [PR #32 run 43442753199](https://github.com/N0M3KM/CPMS/actions/runs/43442753199) tested commit `8d49503dc3ddc54acda5606e1f7279aa6846a4bc`. The failed step was `Temporary issue`; its log reported `Intentional failure to verify PR check reporting for issue #24` followed by `Process completed with exit code 1`. Later build and test steps were skipped because this probe intentionally stopped the job. The probe was removed in the follow-up commit.

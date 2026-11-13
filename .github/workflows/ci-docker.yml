@@ -50,7 +50,6 @@ jobs:
       SEED_STUDENT_PASSWORD: ci-only-student-password-1
       SEED_SUPERVISOR_PASSWORD: ci-only-supervisor-password-1
     steps:
-
       # Third-party actions are pinned to a commit SHA (the comment shows the version).
       # Dependabot proposes updates weekly (.github/dependabot.yml).
       - name: Checkout repository
