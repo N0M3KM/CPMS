@@ -90,6 +90,11 @@ A fresh clone needs only `.env.example` copied to `.env` with local values (C-03
 
 ## 6. First deployment (a team member, Cloud Shell or a terminal)
 
+Step by step with verification and the evidence table: [first-deploy-runbook.md](first-deploy-runbook.md).
+The image is built from a clean export of one Git commit, tagged with it and baked in, so
+`/api/version` shows what is running. `deploy/acceptance.py` runs the workflow, rule-rejection and
+forbidden-access checks against any URL.
+
 Create the Free Trial project and the budget alert first (Student Guide Episode 1). Then:
 
 ```bash

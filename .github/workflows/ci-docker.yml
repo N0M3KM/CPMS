@@ -9,7 +9,8 @@
 #
 # Steps: deploy-script tests (offline, no GCP) -> install -> type-check -> build -> dependency
 # audit -> unit, API and database tests on a real PostgreSQL -> two browser journeys (Playwright,
-# Chrome) -> build the production image -> run that image against PostgreSQL and smoke-test it.
+# Chrome) -> build the production image -> run that image against PostgreSQL, smoke-test it and run the
+# acceptance scenarios (deploy/acceptance.py).
 # Nothing is deployed or pushed here. All passwords below are throw-away CI values, not secrets.
 # ##############################################################################
 name: CI & Docker Build
@@ -113,4 +114,7 @@ jobs:
             -e ALLOWED_ORIGIN=http://localhost:3000 cpms:ci
           SMOKE_EMAIL=student.a1@example.test SMOKE_PASSWORD="$SEED_STUDENT_PASSWORD" \
             python3 deploy/smoke_test.py http://localhost:3000 || { docker logs cpms-app | tail -30; exit 1; }
+          # The same workflow, rule-rejection and forbidden-access checks that run after the first deployment.
+          ACCEPT_STUDENT_PASSWORD="$SEED_STUDENT_PASSWORD" ACCEPT_SUPERVISOR_PASSWORD="$SEED_SUPERVISOR_PASSWORD" \
+            python3 deploy/acceptance.py http://localhost:3000 || { docker logs cpms-app | tail -30; exit 1; }
           docker rm -f cpms-app

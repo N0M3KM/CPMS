@@ -6,11 +6,13 @@
 #   1 enable APIs   2 Artifact Registry repo   3 Cloud SQL (PostgreSQL 16) + database
 #   4 runtime service account   5 secrets in Secret Manager (database URL, session secret,
 #   seed passwords)   6 per-secret access for the runtime account   7 build the image
+#   from a clean export of one Git commit (tag = commit, shown by /api/version)
 #   8 migration job (migrate + seed), run it   9 Cloud Run service   10 print the URL
 #
 # HOW TO RUN (a team member, in Cloud Shell or a terminal logged in with gcloud)
 #   DRY_RUN=1 PROJECT_ID=your-project-id bash deploy/deploy.sh   # prints commands, changes nothing
 #   PROJECT_ID=your-project-id bash deploy/deploy.sh             # real run
+#   The commit deployed is HEAD of the clone (override with COMMIT_SHA=<40-character sha>).
 #
 # SAFETY
 #   * Secrets are generated here and stored only in Secret Manager. They are never printed;
@@ -56,6 +58,22 @@ else
   fi
 fi
 
+# The commit to deploy. The image is built from a clean export of exactly this commit, so what
+# runs in the cloud is what is in Git (local edits are never uploaded). Override with COMMIT_SHA.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [ "$DRY_RUN" = "1" ]; then
+  COMMIT_SHA="${COMMIT_SHA:-0000000000000000000000000000000000000000}"
+else
+  COMMIT_SHA="${COMMIT_SHA:-$(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || true)}"
+fi
+case "$COMMIT_SHA" in
+  *[!0-9a-f]*|"") echo "Error: could not determine a 40-character commit SHA (run inside the Git clone or set COMMIT_SHA)." >&2; exit 1 ;;
+esac
+if [ "${#COMMIT_SHA}" -ne 40 ]; then
+  echo "Error: COMMIT_SHA must be a full 40-character SHA." >&2
+  exit 1
+fi
+
 # Names (also used by deploy/release.sh, .github/workflows/deploy.yml and deployment.md).
 REPO_NAME="cpms"
 SQL_INSTANCE="cpms-pg"
@@ -66,7 +84,7 @@ MIGRATE_JOB_NAME="cpms-migrate"
 SA_NAME="cpms-runner"
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 SQL_CONN_NAME="${PROJECT_ID}:${REGION}:${SQL_INSTANCE}"
-IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${SERVICE_NAME}:latest"
+IMAGE_BASE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${SERVICE_NAME}"
 SECRET_DB_URL="cpms-database-url"
 SECRET_SESSION="cpms-session-secret"
 SECRET_STUDENT_PASS="cpms-seed-student-password"
@@ -77,6 +95,7 @@ echo "CPMS Cloud Run deployment"
 echo "Project : ${PROJECT_ID}"
 echo "Region  : ${REGION}"
 echo "Dry run : ${DRY_RUN}"
+echo "Commit  : ${COMMIT_SHA}"
 echo "=================================================================="
 
 # Create a secret only if it does not exist, so a re-run never replaces a working value.
@@ -182,8 +201,18 @@ else
 fi
 ALLOWED_ORIGIN="https://${SERVICE_NAME}-${PROJECT_NUMBER}.${REGION}.run.app"
 
-# 7. Build the image with Cloud Build and push it to Artifact Registry.
-run_cmd gcloud builds submit --tag "$IMAGE_URI" --project "$PROJECT_ID"
+# 7. Build the image with Cloud Build and push it to Artifact Registry. The tag is the commit, and
+#    the commit is also baked in (APP_COMMIT) so GET /api/version reports it.
+IMAGE_URI="${IMAGE_BASE}:${COMMIT_SHA}"
+if [ "$DRY_RUN" = "1" ]; then
+  BUILD_DIR="<clean export of commit ${COMMIT_SHA}>"
+else
+  BUILD_DIR="$(mktemp -d)"
+  trap 'rm -rf "$BUILD_DIR"' EXIT
+  git -C "$REPO_ROOT" archive --format=tar "$COMMIT_SHA" | tar -x -C "$BUILD_DIR"
+fi
+run_cmd gcloud builds submit "$BUILD_DIR" --config "${REPO_ROOT}/deploy/cloudbuild.yaml" \
+  --substitutions="_IMAGE=${IMAGE_BASE},_COMMIT=${COMMIT_SHA}" --project "$PROJECT_ID"
 
 # 8. Migration job: apply migrations, then the idempotent seed. If it fails, stop before the service.
 run_cmd gcloud run jobs deploy "$MIGRATE_JOB_NAME" \
@@ -221,7 +250,14 @@ fi
 
 printf '\n%s\n' "=================================================================="
 printf '%s\n' "Deployment completed."
+if [ "$DRY_RUN" = "1" ]; then
+  REVISION="<latest ready revision>"
+else
+  REVISION="$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" --project "$PROJECT_ID" --format='value(status.latestReadyRevisionName)')"
+fi
 printf '%s\n' "Service URL    : ${SERVICE_URL}"
+printf '%s\n' "Revision       : ${REVISION}"
+printf '%s\n' "Commit         : ${COMMIT_SHA} (expect the same value from ${SERVICE_URL}/api/version)"
 printf '%s\n' "Health check   : ${SERVICE_URL}/api/health"
 printf '%s\n' "Readiness check: ${SERVICE_URL}/api/ready"
 printf '%s\n' "Seed accounts  : supervisor1@example.test, student.a1@example.test (and others, see deployment.md)"
