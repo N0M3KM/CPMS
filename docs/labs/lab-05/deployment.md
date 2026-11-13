@@ -3,15 +3,20 @@
 How CPMS is packaged, configured, tested, released and run on Google Cloud. Placeholders such as
 `YOUR_PROJECT_ID` are replaced with the team's own values. No real secret appears in this file.
 
-## 1. Status of this document
+## 1. Observed status and prerequisites
 
-| Item | State |
+Reviewed on 14 November 2026. CPMS release PR [#35](https://github.com/N0M3KM/CPMS/pull/35) merged to main at `b5e8b1e109c2dfa3c93464405b936280cc2cb560`. The [Deploy demo run](https://github.com/N0M3KM/CPMS/actions/runs/43469048223) succeeded, including tests, build, migration, deployment and smoke checks.
+
+Local prerequisites are Node.js 24, npm 11, Docker with Compose, Python 3 and Chrome for browser tests. Copy `.env.example` to `.env`, fill local values privately, and provide a separate test database. The cloud release requires the configured GitHub `demo` environment and GCP resources.
+
+| Check | Observed evidence |
 |---|---|
-| Docker image builds from a clean clone and runs from environment values only | Verified locally and in the CI-equivalent run (evidence in `docs/labs/lab-05/evidence/`) |
-| CI workflow, deploy workflow, deploy scripts and their offline tests | Written; offline tests pass locally; the workflows have not yet run on GitHub |
-| GCP project, Cloud SQL, Secret Manager, Cloud Run, Workload Identity Federation, rulesets | Not created yet (done by a team member in the Google Cloud console; see sections 6 and 7) |
-
-Update this table as each step is done, with the run or revision that proves it.
+| C-01 | [Release PR CI](https://github.com/N0M3KM/CPMS/actions/runs/43465760598) passed at `bfe97b1ce6e14182461ed687470f970604e6a3e2`. |
+| C-02 | [PR #34](https://github.com/N0M3KM/CPMS/pull/34) failed a required test and was blocked. [Screenshot](https://github.com/N0M3KM/CPMS/issues/26#issuecomment-6859024306). |
+| C-03 | [Local verification](evidence/local-verification.txt) records a Docker run on an uncommitted working tree based on `144770cf87008731515859a4a55962981d9ad936`. A clean clone at the release SHA remains unverified. |
+| C-04 | [Public app](https://cpms-vxyvatwb4q-as.a.run.app), [UI evidence](https://github.com/N0M3KM/CPMS/issues/37), and the successful deploy smoke check. Confirm the full business journey and access restriction. |
+| C-05 | [Issue #28 evidence](https://github.com/N0M3KM/CPMS/issues/28#issuecomment-6860521059) shows the same synthetic record across three revisions and a commit change and return. A separate application restart is not established by that screenshot. |
+| C-06 | [Reviewed release PR](https://github.com/N0M3KM/CPMS/pull/35) and [successful deployment](https://github.com/N0M3KM/CPMS/actions/runs/43469048223). Capture the Cloud Run revision and digest for submission. |
 
 ## 2. Stack and changes from the reference kit
 
@@ -77,7 +82,7 @@ A fresh clone needs only `.env.example` copied to `.env` with local values (C-03
 
 | Resource | Name |
 |---|---|
-| Project | `YOUR_PROJECT_ID` (one project for Labs 5 to 7 and the final project) |
+| Project | `cpe334-th-014` (one project for Labs 5 to 7 and the final project) |
 | Region | `asia-southeast1` |
 | Artifact Registry repository and image | `cpms` / `cpms` (`REGION-docker.pkg.dev/PROJECT/cpms/cpms:<commit sha>`) |
 | Cloud SQL | instance `cpms-pg` (PostgreSQL 16, enterprise edition, `db-f1-micro`, 10 GB, storage auto-increase off); database `cpms`; user `cpms` |
@@ -90,11 +95,6 @@ A fresh clone needs only `.env.example` copied to `.env` with local values (C-03
 
 ## 6. First deployment (a team member, Cloud Shell or a terminal)
 
-Step by step with verification and the evidence table: [first-deploy-runbook.md](first-deploy-runbook.md).
-The image is built from a clean export of one Git commit, tagged with it and baked in, so
-`/api/version` shows what is running. `deploy/acceptance.py` runs the workflow, rule-rejection and
-forbidden-access checks against any URL.
-
 Create the Free Trial project and the budget alert first (Student Guide Episode 1). Then:
 
 ```bash
@@ -104,12 +104,7 @@ PROJECT_ID=YOUR_PROJECT_ID bash deploy/deploy.sh
 
 The script is safe to re-run. It never prints a secret, grants secret access one secret at a time,
 runs the migration job before the service, and stops if the job fails. At the end it prints the
-service URL. To read the seed passwords (to share with the Lab 6 partner team privately):
-
-```bash
-gcloud secrets versions access latest --secret=cpms-seed-student-password --project YOUR_PROJECT_ID
-gcloud secrets versions access latest --secret=cpms-seed-supervisor-password --project YOUR_PROJECT_ID
-```
+service URL. The GCP owner shares demo credentials privately. Keep credentials out of logs and screenshots.
 
 Seed accounts: students `student.a1@example.test` to `student.c2@example.test`, supervisors
 `supervisor1@example.test` and `supervisor2@example.test`. Teams A and B are supervised by
@@ -172,7 +167,7 @@ account). Keep the service running until grading ends.
 - The image includes development dependencies because the migration job needs the Prisma CLI and
   `tsx` (the image is large, about 800 MB).
 - The smoke test's login check needs a seeded student account; it is optional.
-- Everything in section 1 marked "not created yet" must be done and evidenced before submission.
+- The clean-clone release check and separate application restart evidence remain open, as noted in section 1.
 
 
 ## Issue #24 CI failure evidence
