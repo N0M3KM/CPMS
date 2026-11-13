@@ -50,6 +50,12 @@ jobs:
       SEED_STUDENT_PASSWORD: ci-only-student-password-1
       SEED_SUPERVISOR_PASSWORD: ci-only-supervisor-password-1
     steps:
+      - name: Temporary issue #24 failing-check evidence probe
+        if: github.head_ref == 'feature/lab5-pr-ci'
+        run: |
+          echo 'Intentional failure to verify PR check reporting for issue #24'
+          exit 1
+
       # Third-party actions are pinned to a commit SHA (the comment shows the version).
       # Dependabot proposes updates weekly (.github/dependabot.yml).
       - name: Checkout repository
