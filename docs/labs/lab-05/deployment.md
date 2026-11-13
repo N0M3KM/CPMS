@@ -168,3 +168,8 @@ account). Keep the service running until grading ends.
   `tsx` (the image is large, about 800 MB).
 - The smoke test's login check needs a seeded student account; it is optional.
 - Everything in section 1 marked "not created yet" must be done and evidenced before submission.
+
+## Issue #24 CI failure evidence
+
+- Passing PR check: #31, commit 2a3628697e248bc7f6df0721137ba4a083c6738, 	est-and-docker succeeded, including tests, browser journeys, Docker build and image smoke test.
+- Deliberate failing PR check: #32, commit 8d49503dc3ddc54acda5606e1f7279aa6846a4bc, run [43442753199](https://github.com/N0M3KM/CPMS/actions/runs/43442753199). The Temporary issue step failed and subsequent build/test steps were skipped. The step intentionally exited 1 to verify GitHub failure reporting; this probe is removed in the follow-up commit.
