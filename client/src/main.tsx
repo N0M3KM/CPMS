@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import { currentUser, signOut, type User } from './auth-api';
 import { Login } from './Login';
-import { MilestoneView, ScopedHome, TeamView } from './ScopedViews';
+import { MilestoneView, ScopedHome, SessionEndedContext, TeamView } from './ScopedViews';
 import './styles.css';
 
 function homePath(user: User): string {
@@ -79,7 +79,11 @@ function App() {
 
   function renderSignedIn(title: string, view: ReactNode) {
     if (!user) return <Navigate replace to="/login" />;
-    return <SignedInView user={user} onSignOut={() => setUser(null)} title={title}>{view}</SignedInView>;
+    return (
+      <SessionEndedContext.Provider value={() => setUser(null)}>
+        <SignedInView user={user} onSignOut={() => setUser(null)} title={title}>{view}</SignedInView>
+      </SessionEndedContext.Provider>
+    );
   }
 
   return (

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { User } from './auth-api';
 import { FeedbackForm } from './FeedbackForm';
@@ -46,15 +46,26 @@ type LoadState<T> =
   | { status: 'error'; message: string }
   | { status: 'ready'; data: T };
 
+// The app provides this so a view can tell it the server no longer knows the session (401).
+export const SessionEndedContext = createContext<() => void>(() => undefined);
+
 function DataView<T>({ path, children }: { path: string; children: (data: T, reload: () => void) => ReactNode }) {
   const [state, setState] = useState<LoadState<T>>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
+  const onSessionEnded = useContext(SessionEndedContext);
+  const sessionEnded = useRef(onSessionEnded);
+  sessionEnded.current = onSessionEnded;
 
   useEffect(() => {
     const controller = new AbortController();
     async function load() {
       try {
         const response = await fetch(`/api${path}`, { signal: controller.signal });
+        if (response.status === 401) {
+          // Retrying cannot help: send the user to Sign in instead of showing a dead-end error.
+          if (!controller.signal.aborted) sessionEnded.current();
+          return;
+        }
         if (response.status === 404) {
           if (!controller.signal.aborted) setState({ status: 'error', message: 'This page is unavailable.' });
           return;
