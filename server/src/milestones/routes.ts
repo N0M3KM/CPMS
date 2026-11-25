@@ -5,8 +5,9 @@ import { z } from 'zod';
 import type { Clock } from '../platform/clock.js';
 import { AppError } from '../platform/errors.js';
 import type { SecurityKit } from '../security/kit.js';
-import type { Principal } from '../security/principal.js';
+import { principalOf, type Principal } from '../security/principal.js';
 import { parse, uuidSchema } from '../security/validate.js';
+import { closeBody, closeMilestone, patchBody, updateMilestone } from './manage.js';
 
 const milestoneBody = z.strictObject({
   title: z.string().trim().min(5).max(100),
@@ -59,6 +60,30 @@ export function mountMilestoneWrites(
       const input = parse(milestoneBody, req.body);
       const milestone = await createMilestone(prisma, req.principal!, teamId, input, clock);
       res.status(201).json(milestone);
+    },
+  );
+
+  app.patch(
+    '/api/milestones/:milestoneId',
+    security.requireAuth,
+    security.requireRole('SUPERVISOR'),
+    ...security.jsonBody,
+    async (req, res) => {
+      const milestoneId = parse(uuidSchema, req.params.milestoneId);
+      const input = parse(patchBody, req.body);
+      res.status(200).json(await updateMilestone(prisma, principalOf(req), milestoneId, input, clock));
+    },
+  );
+
+  app.post(
+    '/api/milestones/:milestoneId/close',
+    security.requireAuth,
+    security.requireRole('SUPERVISOR'),
+    ...security.jsonBody,
+    async (req, res) => {
+      const milestoneId = parse(uuidSchema, req.params.milestoneId);
+      parse(closeBody, req.body ?? {});
+      res.status(200).json(await closeMilestone(prisma, principalOf(req), milestoneId, clock));
     },
   );
 }

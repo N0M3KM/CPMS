@@ -330,6 +330,8 @@ describe('route matrix (SEC-06): every route is accounted for', () => {
       'GET /api/teams/:teamId': 'protected',
       'POST /api/teams/:teamId/milestones': 'protected',
       'GET /api/milestones/:milestoneId': 'protected',
+      'PATCH /api/milestones/:milestoneId': 'protected',
+      'POST /api/milestones/:milestoneId/close': 'protected',
       'POST /api/milestones/:milestoneId/submission': 'protected',
       'POST /api/milestones/:milestoneId/revisions': 'protected',
       'POST /api/submissions/:submissionId/feedback': 'protected',

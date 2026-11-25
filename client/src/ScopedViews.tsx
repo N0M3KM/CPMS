@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { Link, useParams } from 'react-router-dom';
 import type { User } from './auth-api';
 import { FeedbackForm } from './FeedbackForm';
+import { ManageMilestone } from './ManageMilestone';
 import { NewMilestoneForm } from './NewMilestoneForm';
 import { ReviseWorkForm } from './ReviseWorkForm';
 import { SubmitWorkForm } from './SubmitWorkForm';
@@ -249,7 +250,15 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
           <p>Due <DateTime value={milestone.dueAt} />{' '}
             <span className="status-badge">{statusLabels[milestone.status]}</span>
           </p>
+          {milestone.closedAt && (
+            <p>
+              {milestone.status !== 'CLOSED' && <><span className="status-badge">Closed</span>{' '}</>}
+              Closed on <DateTime value={milestone.closedAt} />
+            </p>
+          )}
           {milestone.description && <p className="view-description">{milestone.description}</p>}
+          {/* canReview is true only for the supervisor role; the server still checks the team on every call. */}
+          {canReview && !milestone.closedAt && <ManageMilestone milestone={milestone} onChanged={reload} />}
           <h3>Submission</h3>
           {milestone.submission ? (
             <>
@@ -271,6 +280,7 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
                 && <ReviseWorkForm milestoneId={milestone.id} onRevised={reload} />}
             </>
           ) : milestone.status === 'OVERDUE' ? <p>The deadline has passed and no work was submitted.</p>
+            : milestone.closedAt ? <p>This milestone is closed. No work was submitted.</p>
             : canSubmit ? <SubmitWorkForm milestoneId={milestone.id} onSubmitted={reload} />
             : <p>No submission yet.</p>}
         </section>

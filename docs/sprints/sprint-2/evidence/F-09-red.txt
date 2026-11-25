@@ -1,0 +1,403 @@
+date: 2026-11-25T15:16:27Z
+command: TEST_DATABASE_URL=<f09_test, password omitted> npm test -w server -- milestone-manage security
+base commit: 0c7e096 (feature/sprint2-foundation); tests only, no implementation yet
+
+
+> cpms-server@0.1.0 test
+> vitest run milestone-manage security
+
+
+ RUN  v5.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-a4302cffdde4a038b/server
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "f09_test", schema "public" at "127.0.0.1:5433"
+
+2 migrations found in prisma/migrations
+
+
+No pending migrations to apply.
+ ❯ tests/milestone-manage-db.test.ts (15 tests | 15 failed) 6710ms
+   ❯ F-09 edit a milestone (5)
+     × TEST-56 patches title and description, returns the stored values and keeps them after reload 468ms
+     × TEST-56 rejects a title or description outside the BR-03 limits and stores nothing 431ms
+     × TEST-57 rejects a past or equal dueAt, accepts a later and an earlier future dueAt, and recomputes the status 426ms
+     × TEST-57 accepts a dueAt with an offset and stores the same instant 510ms
+     × TEST-58 answers 401, 403, uniform 404 and 400 for edit, and runs validation before the scope check 426ms
+   ❯ F-09 close a milestone (8)
+     × TEST-59 closing returns the stored closedAt and a second close returns ALREADY_CLOSED 433ms
+     × TEST-58 answers 401, 403, uniform 404 and 400 for close, and accepts {} or an empty body only 407ms
+     × TEST-60 a closed milestone rejects edit and first submission with MILESTONE_CLOSED and changes nothing 414ms
+     × TEST-60 checks a submission in the order 404, closed, duplicate, deadline 418ms
+     × TEST-61 submissions, feedback and reads stay available after the milestone is closed 408ms
+     × TEST-63 extending an overdue milestone with no submission makes it NOT_SUBMITTED and accepts a submission 542ms
+     × TEST-63 changing the dueAt of a milestone that already has a submission keeps its status 517ms
+     × TEST-88 feedback is still accepted on a closed milestone (feedback part; the grade part is added at integration) 407ms
+   ❯ F-09 close against a first submission (BR-09, row lock) (2)
+     × TEST-89a a submission waiting on the row lock while a close commits gets MILESTONE_CLOSED and stores nothing 465ms
+     × TEST-89b close and first submission started together always end as 201 then close, or close then 409 with no row (10 runs) 437ms
+ ❯ tests/security.test.ts (34 tests | 1 failed) 1869ms
+   ❯ route matrix (SEC-06): every route is accounted for (1)
+     × has no unlisted route and every protected route returns 401 anonymously 70ms
+ ❯ tests/milestone-manage-policy.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/milestone-manage-policy.test.ts [ tests/milestone-manage-policy.test.ts ]
+Error: Cannot find module '../src/milestones/manage.js' imported from /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-a4302cffdde4a038b/server/tests/milestone-manage-policy.test.ts
+ ❯ tests/milestone-manage-policy.test.ts:3:1
+      1| import type { PrismaClient } from '@prisma/client';
+      2| import { describe, expect, it, vi } from 'vitest';
+      3| import { closeMilestone, patchBody, updateMilestone } from '../src/mil…
+       | ^
+      4| import { fixedClock } from '../src/platform/clock.js';
+      5| import { AppError } from '../src/platform/errors.js';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/17]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 edit a milestone > TEST-56 patches title and description, returns the stored values and keeps them after reload
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ tests/milestone-manage-db.test.ts:37:111
+     35|     const before = await stored(M);
+     36|     const res = await fx.as(s1).patch(`/api/milestones/${M}`)
+     37|       .send({ title: '  Prototype demo v2  ', description: 'Demo the w…
+       |                                                                                                               ^
+     38|     expect(res.body).toEqual({
+     39|       id: M, teamId: id(101), title: 'Prototype demo v2', description:…
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 edit a milestone > TEST-56 rejects a title or description outside the BR-03 limits and stores nothing
+AssertionError: expected [ 404, 'NOT_FOUND' ] to deeply equal [ 400, 'VALIDATION_ERROR' ]
+
+- Expected
++ Received
+
+  [
+-   400,
+-   "VALIDATION_ERROR",
++   404,
++   "NOT_FOUND",
+  ]
+
+ ❯ tests/milestone-manage-db.test.ts:57:78
+     55|     const before = await stored(M);
+     56|     for (const body of [{ title: 'abcd' }, { title: 'T'.repeat(101) },…
+     57|       expect(code(await fx.as(s1).patch(`/api/milestones/${M}`).send(b…
+       |                                                                              ^
+     58|     }
+     59|     expect(await stored(M)).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 edit a milestone > TEST-57 rejects a past or equal dueAt, accepts a later and an earlier future dueAt, and recomputes the status
+AssertionError: expected [ 404, 'NOT_FOUND' ] to deeply equal [ 400, 'VALIDATION_ERROR' ]
+
+- Expected
++ Received
+
+  [
+-   400,
+-   "VALIDATION_ERROR",
++   404,
++   "NOT_FOUND",
+  ]
+
+ ❯ tests/milestone-manage-db.test.ts:65:104
+     63|     const before = await stored(M);
+     64|     for (const dueAt of [SEED_NOW, new Date(SEED_NOW.getTime() - 1), p…
+     65|       expect(code(await fx.as(s1).patch(`/api/milestones/${M}`).send({…
+       |                                                                                                        ^
+     66|     }
+     67|     expect((await stored(M)).dueAt).toEqual(before.dueAt);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 edit a milestone > TEST-57 accepts a dueAt with an offset and stores the same instant
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ tests/milestone-manage-db.test.ts:81:108
+     79|
+     80|   it('TEST-57 accepts a dueAt with an offset and stores the same insta…
+     81|     const res = await fx.as(s1).patch(`/api/milestones/${M}`).send({ d…
+       |                                                                                                            ^
+     82|     expect(res.body.dueAt).toBe('2026-12-01T03:00:00.000Z');
+     83|     expect((await stored(M)).dueAt).toEqual(new Date('2026-12-01T03:00…
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 edit a milestone > TEST-58 answers 401, 403, uniform 404 and 400 for edit, and runs validation before the scope check
+AssertionError: expected [ 404, 'NOT_FOUND' ] to deeply equal [ 401, 'UNAUTHENTICATED' ]
+
+- Expected
++ Received
+
+  [
+-   401,
+-   "UNAUTHENTICATED",
++   404,
++   "NOT_FOUND",
+  ]
+
+ ❯ tests/milestone-manage-db.test.ts:90:24
+     88|     const body = { title: 'Changed title here' };
+     89|     const none = await fx.api.patch(`/api/milestones/${M}`).set('Origi…
+     90|     expect(code(none)).toEqual([401, 'UNAUTHENTICATED']);
+       |                        ^
+     91|     expect(code(await fx.as(a1).patch(`/api/milestones/${M}`).send(bod…
+     92|     // The role check comes before body validation, so a student with …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 close a milestone > TEST-59 closing returns the stored closedAt and a second close returns ALREADY_CLOSED
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ tests/milestone-manage-db.test.ts:110:79
+    108| describe('F-09 close a milestone', () => {
+    109|   it('TEST-59 closing returns the stored closedAt and a second close r…
+    110|     const first = await fx.as(s1).post(`/api/milestones/${M}/close`).s…
+       |                                                                               ^
+    111|     expect(Object.keys(first.body).sort()).toEqual(['closedAt', 'id']);
+    112|     const row = await stored(M);
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 close a milestone > TEST-58 answers 401, 403, uniform 404 and 400 for close, and accepts {} or an empty body only
+AssertionError: expected [ 404, 'NOT_FOUND' ] to deeply equal [ 401, 'UNAUTHENTICATED' ]
+
+- Expected
++ Received
+
+  [
+-   401,
+-   "UNAUTHENTICATED",
++   404,
++   "NOT_FOUND",
+  ]
+
+ ❯ tests/milestone-manage-db.test.ts:126:73
+    124|   it('TEST-58 answers 401, 403, uniform 404 and 400 for close, and acc…
+    125|     const url = `/api/milestones/${M}/close`;
+    126|     expect(code(await fx.api.post(url).set('Origin', ORIGIN).send({}))…
+       |                                                                         ^
+    127|     expect(code(await fx.as(a1).post(url).send({}))).toEqual([403, 'FO…
+    128|     const otherTeam = await fx.as(s2).post(url).send({});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 close a milestone > TEST-60 a closed milestone rejects edit and first submission with MILESTONE_CLOSED and changes nothing
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ tests/milestone-manage-db.test.ts:142:65
+    140|
+    141|   it('TEST-60 a closed milestone rejects edit and first submission wit…
+    142|     await fx.as(s1).post(`/api/milestones/${M}/close`).send({}).expect…
+       |                                                                 ^
+    143|     const before = await stored(M);
+    144|     const edit = await fx.as(s1).patch(`/api/milestones/${M}`).send({ …
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 close a milestone > TEST-60 checks a submission in the order 404, closed, duplicate, deadline
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ closeTwo tests/milestone-manage-db.test.ts:157:77
+    155|   it('TEST-60 checks a submission in the order 404, closed, duplicate,…
+    156|     const closeTwo = async () => {
+    157|       await fx.as(s1).post(`/api/milestones/${SUBMITTED_B}/close`).sen…
+       |                                                                             ^
+    158|       await fx.as(s1).post(`/api/milestones/${OVERDUE_B}/close`).send(…
+    159|     };
+ ❯ tests/milestone-manage-db.test.ts:163:11
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 close a milestone > TEST-61 submissions, feedback and reads stay available after the milestone is closed
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ tests/milestone-manage-db.test.ts:176:74
+    174|     const REVIEWED_A = id(201);
+    175|     await prisma.grade.create({ data: { submissionId: id(301), supervi…
+    176|     await fx.as(s1).post(`/api/milestones/${REVIEWED_A}/close`).send({…
+       |                                                                          ^
+    177|     await fx.as(s1).post(`/api/milestones/${M}/close`).send({}).expect…
+    178|     for (const cookie of [a1, s1]) {
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 close a milestone > TEST-63 extending an overdue milestone with no submission makes it NOT_SUBMITTED and accepts a submission
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ tests/milestone-manage-db.test.ts:198:98
+    196|     expect((await fx.as(b1).get(`/api/milestones/${OVERDUE_B}`).expect…
+    197|     expect(code(await fx.as(b1).post(`/api/milestones/${OVERDUE_B}/sub…
+    198|     await fx.as(s1).patch(`/api/milestones/${OVERDUE_B}`).send({ dueAt…
+       |                                                                                                  ^
+    199|     expect((await fx.as(b1).get(`/api/milestones/${OVERDUE_B}`).expect…
+    200|     await fx.as(b1).post(`/api/milestones/${OVERDUE_B}/submission`).se…
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 close a milestone > TEST-63 changing the dueAt of a milestone that already has a submission keeps its status
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ tests/milestone-manage-db.test.ts:205:101
+    203|
+    204|   it('TEST-63 changing the dueAt of a milestone that already has a sub…
+    205|     await fx.as(s1).patch(`/api/milestones/${SUBMITTED_B}`).send({ due…
+       |                                                                                                     ^
+    206|     expect((await fx.as(b1).get(`/api/milestones/${SUBMITTED_B}`).expe…
+    207|   });
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 close a milestone > TEST-88 feedback is still accepted on a closed milestone (feedback part; the grade part is added at integration)
+Error: expected 200 "OK", got 404 "Not Found"
+ ❯ tests/milestone-manage-db.test.ts:210:75
+    208|
+    209|   it('TEST-88 feedback is still accepted on a closed milestone (feedba…
+    210|     await fx.as(s1).post(`/api/milestones/${SUBMITTED_B}/close`).send(…
+       |                                                                           ^
+    211|     const res = await fx.as(s1).post(`/api/submissions/${id(302)}/feed…
+    212|       .send({ comment: 'Clear structure. Please add measurable goals.'…
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 close against a first submission (BR-09, row lock) > TEST-89a a submission waiting on the row lock while a close commits gets MILESTONE_CLOSED and stores nothing
+AssertionError: expected [ 201, undefined ] to deeply equal [ 409, 'MILESTONE_CLOSED' ]
+
+- Expected
++ Received
+
+  [
+-   409,
+-   "MILESTONE_CLOSED",
++   201,
++   undefined,
+  ]
+
+ ❯ tests/milestone-manage-db.test.ts:246:23
+    244|     await closer;
+    245|     const res = await submission;
+    246|     expect(code(res)).toEqual([409, 'MILESTONE_CLOSED']);
+       |                       ^
+    247|     expect(await prisma.submission.count({ where: { milestoneId: M } }…
+    248|     expect((await stored(M)).closedAt).toEqual(SEED_NOW);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/17]⎯
+
+ FAIL  tests/milestone-manage-db.test.ts > F-09 close against a first submission (BR-09, row lock) > TEST-89b close and first submission started together always end as 201 then close, or close then 409 with no row (10 runs)
+AssertionError: run 0 close: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/milestone-manage-db.test.ts:263:51
+    261|         : (await Promise.all([submit(), close()])).reverse() as [Await…
+    262|       const rows = await prisma.submission.count({ where: { milestoneI…
+    263|       expect(closeRes.status, `run ${run} close`).toBe(200);
+       |                                                   ^
+    264|       expect((await stored(M)).closedAt, `run ${run} closedAt`).toEqua…
+    265|       if (submitRes.status === 201) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/17]⎯
+
+ FAIL  tests/security.test.ts > route matrix (SEC-06): every route is accounted for > has no unlisted route and every protected route returns 401 anonymously
+AssertionError: expected [ 'GET /api/auth/me', …(11) ] to deeply equal [ 'GET /api/auth/me', …(13) ]
+
+- Expected
++ Received
+
+@@ -4,13 +4,11 @@
+    "GET /api/milestones/:milestoneId",
+    "GET /api/ready",
+    "GET /api/teams",
+    "GET /api/teams/:teamId",
+    "GET /api/version",
+-   "PATCH /api/milestones/:milestoneId",
+    "POST /api/auth/login",
+    "POST /api/auth/logout",
+-   "POST /api/milestones/:milestoneId/close",
+    "POST /api/milestones/:milestoneId/submission",
+    "POST /api/submissions/:submissionId/feedback",
+    "POST /api/teams/:teamId/milestones",
+  ]
+
+ ❯ tests/security.test.ts:338:20
+    336|       'POST /api/submissions/:submissionId/feedback': 'protected',
+    337|     };
+    338|     expect(routes).toEqual(Object.keys(matrix).sort());
+       |                    ^
+    339|     for (const [key, access] of Object.entries(matrix)) {
+    340|       if (access !== 'protected') continue;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/17]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  16 failed | 33 passed (49)
+   Start at  22:16:27
+   Duration  9.47s (tests 98%, import 2%)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-a4302cffdde4a038b/server
+npm error workspace cpms-server@0.1.0
+npm error location /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-a4302cffdde4a038b/server
+npm error command failed
+npm error command sh -c vitest run milestone-manage security
