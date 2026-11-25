@@ -1,0 +1,52 @@
+# deploy/acceptance.py with the Sprint 2 steps, local server (npm start equivalent via tsx) on a fresh scratch database, 2026-11-26 00:22 +07, base 767c664 plus the new steps
+$ python3 deploy/acceptance.py http://localhost:3055   (passwords from the environment, never printed)
+PASS target http://localhost:3055
+PASS /api/health
+PASS /api/ready
+PASS /
+PASS /api/auth/me
+PASS login supervisor1@example.test (status 200)
+PASS supervisor 1 lists teams (expected 200, got 200)
+PASS supervisor 1 sees Teams A and B only
+PASS supervisor creates milestone on Team A (expected 201, got 201)
+PASS login student.a1@example.test (status 200)
+PASS student lists teams (expected 200, got 200)
+PASS student sees Team A only
+PASS member submits work (expected 201, got 201)
+PASS member reloads milestone (expected 200, got 200)
+PASS saved submission is persisted, status SUBMITTED
+PASS RULE second submission rejected (expected 409, got 409, code DUPLICATE_SUBMISSION)
+PASS RULE too-short feedback rejected (expected 400, got 400, code VALIDATION_ERROR)
+PASS supervisor records feedback (expected 201, got 201)
+PASS RULE second feedback rejected (expected 409, got 409, code FEEDBACK_EXISTS)
+PASS member reads feedback (expected 200, got 200)
+PASS status REVIEWED and feedback visible to the team
+PASS member sends a revised version (expected 201, got 201)
+PASS the revision is version 2
+PASS member reloads the milestone with two versions (expected 200, got 200)
+PASS two versions persisted, version 1 keeps its feedback, status SUBMITTED
+PASS RULE feedback on the old version rejected (expected 409, got 409, code REVISION_SUPERSEDED)
+PASS supervisor records feedback on the new version (expected 201, got 201)
+PASS RULE grade above 100 rejected (expected 400, got 400, code VALIDATION_ERROR)
+PASS FORBIDDEN student grades: 403 (expected 403, got 403, code FORBIDDEN)
+PASS supervisor records a grade (expected 201, got 201)
+PASS RULE second grade rejected (expected 409, got 409, code GRADE_EXISTS)
+PASS member reads the grade (expected 200, got 200)
+PASS grade 90 on version 2 only, status REVIEWED
+PASS supervisor closes the milestone (expected 200, got 200)
+PASS RULE revision after close rejected (expected 409, got 409, code MILESTONE_CLOSED)
+PASS RULE edit after close rejected (expected 409, got 409, code MILESTONE_CLOSED)
+PASS closed milestone stays readable (expected 200, got 200)
+PASS closed milestone keeps its versions, feedback and grade
+PASS FORBIDDEN no session: 401 (expected 401, got 401, code UNAUTHENTICATED)
+PASS FORBIDDEN student creates milestone: 403 (expected 403, got 403, code FORBIDDEN)
+PASS FORBIDDEN student reads Team B: 404 (expected 404, got 404, code NOT_FOUND)
+PASS FORBIDDEN other-team answer equals nonexistent-ID answer
+PASS login supervisor2@example.test (status 200)
+PASS FORBIDDEN supervisor 2 creates milestone on Team A: 404 (expected 404, got 404, code NOT_FOUND)
+PASS FORBIDDEN supervisor 2 reads Team A milestone: 404 (expected 404, got 404, code NOT_FOUND)
+PASS FORBIDDEN supervisor 2 grades a Team A version: 404 (expected 404, got 404, code NOT_FOUND)
+PASS session revoked after logout
+PASS session revoked after logout
+PASS session revoked after logout
+OK: 0 check(s) failed in 0.4s
