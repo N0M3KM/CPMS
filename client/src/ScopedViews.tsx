@@ -4,6 +4,7 @@ import type { User } from './auth-api';
 import { FeedbackForm } from './FeedbackForm';
 import { ManageMilestone } from './ManageMilestone';
 import { NewMilestoneForm } from './NewMilestoneForm';
+import { ReviseWorkForm } from './ReviseWorkForm';
 import { SubmitWorkForm } from './SubmitWorkForm';
 
 const statusLabels = {
@@ -30,10 +31,22 @@ type Team = {
   members: Person[];
   milestones: MilestoneSummary[];
 };
+type Revision = {
+  revisionNo: number;
+  id: string;
+  title: string;
+  description: string;
+  link: string;
+  submittedAt: string;
+  feedback: { comment: string; createdAt: string } | null;
+  grade: { score: number; createdAt: string; supervisor: Person } | null;
+};
+const MAX_REVISIONS = 5;
 type Milestone = MilestoneSummary & {
   teamId: string;
   description: string;
   closedAt: string | null;
+  revisions: Revision[];
   submission: {
     id: string;
     title: string;
@@ -201,6 +214,24 @@ function SubmissionLink({ value }: { value: string }) {
   return <span>{value}</span>;
 }
 
+function RevisionHistory({ revisions }: { revisions: Revision[] }) {
+  return (
+    <section aria-labelledby="version-history">
+      <h3 id="version-history">Version history</h3>
+      <ol className="view-list">
+        {revisions.map(revision => (
+          <li key={revision.id}>
+            <p><strong>Version {revision.revisionNo}</strong>: {revision.title}</p>
+            <p>Sent <DateTime value={revision.submittedAt} /></p>
+            <p>{revision.feedback ? `Feedback: ${revision.feedback.comment}` : 'No feedback on this version.'}</p>
+            {revision.grade && <p>Grade: {revision.grade.score} by {revision.grade.supervisor.name}</p>}
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 export function MilestoneView({ canSubmit = false, canReview = false }: { canSubmit?: boolean; canReview?: boolean }) {
   const { milestoneId = '' } = useParams();
   return (
@@ -236,6 +267,10 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
                 </>
               ) : canReview ? <FeedbackForm submissionId={milestone.submission.id} onSaved={reload} />
                 : <p>No feedback yet.</p>}
+              {milestone.revisions.length > 1 && <RevisionHistory revisions={milestone.revisions} />}
+              {canSubmit && !milestone.closedAt && Date.now() <= Date.parse(milestone.dueAt)
+                && milestone.revisions.length < MAX_REVISIONS
+                && <ReviseWorkForm milestoneId={milestone.id} onRevised={reload} />}
             </>
           ) : milestone.status === 'OVERDUE' ? <p>The deadline has passed and no work was submitted.</p>
             : milestone.closedAt ? <p>This milestone is closed. No work was submitted.</p>
