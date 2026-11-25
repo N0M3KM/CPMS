@@ -1,6 +1,6 @@
 # CPMS Feature Inventory (Part B)
 
-**Version:** 3.0 (Sprint 2 and Sprint 3 features PROPOSED, 2026-11-25; approval pending; status planned until verified)
+**Version:** 3.0 (Sprint 2 features approved 2026-11-25; Sprint 3 features proposed; status planned until verified)
 **Related:** [SRS](srs.md) · [Traceability](traceability.md) · [Sprint plan](sprints/plan.md) · [Sprint 2 contracts](sprints/sprint-2/plan.md) · [Sprint 3 contracts](sprints/sprint-3/plan.md)
 
 | ID | Feature | Description | Requirements | Depends on | Sprint |
@@ -19,7 +19,7 @@
 | F-12 | Search and filter | Find permitted milestones by title and status with team-scoped counts and pagination. | FR-12, BR-06, BR-11 | F-07, F-08, F-09 | 3 |
 | X-01 | Docker, CI/CD, GCP deployment | Container, pipeline, Cloud Run, Cloud SQL, Secret Manager. | NFR-06 | Sprints 1 to 3 | Lab 5 |
 
-F-08 to F-12 are proposed as of 2026-11-25 and not yet approved (see the [SRS](srs.md) decisions D-16 to D-23); contracts are in `docs/sprints/sprint-2/` and `docs/sprints/sprint-3/`. F-11 is contract only in Deliverable 2. X-01 is a named system responsibility delivered in Lab 5.
+F-08 to F-10 were approved on 2026-11-25 (Drarun's approving reviews on PR #59, #60 and #61); F-11 and F-12 are proposed and not yet approved (see the [SRS](srs.md) decisions D-16 to D-23); contracts are in `docs/sprints/sprint-2/` and `docs/sprints/sprint-3/`. F-11 is contract only in Deliverable 2. X-01 is a named system responsibility delivered in Lab 5.
 
 ## Feature order inside Sprint 1
 

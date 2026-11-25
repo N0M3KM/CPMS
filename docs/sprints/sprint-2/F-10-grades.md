@@ -3,7 +3,7 @@
 **Owner:** Jinnakan 1010 · **Reviewer:** Drarun 1016 · **Requirements:** FR-10, BR-10 (new), BR-05, BR-06, BR-07 · **Depends on:** F-05, F-08
 
 
-**Approval status:** contract proposed on 2026-11-25. Implementation was authorized by Jinnakan on 2026-11-26 (chat: "Lets do feature 10"). D-17 (current revision only) and D-23 (API shape) were approved on PR #59 and D-18 on PR #60. Drarun's approval of D-20 (grade rules) and of this implementation is recorded by his approving review on the F-10 pull request; instructor or TA confirmation is pending. Record: [Sprint 2 plan](plan.md#approval-record-for-f-10-decisions-d-20-d-17-d-23).
+**Approval status:** approved 2026-11-25. Drarun approved the documented grade policy D-20 and this implementation in his approving review on PR #61 (merged); D-17 and D-23 were approved on PR #59 and D-18 on PR #60. Instructor or TA confirmation was not received; Drarun approved without it. Record: [Sprint 2 plan](plan.md#approval-record-for-f-10-decisions-d-20-d-17-d-23).
 
 ## Behavior and workflow
 
