@@ -1,0 +1,13 @@
+# F-08 review findings RED (PR #59 inline comments), 2026-11-25 23:09 +07, base e65b839
+$ npx playwright test e2e/f08-revisions.spec.ts
+  ✘  1 e2e/f08-revisions.spec.ts:32:1 › TEST-55 a student revises reviewed work and both versions stay listed after a reload (7.5s)
+  ✘  2 e2e/f08-revisions.spec.ts:90:1 › TEST-54c a supervisor drafting feedback while the student sends a new version keeps the draft and is told to review the new version (6.5s)
+    Error: expect(locator).toContainText(expected) failed
+    Locator: getByRole('region', { name: 'Version history' }).getByRole('listitem').first()
+    Expected substring: "The first version of the plan with its main goals."
+    Received string:    "Version 1: Revision plan v1Sent Nov 25, 2026, 11:09 PMFeedback: Good start. Please add measurable goals to the plan."
+    Error: expect(locator).toBeVisible() failed
+    Locator: getByRole('alert').filter({ hasText: /newer version/i })
+    Expected: visible
+    Error: element(s) not found
+  2 failed

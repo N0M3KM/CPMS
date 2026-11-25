@@ -1,0 +1,5 @@
+# F-08 review findings GREEN (PR #59 inline comments), 2026-11-25 23:10 +07, base e65b839 plus uncommitted fixes
+$ npx playwright test e2e/f08-revisions.spec.ts
+  ✓  1 e2e/f08-revisions.spec.ts:32:1 › TEST-55 a student revises reviewed work and both versions stay listed after a reload (2.5s)
+  ✓  2 e2e/f08-revisions.spec.ts:90:1 › TEST-54c a supervisor drafting feedback while the student sends a new version keeps the draft and is told to review the new version (1.6s)
+  2 passed (6.7s)

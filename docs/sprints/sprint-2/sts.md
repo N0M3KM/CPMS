@@ -33,6 +33,7 @@ Seed users (as in the [Sprint 1 STS](../sprint-1/sts.md)): Student A1, A2 (Team 
 | TEST-52 | AC-52 | API | Versions 1 and 2 exist | A1 reads the milestone; B1 reads it | `submission` has exactly the six Sprint 1 keys and is version 2; `revisions` has two items ascending, each with `revisionNo`, `feedback`, `grade`. B1 gets 404 |
 | TEST-53 | AC-53 | unit + API | Version 1 has feedback | A1 posts version 2 | Status `SUBMITTED`; version 1 feedback still returned on version 1 |
 | TEST-54 | AC-54 | API + DB | Versions 1 and 2 exist | S1 posts feedback on version 1 | 409 `REVISION_SUPERSEDED`; no feedback row |
+| TEST-54c | AC-54 | E2E | Supervisor has a feedback draft open on version 1; the student sends version 2 | Supervisor saves | A message about the newer version (not "already has feedback"); the draft text is kept; the page shows version 2; saving again stores feedback on version 2 |
 | TEST-55 | AC-44, AC-52, AC-54 | E2E | Seeded, clean database | A1 submits; S1 gives feedback; A1 revises; reload | Both revisions listed; first feedback shown; status Submitted |
 
 ### F-09 Milestone management

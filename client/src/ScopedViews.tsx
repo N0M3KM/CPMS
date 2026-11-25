@@ -65,7 +65,7 @@ type LoadState<T> =
 // The app provides this so a view can tell it the server no longer knows the session (401).
 export const SessionEndedContext = createContext<() => void>(() => undefined);
 
-function DataView<T>({ path, children }: { path: string; children: (data: T, reload: () => void) => ReactNode }) {
+function DataView<T>({ path, children }: { path: string; children: (data: T, reload: () => void, refresh: () => void) => ReactNode }) {
   const [state, setState] = useState<LoadState<T>>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const onSessionEnded = useContext(SessionEndedContext);
@@ -103,7 +103,12 @@ function DataView<T>({ path, children }: { path: string; children: (data: T, rel
   }
 
   if (state.status === 'loading') return <p role="status">Loading…</p>;
-  if (state.status === 'ready') return children(state.data, reload);
+  // refresh fetches again but keeps the current view on screen, so forms with unsaved text are not unmounted.
+  function refresh() {
+    setAttempt(previous => previous + 1);
+  }
+
+  if (state.status === 'ready') return children(state.data, reload, refresh);
   return (
     <>
       <p className="error" role="alert">{state.message}</p>
@@ -223,6 +228,8 @@ function RevisionHistory({ revisions }: { revisions: Revision[] }) {
           <li key={revision.id}>
             <p><strong>Version {revision.revisionNo}</strong>: {revision.title}</p>
             <p>Sent <DateTime value={revision.submittedAt} /></p>
+            <p className="view-description">{revision.description}</p>
+            <p><SubmissionLink value={revision.link} /></p>
             <p>{revision.feedback ? `Feedback: ${revision.feedback.comment}` : 'No feedback on this version.'}</p>
             {revision.grade && <p>Grade: {revision.grade.score} by {revision.grade.supervisor.name}</p>}
           </li>
@@ -236,7 +243,7 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
   const { milestoneId = '' } = useParams();
   return (
     <DataView<Milestone> key={milestoneId} path={`/milestones/${encodeURIComponent(milestoneId)}`}>
-      {(milestone, reload) => (
+      {(milestone, reload, refresh) => (
         <section aria-labelledby="milestone-name">
           <Link to={`/teams/${milestone.teamId}`}>Back to team</Link>
           <h2 id="milestone-name">{milestone.title}</h2>
@@ -265,7 +272,7 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
                   <p className="view-description">{milestone.submission.feedback.comment}</p>
                   <p>Recorded <DateTime value={milestone.submission.feedback.createdAt} /></p>
                 </>
-              ) : canReview ? <FeedbackForm submissionId={milestone.submission.id} onSaved={reload} />
+              ) : canReview ? <FeedbackForm submissionId={milestone.submission.id} onSaved={reload} onStale={refresh} />
                 : <p>No feedback yet.</p>}
               {milestone.revisions.length > 1 && <RevisionHistory revisions={milestone.revisions} />}
               {canSubmit && !milestone.closedAt && Date.now() <= Date.parse(milestone.dueAt)
