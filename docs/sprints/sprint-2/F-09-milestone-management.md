@@ -3,7 +3,7 @@
 **Owner:** Drarun 1016 · **Reviewer:** Jinnakan 1010 · **Requirements:** FR-09, BR-09 (new), BR-03, BR-06, BR-07 · **Depends on:** F-03, F-07, Sprint 2 foundation task (schema and shared guards) · **Status:** specified, not yet implemented
 
 
-**Approval status:** contract proposed on 2026-11-25. Implementation was authorized by Jinnakan on 2026-11-25 (chat). D-23 (API shape) was approved with F-08 (Drarun, PR #59). Drarun's approval of D-18, D-19 and this implementation is recorded by his approving review on the F-09 pull request; instructor or TA confirmation is pending. Record: [Sprint 2 plan](plan.md#approval-record-for-f-09-decisions-d-18-d-19-d-23).
+**Approval status:** approved 2026-11-25. Drarun approved the documented close and deadline policies D-18 and D-19 and this implementation in his approving review on PR #60 (merged); D-23 was approved with F-08 (PR #59). Instructor or TA confirmation of D-18 and D-19 was not received; Drarun approved without it. The grade part of TEST-88 was deferred to F-10. Record: [Sprint 2 plan](plan.md#approval-record-for-f-09-decisions-d-18-d-19-d-23).
 
 ## Behavior and workflow
 

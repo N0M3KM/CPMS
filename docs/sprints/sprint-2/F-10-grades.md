@@ -3,7 +3,7 @@
 **Owner:** Jinnakan 1010 · **Reviewer:** Drarun 1016 · **Requirements:** FR-10, BR-10 (new), BR-05, BR-06, BR-07 · **Depends on:** F-05, F-08
 
 
-**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
+**Approval status:** contract proposed on 2026-11-25. Implementation was authorized by Jinnakan on 2026-11-26 (chat: "Lets do feature 10"). D-17 (current revision only) and D-23 (API shape) were approved on PR #59 and D-18 on PR #60. Drarun's approval of D-20 (grade rules) and of this implementation is recorded by his approving review on the F-10 pull request; instructor or TA confirmation is pending. Record: [Sprint 2 plan](plan.md#approval-record-for-f-10-decisions-d-20-d-17-d-23).
 
 ## Behavior and workflow
 
@@ -31,7 +31,7 @@ Failure cases: invalid score or unknown field (400); no session (401); Student (
 
 ## UI
 
-Submission detail, supervisor view: a grade form (number input, 0 to 100, with the same error mapping as the feedback form) is shown only on the current revision, when it has feedback and no grade. After success the form is replaced by the saved score. Older revisions show their saved grade, or nothing, and never a form. Student view: each revision shows its grade read-only beside its feedback once one is recorded, and shows no grade before that. The grade form is not rendered for Students, and a direct API call is still denied.
+Submission detail, supervisor view: a grade form (number input, 0 to 100, with the same error mapping as the feedback form) is shown only on the current revision, when it has feedback and no grade. The saved grade is shown beside that revision's feedback (score, supervisor, date) to the supervisor and to the team's students, and older versions show their own grade in the version history. After success the form is replaced by the saved score. Older revisions show their saved grade, or nothing, and never a form. Student view: each revision shows its grade read-only beside its feedback once one is recorded, and shows no grade before that. The grade form is not rendered for Students, and a direct API call is still denied.
 
 ## API
 

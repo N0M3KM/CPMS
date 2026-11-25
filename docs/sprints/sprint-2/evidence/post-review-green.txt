@@ -1,0 +1,7 @@
+# Sprint 2 after review fixes, 2026-11-25 22:34 +07, base c5d5aeb plus uncommitted fixes
+$ npm run typecheck && npm run build && npm test -w server && npm run test:e2e && npm audit
+ Test Files  33 passed (33)
+      Tests  357 passed (357)
+   Duration  57.98s (tests 96%, import 4%)
+  6 passed (11.8s)
+found 0 vulnerabilities

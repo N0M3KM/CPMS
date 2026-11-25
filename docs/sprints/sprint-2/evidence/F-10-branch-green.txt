@@ -1,0 +1,6 @@
+# F-10 branch (feature/10-grades on merged staging 5f54c25 + F-10), 2026-11-26 00:07 +07
+$ npm run typecheck && npm run build && npm test -w server && npm run test:e2e && npm audit
+typecheck: 0 errors; build: ok
+server tests: 33 files, 357 passed (staging 304 + F-10 grades, grade visibility, cross-feature, held-lock tests)
+browser journeys: 7 passed (f08 x2, f09, f10, journeys x2, session-ended)
+npm audit: found 0 vulnerabilities
