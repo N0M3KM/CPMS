@@ -1,0 +1,10 @@
+# REQUEST_LIMIT_PER_MINUTE RED, 2026-11-25 22:25 +07
+$ npm test -w server -- config
+     × defaults to 100 requests per minute per address 2ms
+     × accepts a whole number from 1 to 100000 (the browser journeys raise it, production keeps the default) 0ms
+     × rejects 0 1ms
+     × rejects -5 0ms
+     × rejects abc 0ms
+     × rejects 1.5 0ms
+     × rejects 100001 0ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
