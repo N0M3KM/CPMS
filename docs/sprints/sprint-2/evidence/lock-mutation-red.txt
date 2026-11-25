@@ -1,0 +1,8 @@
+# Mutation check, 2026-11-25 22:32 +07: lockMilestone removed from feedback and grade services (temporary), new race tests must fail
+$ npm test -w server -- milestone-lock
+     × TEST-54b feedback waits for a revision that commits first and is then refused with REVISION_SUPERSEDED 4369ms
+     × TEST-87b a grade waits for a revision that commits first and is then refused with REVISION_SUPERSEDED 4393ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected false to be true // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+      Tests  2 failed | 1 passed (3)

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { Link, useParams } from 'react-router-dom';
 import type { User } from './auth-api';
 import { FeedbackForm } from './FeedbackForm';
+import { GradeForm } from './GradeForm';
 import { ManageMilestone } from './ManageMilestone';
 import { NewMilestoneForm } from './NewMilestoneForm';
 import { ReviseWorkForm } from './ReviseWorkForm';
@@ -243,7 +244,10 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
   const { milestoneId = '' } = useParams();
   return (
     <DataView<Milestone> key={milestoneId} path={`/milestones/${encodeURIComponent(milestoneId)}`}>
-      {(milestone, reload, refresh) => (
+      {(milestone, reload, refresh) => {
+        // The current revision is the last item of revisions[]; its grade (if any) sits beside its feedback.
+        const currentGrade = milestone.revisions.at(-1)?.grade ?? null;
+        return (
         <section aria-labelledby="milestone-name">
           <Link to={`/teams/${milestone.teamId}`}>Back to team</Link>
           <h2 id="milestone-name">{milestone.title}</h2>
@@ -271,6 +275,9 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
                 <>
                   <p className="view-description">{milestone.submission.feedback.comment}</p>
                   <p>Recorded <DateTime value={milestone.submission.feedback.createdAt} /></p>
+                  {currentGrade ? (
+                    <p>Grade: {currentGrade.score} by {currentGrade.supervisor.name} (<DateTime value={currentGrade.createdAt} />)</p>
+                  ) : canReview ? <GradeForm submissionId={milestone.submission.id} onSaved={reload} /> : null}
                 </>
               ) : canReview ? <FeedbackForm submissionId={milestone.submission.id} onSaved={reload} onStale={refresh} />
                 : <p>No feedback yet.</p>}
@@ -284,7 +291,8 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
             : canSubmit ? <SubmitWorkForm milestoneId={milestone.id} onSubmitted={reload} />
             : <p>No submission yet.</p>}
         </section>
-      )}
+        );
+      }}
     </DataView>
   );
 }

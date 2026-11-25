@@ -9,6 +9,7 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 1.3 | 2026-11-26 | F-09 approval recorded (PR #60 review); F-10 approval record opened. |
 | 1.2 | 2026-11-25 | F-08 approval record added (requested in the review of PR #59). F-08 is marked implemented and in review; decisions and approvals stay pending until their sources exist. |
 | 1.1 | 2026-11-25 | Proposed; approval pending (Drarun, instructor or TA). Policies proposed (SRS D-16 to D-23), contracts F-08 to F-10, test specification and change register added, owners and reviewers assigned. |
 | 1.0 | 2026-11-06 | Initial plan aligned with the team's Theme 6 baseline. |
@@ -21,8 +22,8 @@ Build on the accepted Sprint 1 release so a team can revise milestone work with 
 |---|---|---|---|---|
 | Sprint 2 foundation (schema, shared guards, test fixtures) | Jinnakan 1010 | Drarun 1016 | `feature/sprint2-foundation` | planned |
 | F-08 Revisions | Jinnakan 1010 | Drarun 1016 | `feature/08-revisions` | merged (PR #59); approved 2026-11-25 |
-| F-09 Milestone management | Drarun 1016 | Jinnakan 1010 | `feature/09-milestone-management` | implemented, in review; approval pending, see below |
-| F-10 Grades | Jinnakan 1010 | Drarun 1016 | `feature/10-grades` | planned |
+| F-09 Milestone management | Drarun 1016 | Jinnakan 1010 | `feature/09-milestone-management` | merged (PR #60); approved 2026-11-25 |
+| F-10 Grades | Jinnakan 1010 | Drarun 1016 | `feature/10-grades` | implemented, in review; approval pending, see below |
 
 | Feature | Requirement | Planned outcome | Dependencies |
 |---|---|---|---|
@@ -46,11 +47,22 @@ The status words for F-08 (this plan, the F-08 contract, SRS FR-08, D-16, D-17, 
 | Who | What | Status | Source and date |
 |---|---|---|---|
 | Jinnakan | Authorized building Sprint 2, including F-09, and pushing it for review | Given | Chat instructions, 2026-11-25 ("Lets do F-9") |
-| Drarun | Approval of D-18 (close is not reversible; closed blocks edits, first submissions and revisions), D-19 (deadline change rules) and of the F-09 implementation | Pending | His approving review on the F-09 pull request is the record |
+| Drarun | Approval of D-18 (close is not reversible; closed blocks edits, first submissions and revisions), D-19 (deadline change rules) and of the F-09 implementation | Given | Approving review on PR #60, 2026-11-25 ("This approval covers the documented F-09 close and deadline policies D-18/D-19 and implementation"); CI run #22 passed for commit 8c038a5; PR #60 merged |
 | Drarun | Approval of D-23 (API shape: `closedAt`, `progress.closed`) | Given | Approving review on PR #59, 2026-11-25 |
-| Instructor or TA | Confirmation of D-18 and D-19 | Not received | Asked "where necessary"; Drarun decides, as he did for F-08 |
+| Instructor or TA | Confirmation of D-18 and D-19 | Not received | Asked "where necessary"; Drarun approved F-09 without it |
 
-The status words for F-09 change to approved, with the review's date, in one commit once the approving review exists.
+The status words for F-09 (this plan, the F-09 contract, SRS FR-09, D-18, D-19, change register BASE-02) were changed to approved on 2026-11-25 with that source.
+
+### Approval record for F-10 (decisions D-20, D-17, D-23)
+
+| Who | What | Status | Source and date |
+|---|---|---|---|
+| Jinnakan | Authorized building Sprint 2, including F-10, and pushing it for review | Given | Chat instruction, 2026-11-26 ("Lets do feature 10") |
+| Drarun | Approval of D-20 (grade 0 to 100 in its own table, only after feedback on the current revision, immutable, visible to the team and supervisor) and of the F-10 implementation | Pending | His approving review on the F-10 pull request is the record |
+| Drarun | Approval of D-17 (current revision only) and D-23 (API shape) | Given | Approving review on PR #59, 2026-11-25 |
+| Instructor or TA | Confirmation of D-20 | Not received | Asked "where necessary"; Drarun decides, as for F-08 and F-09 |
+
+The status words for F-10 change to approved, with the review's date, in one commit once the approving review exists.
 
 ## Work packages and integration
 

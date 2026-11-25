@@ -335,6 +335,7 @@ describe('route matrix (SEC-06): every route is accounted for', () => {
       'POST /api/milestones/:milestoneId/submission': 'protected',
       'POST /api/milestones/:milestoneId/revisions': 'protected',
       'POST /api/submissions/:submissionId/feedback': 'protected',
+      'POST /api/submissions/:submissionId/grade': 'protected',
     };
     expect(routes).toEqual(Object.keys(matrix).sort());
     for (const [key, access] of Object.entries(matrix)) {

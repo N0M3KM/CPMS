@@ -27,14 +27,18 @@ export const validSubmission = {
 
 export function createApiFixture(prisma: PrismaClient) {
   const clock = fixedClock(SEED_NOW);
-  const api = request(createApp({
+  // The app holds an in-memory request limiter (100 per minute per IP). The test clock never moves past the
+  // limiter window, so reset() builds a fresh app; tests that call reset() in beforeEach never see a 429.
+  const build = () => request(createApp({
     checkDb: dbChecker(prisma),
     auth: { store: prismaAuthStore(prisma), clock, ttlHours: 1, secure: false, allowedOrigin: ORIGIN },
     teamAccess: prismaTeamAccess(prisma),
     mountRoutes: (app, security) => mountFeatureRoutes(app, security, prisma, clock),
   }));
+  let api = build();
 
   async function reset(): Promise<void> {
+    api = build();
     clock.advance(SEED_NOW.getTime() - clock.now().getTime());
     await resetDb(prisma);
     await seedDatabase(prisma, { studentPassword: PASSWORD, supervisorPassword: PASSWORD, clock, logger: { log() {} } });
@@ -53,5 +57,5 @@ export function createApiFixture(prisma: PrismaClient) {
     patch: (url: string) => api.patch(url).set('Origin', ORIGIN).set('Cookie', cookie),
   });
 
-  return { api, clock, reset, login, as };
+  return { get api() { return api; }, clock, reset, login, as };
 }
