@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { Link, useParams } from 'react-router-dom';
 import type { User } from './auth-api';
 import { FeedbackForm } from './FeedbackForm';
+import { GradeForm } from './GradeForm';
 import { ManageMilestone } from './ManageMilestone';
 import { NewMilestoneForm } from './NewMilestoneForm';
 import { ReviseWorkForm } from './ReviseWorkForm';
@@ -271,6 +272,11 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
                 <>
                   <p className="view-description">{milestone.submission.feedback.comment}</p>
                   <p>Recorded <DateTime value={milestone.submission.feedback.createdAt} /></p>
+                  {/* F-10: until F-08 adds revisions[] with each revision's grade, the response cannot say whether
+                      this revision is graded, so the form is offered after feedback and the server answers 409
+                      GRADE_EXISTS. Integration: show it only when the current revision has no grade, and render
+                      saved grades read-only for every revision and for students. */}
+                  {canReview && <GradeForm submissionId={milestone.submission.id} />}
                 </>
               ) : canReview ? <FeedbackForm submissionId={milestone.submission.id} onSaved={reload} onStale={refresh} />
                 : <p>No feedback yet.</p>}
