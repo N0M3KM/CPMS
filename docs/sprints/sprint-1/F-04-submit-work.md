@@ -52,3 +52,4 @@ Tests: TEST-21 to TEST-26 and TEST-42 (E2E) in the [STS](sts.md). TDD evidence i
 | Date | Change |
 |---|---|
 | 2026-11-06 | Recorded the order of checks, control-character and embedded-credential rules, and trimming. |
+| 2026-11-25 | Sprint 2 revises this contract without changing its routes: the order of checks becomes 404, closed (409 `MILESTONE_CLOSED`, F-09), duplicate, deadline; BR-01 is now "revision numbers are unique per milestone" with the first submission as revision 1 (AC-23 unchanged). See [F-08](../sprint-2/F-08-revisions.md) and [F-09](../sprint-2/F-09-milestone-management.md). |

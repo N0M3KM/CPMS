@@ -1,6 +1,6 @@
 # Sprint 2 Plan — Milestone Workflow Expansion
 
-**Version:** 1.0 (draft for review)  
+**Version:** 1.1 (approved 2026-11-25)  
 **Product:** CPMS, Theme 6  
 **Team:** Drarun Yookphan (67070501016), Jinnakan Chaviengpob (67070501010)  
 **Related:** [Three-sprint plan](../plan.md) · [Feature inventory](../../features.md) · [SRS](../../srs.md) · [System SDS](../../system-sds.md) · [Traceability](../../traceability.md)
@@ -9,11 +9,19 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-11-25 | Approved by Jinnakan. Policies decided (SRS D-16 to D-23), contracts F-08 to F-10, test specification and change register added, owners and reviewers assigned. |
 | 1.0 | 2026-11-06 | Initial plan aligned with the team's Theme 6 baseline. |
 
 ## Goal and scope
 
-Build on the accepted Sprint 1 release so a team can revise milestone work with history, a supervisor can manage milestones, and grades can be recorded and viewed according to an agreed policy. Retain the Student and Supervisor roles, team-scoped access, persistent UI/API/database journey and security foundation. F-08 to F-10 are proposed; detailed contracts and implementation require separate authorization.
+Build on the accepted Sprint 1 release so a team can revise milestone work with history, a supervisor can manage milestones, and grades can be recorded and viewed according to an agreed policy. Retain the Student and Supervisor roles, team-scoped access, persistent UI/API/database journey and security foundation. Contracts: [F-08](F-08-revisions.md), [F-09](F-09-milestone-management.md), [F-10](F-10-grades.md); tests and Definition of Done: [sts.md](sts.md); findings and baseline changes: [change-register.md](change-register.md). Implementation was authorized on 2026-11-25.
+
+| Feature | Owner | Reviewer | Branch | Status |
+|---|---|---|---|---|
+| Sprint 2 foundation (schema, shared guards, test fixtures) | Jinnakan 1010 | Drarun 1016 | `feature/sprint2-foundation` | planned |
+| F-08 Revisions | Jinnakan 1010 | Drarun 1016 | `feature/08-revisions` | planned |
+| F-09 Milestone management | Drarun 1016 | Jinnakan 1010 | `feature/09-milestone-management` | planned |
+| F-10 Grades | Jinnakan 1010 | Drarun 1016 | `feature/10-grades` | planned |
 
 | Feature | Requirement | Planned outcome | Dependencies |
 |---|---|---|---|

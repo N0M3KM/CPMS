@@ -1,6 +1,6 @@
 # Sprint 3 Plan — Progress Visibility and Product Hardening
 
-**Version:** 1.0 (draft for review)  
+**Version:** 1.1 (approved 2026-11-25)  
 **Product:** CPMS, Theme 6  
 **Team:** Drarun Yookphan (67070501016), Jinnakan Chaviengpob (67070501010)  
 **Related:** [Three-sprint plan](../plan.md) · [Feature inventory](../../features.md) · [SRS](../../srs.md) · [System SDS](../../system-sds.md) · [Traceability](../../traceability.md)
@@ -9,11 +9,17 @@
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-11-25 | Approved by Jinnakan. F-11 and F-12 contracts and test specification added. F-12 is implemented for Deliverable 2; F-11 is contract only; remaining work is scheduled to 13 December. |
 | 1.0 | 2026-11-06 | Initial plan aligned with the team's Theme 6 baseline. |
 
 ## Goal and scope
 
-Complete progress boards and reports, search and filtering, then integrate, harden and release the product. Build on accepted Sprint 1 and 2 work while preserving team-scoped access and history. F-11 and F-12 are proposed; detailed contracts and implementation require separate authorization.
+Complete progress boards and reports, search and filtering, then integrate, harden and release the product. Build on accepted Sprint 1 and 2 work while preserving team-scoped access and history. Contracts: [F-11](F-11-progress-board.md) (planned, no code in Deliverable 2) and [F-12](F-12-search-filter.md); tests and Definition of Done: [sts.md](sts.md).
+
+| Feature | Owner | Reviewer | Branch | Status |
+|---|---|---|---|---|
+| F-11 Progress board and reports | Drarun 1016 | Jinnakan 1010 | `feature/11-progress-board` | planned (contract only) |
+| F-12 Search and filter | Drarun 1016 | Jinnakan 1010 | `feature/12-search` | planned |
 
 | Feature | Requirement | Planned outcome | Dependencies |
 |---|---|---|---|

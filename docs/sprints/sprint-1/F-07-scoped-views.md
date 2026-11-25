@@ -51,3 +51,4 @@ Tests: TEST-35 to TEST-41, TEST-42, TEST-43 in the [STS](sts.md).
 | Date | Change |
 |---|---|
 | 2026-11-06 | Documented the additive `nextDue` field and the status filter used by the supervisor dashboard. |
+| 2026-11-25 | Sprint 2 additions (approved baseline change D-23): milestone detail gains `closedAt` and `revisions[]` (the `submission` key set is unchanged); milestone status can be `CLOSED`; team `progress` gains `closed`. See [F-08](../sprint-2/F-08-revisions.md), [F-09](../sprint-2/F-09-milestone-management.md), [F-10](../sprint-2/F-10-grades.md). |

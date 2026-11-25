@@ -1,7 +1,7 @@
 # CPMS Feature Inventory (Part B)
 
-**Version:** 2.1 (Sprint 1 baseline)
-**Related:** [SRS](srs.md) · [Traceability](traceability.md) · [Sprint plan](sprints/plan.md)
+**Version:** 3.0 (Sprint 2 and Sprint 3 features approved, 2026-11-25; status planned until verified)
+**Related:** [SRS](srs.md) · [Traceability](traceability.md) · [Sprint plan](sprints/plan.md) · [Sprint 2 contracts](sprints/sprint-2/plan.md) · [Sprint 3 contracts](sprints/sprint-3/plan.md)
 
 | ID | Feature | Description | Requirements | Depends on | Sprint |
 |---|---|---|---|---|---:|
@@ -12,14 +12,14 @@
 | F-05 | Supervisor feedback | Supervisor records immutable feedback on a submission of a supervised team. | FR-05, BR-05, BR-07 | F-01, F-02, F-04 | 1 |
 | F-06 | Foundation and seed | Schema, migration, env handling, test DB, health and ready, idempotent seed of teams, members, milestones, submissions. | FR-06, NFR-02, NFR-06, NFR-12 | none | 1 |
 | F-07 | Scoped views and progress | Team, milestone, submission and feedback views; supervisor team list; computed milestone status. | FR-07, BR-06, NFR-04, NFR-05 | F-01, F-02 | 1 |
-| F-08 | Revisions and resubmission | Revision policy with preserved history of submissions and feedback. | FR-08 | Sprint 1 | 2 |
-| F-09 | Milestone management | Edit or close milestones, adjust deadlines. | FR-09 | Sprint 1 | 2 |
-| F-10 | Grades | Supervisor grade with feedback and a visibility rule. | FR-10 | F-05, F-08 | 2 |
-| F-11 | Progress board and reports | Board of teams by milestone status, summary views. | FR-11 | F-07 | 3 |
-| F-12 | Search and filter | Find permitted milestones, submissions, teams. | FR-12, BR-06 | F-07 | 3 |
+| F-08 | Revisions and resubmission | Up to 5 versions per milestone with preserved history; feedback and grades only on the current revision. | FR-08, BR-01, BR-02, BR-04, BR-05, BR-07, BR-08 | F-04, F-05, F-07 | 2 |
+| F-09 | Milestone management | Edit title, description and due date; close a milestone; CLOSED status. | FR-09, BR-03, BR-06, BR-07, BR-09 | F-03, F-07 | 2 |
+| F-10 | Grades | Supervisor grade 0 to 100 on a revision after its feedback; team and supervisor visibility. | FR-10, BR-05, BR-06, BR-07, BR-10 | F-05, F-08 | 2 |
+| F-11 | Progress board and reports | Board of teams by milestone status including closed, summary views. Contract only in Deliverable 2. | FR-11, BR-06 | F-07, F-08, F-09 | 3 |
+| F-12 | Search and filter | Find permitted milestones by title and status with team-scoped counts and pagination. | FR-12, BR-06, BR-11 | F-07, F-08, F-09 | 3 |
 | X-01 | Docker, CI/CD, GCP deployment | Container, pipeline, Cloud Run, Cloud SQL, Secret Manager. | NFR-06 | Sprints 1 to 3 | Lab 5 |
 
-F-08 to F-12 are proposed and unapproved. X-01 is a named system responsibility delivered in Lab 5.
+F-08 to F-12 were approved on 2026-11-25 (see the [SRS](srs.md) decisions D-16 to D-23); contracts are in `docs/sprints/sprint-2/` and `docs/sprints/sprint-3/`. F-11 is contract only in Deliverable 2. X-01 is a named system responsibility delivered in Lab 5.
 
 ## Feature order inside Sprint 1
 
