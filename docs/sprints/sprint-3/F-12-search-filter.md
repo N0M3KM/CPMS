@@ -3,7 +3,7 @@
 **Owner:** Drarun 1016 · **Reviewer:** Jinnakan 1010 · **Requirements:** FR-12, BR-06, BR-11 (new), NFR-01, NFR-03, NFR-11 · **Depends on:** F-07, F-08 and F-09 (Sprint 2)
 
 
-**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
+**Approval status:** local implementation and verification authorized on 2026-11-26. Peer review, release acceptance and instructor or TA confirmation are pending.
 
 ## Behavior and workflow
 
@@ -44,7 +44,7 @@ What the limit means in practice: if more than 1000 milestones match scope, `q` 
 - `teamId` is available through the API. The first UI has no team selector.
 - Empty state when nothing matches. Loading, error and success states as on every data view.
 - A 401 response ends the session in the UI the same way as on the other views.
-- Cut line: the UI may be cut first. The API and its tests are the implemented rule.
+- Both roles can open Search milestones from account navigation. The search submits explicitly, resets to page 1 when filters change, and can link directly to a permitted milestone. The view discloses its 1,000-row bound.
 
 ## API
 
@@ -89,6 +89,9 @@ No new entities, columns, migrations or indexes. Read queries only. The plan pro
 - **AC-85:** No match: 200, items: [], total: 0. %, _ and quotes in q match literally.
 - **AC-86:** Unauthenticated 401. No stack or SQL in errors (NFR-03).
 
+- **AC-96:** The first 1,000 scoped, title-matching milestones in due date and ID order are the search window. Status, totals and paging use that window. The 1,001st row remains outside it.
+- **AC-97:** A signed-in student or supervisor can search, filter, page and open permitted milestones in the browser. Zero matches show an empty state. The browser shows a recoverable error with retry and redirects on session expiry.
+
 ### No change needed
 
 - No change to the Sprint 1 and Sprint 2 DTOs, routes or status rules. `GET /api/teams`, `GET /api/teams/:teamId` and `GET /api/milestones/:milestoneId` behave as before, and TEST-35 is unaffected by F-12.
@@ -96,10 +99,11 @@ No new entities, columns, migrations or indexes. Read queries only. The plan pro
 - No change to authentication, sessions, the error envelope, the uniform 404 or the role matrix beyond one new route line, `GET /api/search`, marked `protected` in the route matrix test.
 - No new permission: a Student and a Supervisor see exactly the milestones they could already open one by one.
 
-Tests: TEST-79 to TEST-86 in the [STS](sts.md). Red and green evidence for the scope and validation tests is saved as `F-12-red.txt` and `F-12-green.txt`.
+Tests: TEST-79 to TEST-86 and TEST-96 to TEST-97 in the [STS](sts.md). Red and green evidence for the scope and validation tests is saved as `F-12-red.txt` and `F-12-green.txt`.
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-11-26 | Added cap and browser acceptance criteria AC-96 and AC-97. Preserved endpoint and scope. |
 | 1.0 | 2026-11-25 | Initial contract for Deliverable 2. AC-79 to AC-86. States the in-memory status filter and the 1000-milestone scan cap as limits. |

@@ -1,20 +1,21 @@
 # CPMS Sprint 3 Software Test Specification and Definition of Done
 
-**Version:** 1.0 (Deliverable 2)
+**Version:** 1.1 (Deliverable 2)
 
 
-**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
-**Related:** [Sprint 3 plan](plan.md) · [F-12 contract](F-12-search-filter.md) · [Sprint 1 STS](../sprint-1/sts.md) · [Traceability](../../traceability.md) · [Security test plan](../../security-test-plan.md)
+**Approval status:** F-12 local implementation and verification authorized on 2026-11-26. Peer review and release acceptance are pending. F-11 remains scoped for later implementation.
+**Related:** [Sprint 3 plan](plan.md) · [F-11 contract](F-11-progress-board.md) · [F-12 contract](F-12-search-filter.md) · [Sprint 1 STS](../sprint-1/sts.md) · [Traceability](../../traceability.md) · [Security test plan](../../security-test-plan.md)
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-11-26 | Added TEST-96 for the bounded search window and TEST-97 for the browser workflow. Resolved provisional F-11 test inputs. |
 | 1.0 | 2026-11-25 | Initial Sprint 3 STS for Deliverable 2. TEST-79 to TEST-86 verify AC-79 to AC-86 (F-12). TEST-73 to TEST-78 are listed for AC-73 to AC-78 (F-11) as planned only. |
 
 ## Software Test Specification
 
-Test IDs are stable identifiers. `TEST-nn` verifies `AC-nn`. Levels: unit, API (Vitest and Supertest on a separate test DB), DB integration, E2E (Playwright), manual. Planned F-12 test files are `server/tests/search-policy.test.ts` (unit) and `server/tests/search-db.test.ts` (API and DB).
+Test IDs are stable identifiers. `TEST-nn` verifies `AC-nn`. Levels: unit, API (Vitest and Supertest on a separate test DB), DB integration, E2E (Playwright), manual. F-12 verification files are `server/tests/search-policy.test.ts`, `server/tests/search-db.test.ts` and `e2e/f12-search.spec.ts`. Update execution status only from versioned evidence.
 
 The Status column is the only place that says whether a row has been run. Allowed values: `planned, not implemented` (no test code and no feature code exist), `planned` (written here, not yet run), `red` (run, fails for the intended reason, output saved), `green` (run and passing, output saved). At version 1.0 no row is `red` or `green`. A row changes status only when the saved output and the tested commit are recorded in `evidence/`.
 
@@ -51,24 +52,27 @@ Dependencies: F-07 (scope and status), F-08 (newest revision), F-09 (`closedAt`,
 | TEST-85 | AC-85 | API | A1 session; Team A extra milestones created by the test with titles `100% done check`, `Plan_B draft`, `Plan B draft` and `Owner's "final" review` | A1 `?q=zzzz`; `?q=%25`; `?q=_`; `?q=%27`; `?q=%22`; `?q=%27%3B%20DROP%20TABLE%20%22Milestone%22%3B--` | `q=zzzz`: 200, `items: []`, `total` 0, `page` 1, `limit` 20. `q=%` returns only `100% done check`. `q=_` returns only `Plan_B draft`, not `Plan B draft`. `q=%27` and `q=%22` return only `Owner's "final" review`. The injection string returns 200 with `items: []`, and a later search still returns the seed milestones. | planned |
 | TEST-86 | AC-86 | API | No cookie; then a revoked session (A1 logs out); A1 session for error bodies | `GET /api/search` with no cookie; with the revoked cookie; with no cookie and `?limit=999`; A1 requests that produce 400 and 404 (TEST-83 and TEST-84 inputs); route-matrix test | 401 `UNAUTHENTICATED` body with no items in each unauthenticated case, including the one with invalid params (401 is checked before 400). The 400 and 404 bodies contain only `error.code` and `error.message` and match no stack frame, file path, `SELECT`, `prisma` or SQL text (NFR-03). `tests/security.test.ts` has the line `'GET /api/search': 'protected'` and fails if it is missing. | planned |
 
+| TEST-96 | AC-96 | API + DB | 1,001 same-title Team A milestones ordered by due date and ID, plus an earlier foreign row | Request page 20 and 21 with limit 50, then filter for a status found only beyond the bound | Page 20 ends on scoped row 1,000, page 21 is empty with total 1,000, and the status filter returns zero. The foreign row never consumes capacity. | planned |
+| TEST-97 | AC-97 | E2E | A1 and S1 signed in with seed data | Search, filter, page results and open a milestone. Exercise zero matches, a recoverable read error and a 401 | Appropriate role sees scoped matches and can open a result. Empty, retry and sign-in states are visible. | planned |
+
 ### F-11 Progress board and reports (contract only in Deliverable 2)
 
-F-11 has no code in Deliverable 2. These rows reserve the test IDs. The request path, response shape, levels and exact bodies are fixed by the F-11 contract when it is approved, so the Expected result column states the behavior from the AC and the seed numbers only. Counts use the seed above at the fixed clock T0, with `id(202)` closed where a `closed` count is needed. The split of the six F-11 criteria into AC-73 to AC-78 follows the order they are listed in the Deliverable 2 plan and must be matched to the F-11 contract.
+F-11 test design uses GET /api/progress with the exact response defined in the F-11 contract. Use the seed above at T0 and close `id(202)` for the closed counter. API tests assert status 200 and allowlisted fields. Test identities come from signed-in sessions.
 
 | Test | AC | Level | Precondition / input | Action | Expected result | Status |
 |---|---|---|---|---|---|---|
-| TEST-73 | AC-73 | API + DB (provisional) | S1 and S2 sessions; seed above; `id(202)` closed | Open the progress board as S1, then as S2 | 200. S1 lists Teams A and B only. Team A counts: `reviewed` 1, `closed` 1, others 0. Team B counts: `overdue` 1, `submitted` 1, others 0. S2 lists Team C only, `notSubmitted` 1. | planned, not implemented |
-| TEST-74 | AC-74 | API (provisional) | A1 and B1 sessions | Open the board as A1, then as B1 | 200. A1 sees Team A only; B1 sees Team B only. No other team id, name or count appears. | planned, not implemented |
-| TEST-75 | AC-75 | Unit + API + DB (provisional) | S1 session; seed above | Read the report totals for S1 | Each team's total equals the sum of its per-status counts and the number of its milestones (Team A 2, Team B 2). The report total for S1 is 4. | planned, not implemented |
-| TEST-76 | AC-76 | Unit + API (provisional) | S1 session; `id(203)` (overdue, no submission) closed; `id(201)` (reviewed) closed | Read the board | `id(203)` counts as `closed`, not `overdue`. `id(201)` still counts as `reviewed`. Precedence follows `REVIEWED`, `SUBMITTED`, `CLOSED`, `OVERDUE`, `NOT_SUBMITTED`. | planned, not implemented |
-| TEST-77 | AC-77 | API (provisional) | A test-created team with no milestones, or a test-created account with no team (same style as the F-07 empty-state cases) | Open the board for that user | 200 with zero counts and an empty list or zero totals as the contract defines. Not 404. | planned, not implemented |
-| TEST-78 | AC-78 | API + DB (provisional) | A1 and S2 sessions; seed above | Add a milestone to Team B in the test DB; reread the board as A1 and as S2 | A1 and S2 counts are unchanged. No Team B count appears for A1. No Team A or Team B count appears for S2. | planned, not implemented |
+| TEST-73 | AC-73 | API + DB | S1 and S2 sessions; seed above; `id(202)` closed | Open the progress board as S1, then as S2 | 200. S1 lists Teams A and B only. Team A counts: `reviewed` 1, `closed` 1, others 0. Team B counts: `overdue` 1, `submitted` 1, others 0. S2 lists Team C only, `notSubmitted` 1. | planned, not implemented |
+| TEST-74 | AC-74 | API | A1 and B1 sessions | Open the board as A1, then as B1 | 200. A1 sees Team A only; B1 sees Team B only. No other team id, name or count appears. | planned, not implemented |
+| TEST-75 | AC-75 | Unit + API + DB | S1 session; seed above | Read the report totals for S1 | Each team's total equals the sum of its per-status counts and the number of its milestones (Team A 2, Team B 2). The report total for S1 is 4. | planned, not implemented |
+| TEST-76 | AC-76 | Unit + API | S1 session; `id(203)` (overdue, no submission) closed; `id(201)` (reviewed) closed | Read the board | `id(203)` counts as `closed`, not `overdue`. `id(201)` still counts as `reviewed`. Add a version without feedback to it and verify the reviewed count falls and submitted increases. Add a milestone due exactly at T0 and verify it is not overdue. Precedence follows `REVIEWED`, `SUBMITTED`, `CLOSED`, `OVERDUE`, `NOT_SUBMITTED`. | planned, not implemented |
+| TEST-77 | AC-77 | API | A student without a team, a supervisor without assigned teams, and a supervised team with zero milestones | Open the board in each of the three cases | 200 with zero counts and an empty list or zero totals as the contract defines. Not 404. | planned, not implemented |
+| TEST-78 | AC-78 | API + DB | A1 and S2 sessions; seed above | Create, submit, review and close a Team B milestone. Reread as A1 and S2 after each transition | A1 and S2 counts are unchanged. No Team B count appears for A1. No Team A or Team B count appears for S2. | planned, not implemented |
 
-Every AC-79 to AC-86 maps to exactly one test above. AC-73 to AC-78 each map to one planned test and are not verified.
+AC-79 to AC-86 and AC-96 to AC-97 each map to one named test group above. AC-73 to AC-78 each map to one planned test and are not verified.
 
 ### Known gaps in this specification
 
-- The 1000-milestone scan cap (`MAX_SCANNED`) has no AC and no test, because the plan lists none. It is a stated limit in the F-12 contract and is carried in the remaining-work plan.
+- AC-96 and TEST-96 cover the 1,000-row bound. A future scalability change can move filtering into the database while preserving shared status semantics.
 - NFR-05 (response time) for the search route is not covered by TEST-79 to TEST-86. A timing record on seeded data is planned after the release candidate (see Remaining work).
 - Sprint 2 tests are in the Sprint 2 STS, not here.
 
@@ -83,7 +87,7 @@ Each criterion is closed only when the evidence in the second column exists and 
 | # | Criterion | Evidence required | Status |
 |---|---|---|---|
 | 1 | Contracts, acceptance criteria and STS exist for every Sprint 3 feature: F-11 (AC-73 to AC-78) and F-12 (AC-79 to AC-86), with every AC mapped to a test row. | This STS, the F-12 contract and the F-11 contract; peer review recorded on each Issue (one specific check per contract). | drafted 2026-11-25, review pending |
-| 2 | F-12 is implemented to its contract on `feature/12-search`, and AC-79 to AC-86 are each verified by their mapped test. | Passing output with counts, the command, and the tested commit. | open |
+| 2 | F-12 is implemented to its contract on `feature/12-search`, and AC-79 to AC-86 and AC-96 to AC-97 are each verified by their mapped test. | Passing output with counts, the command, and the tested commit. | open |
 | 3 | F-12 was built test first with red and green evidence. | `F-12-red.txt` showing the intended failure, `F-12-green.txt` showing the pass, both commits recorded. | open |
 | 4 | F-12 is peer reviewed by Jinnakan and merged into `sprint-3-staging` by a pull request opened as a draft. | PR number, a specific reviewer check, merge commit. | open |
 | 5 | F-11 is not presented as done. Its rows read `planned, not implemented` in this STS, in the traceability matrix and in the PDF. | Matching wording in all three places; no F-11 code in the tagged commit. | open |
@@ -103,7 +107,7 @@ Starting rows from the Deliverable 2 plan. Adjust them to what actually happened
 |---|---|---|---|---|
 | F-11 AC-73 to AC-78 | planned, not implemented | Tests first, board endpoint, board UI, report totals | Drarun | 2026-12-05 |
 | F-12 UI polish, accessibility check, NFR-05 timing record | planned (implemented and API tested once criterion 2 is met) | Keyboard and contrast check, timing run on seeded data | Jinnakan | 2026-12-06 |
-| F-12 scan cap (1000) | stated limit, no test | Decide whether to add an AC and a test or keep it as a documented limit | Drarun | 2026-12-06 |
+| F-12 scan cap (1000) | AC-96 and TEST-96 specified | Revisit scale only if course data approaches the bound | Drarun | 2026-12-06 |
 | Open defects from the register | per register | Fix with a new test, re-test live | owner per row | 2026-12-08 |
 | UAT re-tests (Lab 6 findings, partner re-test of CF-01) | pending partner | Run cases, record in the register | Both | 2026-12-09 |
 | Regression, security suite and dependency audit on the final commit | to be run on the final tag | Re-run on the final tag, record counts | Both | 2026-12-10 |
