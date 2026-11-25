@@ -1,6 +1,6 @@
 # CPMS Software Requirements Specification (Part A)
 
-**Version:** 3.0 (Sprint 2 and Sprint 3 requirements approved)
+**Version:** 3.0 (Sprint 2 and Sprint 3 requirements PROPOSED, approval pending)
 **Product:** Course Project Management System (CPMS), CPE 334, Theme 6
 **Related:** [Features](features.md) · [Traceability](traceability.md) · [System SDS](system-sds.md) · [Sprint plan](sprints/plan.md) · [Security test plan](security-test-plan.md) · [Change register](sprints/sprint-2/change-register.md)
 
@@ -8,7 +8,7 @@
 
 | Version | Date | Change |
 |---|---|---|
-| 3.0 | 2026-11-25 | FR-08 to FR-12 approved for Sprints 2 and 3. BR-01 revised (revision numbers unique per milestone, at most 5 versions). Added BR-08 to BR-11, decisions D-16 to D-23, and the terms Revision, Grade and Closed. Milestone status gains CLOSED. Approved by Jinnakan on 2026-11-25; Drarun and instructor or TA confirmation pending. No Sprint 1 requirement text removed. |
+| 3.0 | 2026-11-25 | FR-08 to FR-12 proposed for Sprints 2 and 3 (not yet approved). BR-01 revised (revision numbers unique per milestone, at most 5 versions). Added BR-08 to BR-11, decisions D-16 to D-23, and the terms Revision, Grade and Closed. Milestone status gains CLOSED. Status: proposed. Approval is still needed from Drarun (review of PR #50) and confirmation from the instructor or TA; Jinnakan asked for these drafts on 2026-11-25. No Sprint 1 requirement text removed. |
 | 2.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 2.0 | 2026-11-06 | Reworked from a proposal approve/reject product to the Theme 6 domain in `group_work_specs_v1.pdf`: teams, milestones, submissions, feedback, progress. Requirement, rule, AC and test IDs renumbered. Closes D-07. |
 | 1.1 | 2026-11-06 | Approved NFR-07 to NFR-12. |
@@ -60,13 +60,13 @@ No admin role in any sprint unless a later decision adds one. Teams and membersh
 | FR-05 | A Supervisor records feedback on a submission of a team they supervise. | F-05 | 1 | Baseline |
 | FR-06 | A repeatable idempotent seed provides teams, membership, users, milestones, submissions and feedback. | F-06 | 1 | Baseline |
 | FR-07 | Students view their team, milestones, submissions, feedback and progress. Supervisors view assigned teams and per-milestone progress. | F-07 | 1 | Baseline |
-| FR-08 | A team may resubmit a milestone under a revision policy, with preserved revision history. | F-08 | 2 | Approved 2026-11-25 |
-| FR-09 | A Supervisor edits or closes a milestone and manages team deadlines. | F-09 | 2 | Approved 2026-11-25 |
-| FR-10 | A Supervisor assigns a grade with feedback; visibility of grades is defined by rule. | F-10 | 2 | Approved 2026-11-25 |
-| FR-11 | A progress board and summary reports show team and milestone status. | F-11 | 3 | Approved 2026-11-25 (contract only) |
-| FR-12 | Users search and filter only records they are entitled to see. | F-12 | 3 | Approved 2026-11-25 |
+| FR-08 | A team may resubmit a milestone under a revision policy, with preserved revision history. | F-08 | 2 | Proposed, approval pending |
+| FR-09 | A Supervisor edits or closes a milestone and manages team deadlines. | F-09 | 2 | Proposed, approval pending |
+| FR-10 | A Supervisor assigns a grade with feedback; visibility of grades is defined by rule. | F-10 | 2 | Proposed, approval pending |
+| FR-11 | A progress board and summary reports show team and milestone status. | F-11 | 3 | Proposed, approval pending (contract only) |
+| FR-12 | Users search and filter only records they are entitled to see. | F-12 | 3 | Proposed, approval pending |
 
-FR-08 to FR-12 now have contracts: [F-08](sprints/sprint-2/F-08-revisions.md), [F-09](sprints/sprint-2/F-09-milestone-management.md), [F-10](sprints/sprint-2/F-10-grades.md), [F-11](sprints/sprint-3/F-11-progress-board.md), [F-12](sprints/sprint-3/F-12-search-filter.md). "Approved" means approved by Jinnakan; Drarun and instructor or TA confirmation is pending (see D-16 to D-23).
+FR-08 to FR-12 now have contracts: [F-08](sprints/sprint-2/F-08-revisions.md), [F-09](sprints/sprint-2/F-09-milestone-management.md), [F-10](sprints/sprint-2/F-10-grades.md), [F-11](sprints/sprint-3/F-11-progress-board.md), [F-12](sprints/sprint-3/F-12-search-filter.md). All five are proposed. None is approved until Drarun approves PR #50 and the instructor or TA confirms the decisions D-16 to D-23; the approvals will be recorded here with their dates.
 
 ## 5. Business rules
 
@@ -126,11 +126,11 @@ The spec says to resolve theme ambiguities and record decisions. Items marked Pr
 | D-13 | Email is unique and compared case-insensitively. | Proposed |
 | D-14 | Password change is out of scope. | Decided |
 | D-15 | `group_work_specs_v1.pdf` was reviewed; the earlier proposal-approval slice is removed. | Decided 2026-11-06 |
-| D-16 | Revision policy: any team member may resubmit while the milestone is open and `now <= dueAt`; at most 5 versions in total (first submission is revision 1, so 4 resubmissions); current revision is the highest number. | Approved by Jinnakan 2026-11-25; Drarun and TA pending |
+| D-16 | Revision policy: any team member may resubmit while the milestone is open and `now <= dueAt`; at most 5 versions in total (first submission is revision 1, so 4 resubmissions); current revision is the highest number. | Proposed; approval pending (Drarun, instructor or TA) |
 | D-17 | Feedback attaches to one revision and only the current revision can receive it (409 `REVISION_SUPERSEDED`); older feedback stays visible. | Same |
 | D-18 | Milestone lifecycle: supervisor edits title, description and due date while open and may close at any time; closed blocks edits, first submissions and revisions; reads, feedback and grades stay allowed; closing is not reversible in Sprint 2. | Same |
 | D-19 | Deadline change: new `dueAt` must be in the future, earlier or later; status is recomputed, so extending an overdue milestone with no submission opens it again. | Same |
 | D-20 | Grade: integer 0 to 100 in a separate `Grade` table, one per revision, only after feedback on that revision and only on the current revision, immutable, visible to the team and supervisor only. "Grade with feedback" (FR-10) means recorded after, and tied to, that revision's feedback. | Same |
 | D-21 | Search (F-12): milestones only; `q` (title, max 100), `status`, `teamId`, `page`, `limit` (default 20, max 50); scope before filters and counts; at most 1000 in-scope milestones scanned. | Same |
 | D-22 | Sprint 3 rule implemented for Deliverable 2: F-12. F-11 has a contract only. | Same |
-| D-23 | API shape: `submission` in the milestone detail keeps its Sprint 1 key set; new data goes in `revisions[]` and `closedAt`; team `progress` gains `closed`. Approved baseline change; one Sprint 1 assertion edited on purpose. | Same |
+| D-23 | API shape: `submission` in the milestone detail keeps its Sprint 1 key set; new data goes in `revisions[]` and `closedAt`; team `progress` gains `closed`. Proposed baseline change; one Sprint 1 assertion edited on purpose. | Same |

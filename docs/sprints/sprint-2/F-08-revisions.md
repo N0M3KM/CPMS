@@ -2,6 +2,9 @@
 
 **Owner:** Jinnakan 1010 · **Reviewer:** Drarun 1016 · **Requirements:** FR-08, BR-01 (revised), BR-02, BR-04, BR-05, BR-07, BR-08 (new) · **Depends on:** F-04, F-05, F-07, Sprint 2 foundation task
 
+
+**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
+
 ## Behavior and workflow
 
 A Student who is a member of the milestone's team opens a milestone that already has a submission and sends a new version: title, description and link. In one transaction the server checks that the milestone is visible to the student, locks the milestone row, reads the latest revision, checks that the milestone is open, that the deadline has not passed and that fewer than 5 versions exist, then inserts a new submission row with `revisionNo` = latest + 1. The milestone detail reloads and shows every version, oldest first. Earlier versions, their feedback and their grades are never changed.

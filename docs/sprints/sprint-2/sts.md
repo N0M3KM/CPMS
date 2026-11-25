@@ -1,6 +1,9 @@
 # CPMS Sprint 2 Software Test Specification and Definition of Done
 
 **Version:** 1.0
+
+
+**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
 **Related:** [Sprint 2 plan](plan.md) · [Change register](change-register.md) · [Traceability](../../traceability.md) · [Sprint 1 STS](../sprint-1/sts.md) · contracts [F-08](F-08-revisions.md), [F-09](F-09-milestone-management.md), [F-10](F-10-grades.md)
 
 ## Version history

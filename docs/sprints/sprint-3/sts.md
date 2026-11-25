@@ -1,6 +1,9 @@
 # CPMS Sprint 3 Software Test Specification and Definition of Done
 
 **Version:** 1.0 (Deliverable 2)
+
+
+**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
 **Related:** [Sprint 3 plan](plan.md) · [F-12 contract](F-12-search-filter.md) · [Sprint 1 STS](../sprint-1/sts.md) · [Traceability](../../traceability.md) · [Security test plan](../../security-test-plan.md)
 
 ## Version history

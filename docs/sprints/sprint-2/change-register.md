@@ -26,13 +26,13 @@ Only recorded facts are listed. A row says resolved only where a merged change a
 | UAT-F1 | Our UAT of the partner product (`docs/labs/lab-06/partner-product-results.md`) | partner product, not CPMS | Observed once from page text, no screenshot. Not reproduced. Not sent. | Remaining, unconfirmed | none | Not reproduced. |
 | Lab 7 | `docs/labs` holds Lab 5 and Lab 6 only | none | No Lab 7 record exists at this checkpoint. | none | none | none |
 
-## Baseline revisions (requirement and design changes)
+## Baseline revisions (proposed requirement and design changes)
 
 | ID | Revision | Rationale | Approval | Release |
 |---|---|---|---|---|
-| BASE-01 | BR-01 changes from "one submission per milestone" to "revision numbers are unique per milestone, at most 5 versions" (D-16). The first submission still returns 409 `DUPLICATE_SUBMISSION` on its own route (AC-23 unchanged). | Revisions with history (FR-08) need more than one row per milestone. | Plan approved by Jinnakan on 2026-11-25 in chat. Drarun and TA confirmation pending. | `sprint-2-release` (planned) |
+| BASE-01 | BR-01 changes from "one submission per milestone" to "revision numbers are unique per milestone, at most 5 versions" (D-16). The first submission still returns 409 `DUPLICATE_SUBMISSION` on its own route (AC-23 unchanged). | Revisions with history (FR-08) need more than one row per milestone. | Proposed, not approved. Needs Drarun (PR #50) and the instructor or TA. Jinnakan asked for the drafts on 2026-11-25. | `sprint-2-release` (planned) |
 | BASE-02 | Team `progress` gains a `closed` count and milestone status gains `CLOSED` (D-18, D-23). One Sprint 1 test assertion changes on purpose (the `progress` key list in `scoped-views-db.test.ts`). | Milestone close (FR-09) needs a status that is neither overdue nor open. | Same as BASE-01 | `sprint-2-release` (planned) |
 | BASE-03 | `Milestone.submission` becomes `Milestone.submissions` in the data model; the API field `submission` keeps its Sprint 1 six keys and `revisions[]` is added (D-23). `seed.test.ts` changes its relation name. | Versioned submissions. | Same as BASE-01 | `sprint-2-release` (planned) |
 | BASE-04 | Grades use a separate immutable `Grade` table, not a nullable column on `Feedback` as the architecture note proposed (D-20). `docs/architecture.md` is corrected. | A nullable grade on feedback would break BR-05 (immutable feedback). | Same as BASE-01 | `sprint-2-release` (planned) |
 | BASE-05 | Feedback and grades are accepted only on the current revision (D-17, AC-54, AC-87). | One clear target per review. | Same as BASE-01 | `sprint-2-release` (planned) |
-| BASE-06 | Decisions D-16 to D-23 are added to the SRS. | Record every approved choice. | Same as BASE-01 | SRS v3.0 |
+| BASE-06 | Decisions D-16 to D-23 are added to the SRS. | Record every proposed choice. | Same as BASE-01 | SRS v3.0 |

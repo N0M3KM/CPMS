@@ -2,6 +2,9 @@
 
 **Owner:** Drarun 1016 · **Reviewer:** Jinnakan 1010 · **Requirements:** FR-09, BR-09 (new), BR-03, BR-06, BR-07 · **Depends on:** F-03, F-07, Sprint 2 foundation task (schema and shared guards) · **Status:** specified, not yet implemented
 
+
+**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
+
 ## Behavior and workflow
 
 A Supervisor opens a milestone of a team they supervise and either edits it or closes it. Editing changes the title, description or due date while the milestone is open. Closing records the time and stops further submission activity on that milestone. Each action is one write to the `Milestone` row, and the same statement filters on the team's supervisor taken from the session. The milestone detail reloads and shows the new values, the new status and, after a close, the closing time.
@@ -48,7 +51,7 @@ Request: no fields. An empty body or `{}` is accepted; any field returns 400 (st
 
 Errors: 400 `VALIDATION_ERROR` (malformed ID), 401, 403, 404, 409 `ALREADY_CLOSED`, 429.
 
-### Changed from Sprint 1 (approved baseline change, D-23)
+### Changed from Sprint 1 (proposed baseline change, D-23)
 
 | Call | Change |
 |---|---|

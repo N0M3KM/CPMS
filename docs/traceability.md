@@ -68,6 +68,6 @@ BR-01 is revised in SRS 3.0 (unique revision numbers); AC-23 and TEST-23 stay va
 
 ## Approved changes
 
-- 2026-11-25: Sprint 2 and Sprint 3 requirements FR-08 to FR-12, BR-08 to BR-11 and decisions D-16 to D-23 approved by Jinnakan; BR-01 revised; milestone status gains CLOSED; team progress gains `closed`. Recorded in the [change register](sprints/sprint-2/change-register.md) (BASE-01 to BASE-06).
+- Pending, not yet approved (proposed 2026-11-25): Sprint 2 and Sprint 3 requirements FR-08 to FR-12, BR-08 to BR-11 and decisions D-16 to D-23; BR-01 revised; milestone status gains CLOSED; team progress gains `closed`. Recorded in the [change register](sprints/sprint-2/change-register.md) (BASE-01 to BASE-06).
 - 2026-11-06: NFR-07 to NFR-12 approved for Sprint 1.
 - 2026-11-06: Domain reworked from proposal approval to Theme 6 (teams, milestones, submissions, feedback). All FR, BR, AC and TEST IDs renumbered; recorded in each document's version history.

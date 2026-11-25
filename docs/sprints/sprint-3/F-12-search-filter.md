@@ -2,6 +2,9 @@
 
 **Owner:** Drarun 1016 · **Reviewer:** Jinnakan 1010 · **Requirements:** FR-12, BR-06, BR-11 (new), NFR-01, NFR-03, NFR-11 · **Depends on:** F-07, F-08 and F-09 (Sprint 2)
 
+
+**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
+
 ## Behavior and workflow
 
 A signed-in user searches the milestones they are entitled to see. A Student searches the milestones of their one team. A Supervisor searches the milestones of every team they supervise. The search can be narrowed by title text (`q`), by computed status (`status`) and by one team (`teamId`), and the result is paged.

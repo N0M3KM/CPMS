@@ -1,6 +1,6 @@
 # Sprint 2 Plan — Milestone Workflow Expansion
 
-**Version:** 1.1 (approved 2026-11-25)  
+**Version:** 1.1 (PROPOSED 2026-11-25, approval pending)  
 **Product:** CPMS, Theme 6  
 **Team:** Drarun Yookphan (67070501016), Jinnakan Chaviengpob (67070501010)  
 **Related:** [Three-sprint plan](../plan.md) · [Feature inventory](../../features.md) · [SRS](../../srs.md) · [System SDS](../../system-sds.md) · [Traceability](../../traceability.md)
@@ -9,12 +9,12 @@
 
 | Version | Date | Change |
 |---|---|---|
-| 1.1 | 2026-11-25 | Approved by Jinnakan. Policies decided (SRS D-16 to D-23), contracts F-08 to F-10, test specification and change register added, owners and reviewers assigned. |
+| 1.1 | 2026-11-25 | Proposed; approval pending (Drarun, instructor or TA). Policies proposed (SRS D-16 to D-23), contracts F-08 to F-10, test specification and change register added, owners and reviewers assigned. |
 | 1.0 | 2026-11-06 | Initial plan aligned with the team's Theme 6 baseline. |
 
 ## Goal and scope
 
-Build on the accepted Sprint 1 release so a team can revise milestone work with history, a supervisor can manage milestones, and grades can be recorded and viewed according to an agreed policy. Retain the Student and Supervisor roles, team-scoped access, persistent UI/API/database journey and security foundation. Contracts: [F-08](F-08-revisions.md), [F-09](F-09-milestone-management.md), [F-10](F-10-grades.md); tests and Definition of Done: [sts.md](sts.md); findings and baseline changes: [change-register.md](change-register.md). Implementation was authorized on 2026-11-25.
+Build on the accepted Sprint 1 release so a team can revise milestone work with history, a supervisor can manage milestones, and grades can be recorded and viewed according to an agreed policy. Retain the Student and Supervisor roles, team-scoped access, persistent UI/API/database journey and security foundation. Contracts: [F-08](F-08-revisions.md), [F-09](F-09-milestone-management.md), [F-10](F-10-grades.md); tests and Definition of Done: [sts.md](sts.md); findings and baseline changes: [change-register.md](change-register.md). These contracts are proposed. Implementation does not start until the approvals above are recorded in this file and on PR #50.
 
 | Feature | Owner | Reviewer | Branch | Status |
 |---|---|---|---|---|

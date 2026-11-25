@@ -7,12 +7,12 @@
 
 | Version | Date | Change |
 |---|---|---|
-| 1.2 | 2026-11-25 | F-08 to F-12 updated from proposed directions to the approved design: versioned `Submission` rows, `closedAt`, a separate `Grade` table (replaces the nullable `Feedback.grade` idea), scoped search. See the [change register](sprints/sprint-2/change-register.md). |
+| 1.2 | 2026-11-25 | F-08 to F-12 updated from proposed directions to the proposed design (approval pending): versioned `Submission` rows, `closedAt`, a separate `Grade` table (replaces the nullable `Feedback.grade` idea), scoped search. See the [change register](sprints/sprint-2/change-register.md). |
 | 1.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 1.0 | 2026-11-06 | Reworked for Theme 6 (F-01 to F-12, X-01). |
 | 0.1 | 2026-11-06 | Proposal-domain draft, superseded. |
 
-Sprint 1 (F-01 to F-07) is implemented and is the authorized baseline. F-08 to F-12 were approved on 2026-11-25 in the [SRS](srs.md); their contracts are in `sprints/sprint-2/` and `sprints/sprint-3/`. F-11 is contract only in Deliverable 2.
+Sprint 1 (F-01 to F-07) is implemented and is the authorized baseline. F-08 to F-12 are proposed (not yet approved) in the [SRS](srs.md); their contracts are in `sprints/sprint-2/` and `sprints/sprint-3/`. F-11 is contract only in Deliverable 2.
 
 ## 1. Principles
 
@@ -82,7 +82,7 @@ Patterns skipped in Sprint 1 and still not needed: State in F-08 (revision numbe
 | Output | Field whitelist DTOs, JSON escaping, UI renders text, safe errors | SEC-01, SEC-14 |
 | Supply chain and secrets | `npm audit`, env-only secrets | SEC-19, SEC-20 |
 
-## 5. Data model evolution (approved 2026-11-25)
+## 5. Data model evolution (proposed 2026-11-25, approval pending)
 
 One Sprint 2 foundation migration: `Submission.revisionNo` with CHECK 1 to 5 and a unique index on (`milestoneId`, `revisionNo`) in place of the unique index on `milestoneId`; `Milestone.closedAt`; a new `Grade` table with CHECK 0 to 100. Feedback is not changed. The unique-index swap is not purely additive: code from before Sprint 2 cannot run on the new schema, so rollback to a pre-Sprint 2 release needs a database restore (change register RISK-01). F-12 adds no index.
 

@@ -2,6 +2,9 @@
 
 **Owner:** Drarun 1016 · **Reviewer:** Jinnakan 1010 · **Requirements:** FR-11, BR-06 · **Depends on:** F-07, F-08, F-09 · **Status:** planned. Contract only in Deliverable 2; nothing in this document is implemented and no code exists.
 
+
+**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
+
 ## Behavior and workflow
 
 A signed-in user opens the progress board. A Supervisor sees one row for each team they supervise. A Student sees one row for the team they belong to. Each row counts that team's milestones by computed status. A summary block adds the counts of the rows shown. The board is read-only.

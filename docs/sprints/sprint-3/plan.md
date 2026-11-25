@@ -1,6 +1,6 @@
 # Sprint 3 Plan — Progress Visibility and Product Hardening
 
-**Version:** 1.1 (approved 2026-11-25)  
+**Version:** 1.1 (PROPOSED 2026-11-25, approval pending)  
 **Product:** CPMS, Theme 6  
 **Team:** Drarun Yookphan (67070501016), Jinnakan Chaviengpob (67070501010)  
 **Related:** [Three-sprint plan](../plan.md) · [Feature inventory](../../features.md) · [SRS](../../srs.md) · [System SDS](../../system-sds.md) · [Traceability](../../traceability.md)
@@ -9,7 +9,7 @@
 
 | Version | Date | Change |
 |---|---|---|
-| 1.1 | 2026-11-25 | Approved by Jinnakan. F-11 and F-12 contracts and test specification added. F-12 is implemented for Deliverable 2; F-11 is contract only; remaining work is scheduled to 13 December. |
+| 1.1 | 2026-11-25 | Proposed; approval pending (Drarun, instructor or TA). F-11 and F-12 contracts and test specification added. F-12 is implemented for Deliverable 2; F-11 is contract only; remaining work is scheduled to 13 December. |
 | 1.0 | 2026-11-06 | Initial plan aligned with the team's Theme 6 baseline. |
 
 ## Goal and scope

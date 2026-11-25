@@ -2,6 +2,9 @@
 
 **Owner:** Jinnakan 1010 · **Reviewer:** Drarun 1016 · **Requirements:** FR-10, BR-10 (new), BR-05, BR-06, BR-07 · **Depends on:** F-05, F-08
 
+
+**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
+
 ## Behavior and workflow
 
 A Supervisor opens the current revision of a submission of a team they supervise, after they have recorded feedback on it, and enters a whole-number score from 0 to 100. In one transaction the server reads the submission with its feedback inside the supervisor's team scope, compares its revision with the newest revision of the milestone, checks that feedback exists on that same row, and inserts the grade. The team's members and the supervisor then see the grade beside that revision's feedback.
