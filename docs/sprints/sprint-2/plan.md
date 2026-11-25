@@ -20,8 +20,8 @@ Build on the accepted Sprint 1 release so a team can revise milestone work with 
 | Feature | Owner | Reviewer | Branch | Status |
 |---|---|---|---|---|
 | Sprint 2 foundation (schema, shared guards, test fixtures) | Jinnakan 1010 | Drarun 1016 | `feature/sprint2-foundation` | planned |
-| F-08 Revisions | Jinnakan 1010 | Drarun 1016 | `feature/08-revisions` | implemented, in review (PR #59); approval pending, see below |
-| F-09 Milestone management | Drarun 1016 | Jinnakan 1010 | `feature/09-milestone-management` | planned |
+| F-08 Revisions | Jinnakan 1010 | Drarun 1016 | `feature/08-revisions` | merged (PR #59); approved 2026-11-25 |
+| F-09 Milestone management | Drarun 1016 | Jinnakan 1010 | `feature/09-milestone-management` | implemented, in review; approval pending, see below |
 | F-10 Grades | Jinnakan 1010 | Drarun 1016 | `feature/10-grades` | planned |
 
 | Feature | Requirement | Planned outcome | Dependencies |
@@ -35,11 +35,22 @@ Build on the accepted Sprint 1 release so a team can revise milestone work with 
 | Who | What | Status | Source and date |
 |---|---|---|---|
 | Jinnakan | Authorized building Sprint 2, including F-08, and pushing it for review | Given | Chat instructions, 2026-11-25 ("Approve, start", "Lets do deliverable for Sprint 2 and 3", "Yes, push") |
-| Drarun | Approval of D-16, D-17, D-23 and of the F-08 implementation | Pending | His approving review on PR #59 is the record. On 2026-11-25 his review on PR #59 listed this approval as the one remaining blocker; he had no other critical finding and CI run #20 passed |
-| Instructor or TA | Confirmation of D-16 (5 versions in total) and D-17 (feedback only on the current revision) | Pending | Not yet received. The plan asks for it "where necessary"; whether it blocks F-08 is Drarun's decision and is asked on PR #59 |
+| Drarun | Approval of D-16, D-17, D-23 and of the F-08 implementation | Given | Approving review on PR #59, 2026-11-25 ("I approve the F-08 decisions D-16, D-17 and D-23 and the implementation in this PR"); CI run #21 passed for commit c6bbdc9; PR #59 merged |
+| Instructor or TA | Confirmation of D-16 (5 versions in total) and D-17 (feedback only on the current revision) | Not received | The plan asks for it "where necessary"; Drarun approved F-08 without it. Still open for the PDF's list of confirmations |
 | Drarun | Approval of the documentation (contracts, specifications, register) | Given | PR #50 approving review, 2026-11-25 (documentation only; implementation approval was kept pending there) |
 
-When Drarun's approving review and any required TA reply exist, the status words for F-08 (this plan, the F-08 contract, SRS FR-08, D-16, D-17, D-23) change to approved with that date and source in one commit.
+The status words for F-08 (this plan, the F-08 contract, SRS FR-08, D-16, D-17, D-23, change register BASE-01, BASE-03, BASE-05) were changed to approved on 2026-11-25 with that source.
+
+### Approval record for F-09 (decisions D-18, D-19, D-23)
+
+| Who | What | Status | Source and date |
+|---|---|---|---|
+| Jinnakan | Authorized building Sprint 2, including F-09, and pushing it for review | Given | Chat instructions, 2026-11-25 ("Lets do F-9") |
+| Drarun | Approval of D-18 (close is not reversible; closed blocks edits, first submissions and revisions), D-19 (deadline change rules) and of the F-09 implementation | Pending | His approving review on the F-09 pull request is the record |
+| Drarun | Approval of D-23 (API shape: `closedAt`, `progress.closed`) | Given | Approving review on PR #59, 2026-11-25 |
+| Instructor or TA | Confirmation of D-18 and D-19 | Not received | Asked "where necessary"; Drarun decides, as he did for F-08 |
+
+The status words for F-09 change to approved, with the review's date, in one commit once the approving review exists.
 
 ## Work packages and integration
 

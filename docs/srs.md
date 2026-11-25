@@ -60,7 +60,7 @@ No admin role in any sprint unless a later decision adds one. Teams and membersh
 | FR-05 | A Supervisor records feedback on a submission of a team they supervise. | F-05 | 1 | Baseline |
 | FR-06 | A repeatable idempotent seed provides teams, membership, users, milestones, submissions and feedback. | F-06 | 1 | Baseline |
 | FR-07 | Students view their team, milestones, submissions, feedback and progress. Supervisors view assigned teams and per-milestone progress. | F-07 | 1 | Baseline |
-| FR-08 | A team may resubmit a milestone under a revision policy, with preserved revision history. | F-08 | 2 | Proposed, approval pending |
+| FR-08 | A team may resubmit a milestone under a revision policy, with preserved revision history. | F-08 | 2 | Approved 2026-11-25 (Drarun, approving review on PR #59) |
 | FR-09 | A Supervisor edits or closes a milestone and manages team deadlines. | F-09 | 2 | Proposed, approval pending |
 | FR-10 | A Supervisor assigns a grade with feedback; visibility of grades is defined by rule. | F-10 | 2 | Proposed, approval pending |
 | FR-11 | A progress board and summary reports show team and milestone status. | F-11 | 3 | Proposed, approval pending (contract only) |
@@ -126,11 +126,11 @@ The spec says to resolve theme ambiguities and record decisions. Items marked Pr
 | D-13 | Email is unique and compared case-insensitively. | Proposed |
 | D-14 | Password change is out of scope. | Decided |
 | D-15 | `group_work_specs_v1.pdf` was reviewed; the earlier proposal-approval slice is removed. | Decided 2026-11-06 |
-| D-16 | Revision policy: any team member may resubmit while the milestone is open and `now <= dueAt`; at most 5 versions in total (first submission is revision 1, so 4 resubmissions); current revision is the highest number. | Proposed; approval pending (Drarun, instructor or TA) |
-| D-17 | Feedback attaches to one revision and only the current revision can receive it (409 `REVISION_SUPERSEDED`); older feedback stays visible. | Same |
-| D-18 | Milestone lifecycle: supervisor edits title, description and due date while open and may close at any time; closed blocks edits, first submissions and revisions; reads, feedback and grades stay allowed; closing is not reversible in Sprint 2. | Same |
-| D-19 | Deadline change: new `dueAt` must be in the future, earlier or later; status is recomputed, so extending an overdue milestone with no submission opens it again. | Same |
-| D-20 | Grade: integer 0 to 100 in a separate `Grade` table, one per revision, only after feedback on that revision and only on the current revision, immutable, visible to the team and supervisor only. "Grade with feedback" (FR-10) means recorded after, and tied to, that revision's feedback. | Same |
-| D-21 | Search (F-12): milestones only; `q` (title, max 100), `status`, `teamId`, `page`, `limit` (default 20, max 50); scope before filters and counts; at most 1000 in-scope milestones scanned. | Same |
-| D-22 | Sprint 3 rule implemented for Deliverable 2: F-12. F-11 has a contract only. | Same |
-| D-23 | API shape: `submission` in the milestone detail keeps its Sprint 1 key set; new data goes in `revisions[]` and `closedAt`; team `progress` gains `closed`. Proposed baseline change; one Sprint 1 assertion edited on purpose. | Same |
+| D-16 | Revision policy: any team member may resubmit while the milestone is open and `now <= dueAt`; at most 5 versions in total (first submission is revision 1, so 4 resubmissions); current revision is the highest number. | Approved 2026-11-25 (Drarun, approving review on PR #59) |
+| D-17 | Feedback attaches to one revision and only the current revision can receive it (409 `REVISION_SUPERSEDED`); older feedback stays visible. | Approved 2026-11-25 (Drarun, approving review on PR #59) |
+| D-18 | Milestone lifecycle: supervisor edits title, description and due date while open and may close at any time; closed blocks edits, first submissions and revisions; reads, feedback and grades stay allowed; closing is not reversible in Sprint 2. | Proposed; approval pending (Drarun, instructor or TA) |
+| D-19 | Deadline change: new `dueAt` must be in the future, earlier or later; status is recomputed, so extending an overdue milestone with no submission opens it again. | Proposed; approval pending (Drarun, instructor or TA) |
+| D-20 | Grade: integer 0 to 100 in a separate `Grade` table, one per revision, only after feedback on that revision and only on the current revision, immutable, visible to the team and supervisor only. "Grade with feedback" (FR-10) means recorded after, and tied to, that revision's feedback. | Proposed; approval pending (Drarun, instructor or TA) |
+| D-21 | Search (F-12): milestones only; `q` (title, max 100), `status`, `teamId`, `page`, `limit` (default 20, max 50); scope before filters and counts; at most 1000 in-scope milestones scanned. | Proposed; approval pending (Drarun, instructor or TA) |
+| D-22 | Sprint 3 rule implemented for Deliverable 2: F-12. F-11 has a contract only. | Proposed; approval pending (Drarun, instructor or TA) |
+| D-23 | API shape: `submission` in the milestone detail keeps its Sprint 1 key set; new data goes in `revisions[]` and `closedAt`; team `progress` gains `closed`. Proposed baseline change; one Sprint 1 assertion edited on purpose. | Approved 2026-11-25 (Drarun, approving review on PR #59) |
