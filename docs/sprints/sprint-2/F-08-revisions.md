@@ -31,7 +31,7 @@ Failure cases: invalid fields or unknown field (400); no session (401); Supervis
 
 ## UI
 
-Milestone detail, student view: below the saved submissions, a revise form (title, description, link, same fields and inline validation as the submit form) is shown when a submission exists, the milestone is open, the deadline has not passed and fewer than 5 versions exist. Otherwise the form is hidden. Every version is listed, oldest first, with its revision number, its feedback and its grade (F-10), so the first feedback is still readable after a revision. API errors are shown in plain sentences (409 codes map to one sentence each; 401 shows the session-ended message). Supervisor view: the same history, no revise form.
+Milestone detail, student view: below the saved submissions, a revise form (title, description, link, same fields and inline validation as the submit form) is shown when a submission exists, the milestone is open, the deadline has not passed and fewer than 5 versions exist. Otherwise the form is hidden. Every version is listed, oldest first, with its revision number, title, description, link, its feedback and its grade (F-10), so an earlier version's content and its feedback stay readable after a revision. The supervisor's feedback form handles 409 `REVISION_SUPERSEDED` separately: it says a newer version was sent, keeps the draft text, and refreshes the page in place so the supervisor can read the new version and save again against it. API errors are shown in plain sentences (409 codes map to one sentence each; 401 shows the session-ended message). Supervisor view: the same history, no revise form.
 
 ## API
 
@@ -95,4 +95,5 @@ TEST-44 to TEST-54 map one to one to AC-44 to AC-54. TEST-55 is the E2E row: `e2
 
 | Date | Change |
 |---|---|
+| 2026-11-25 | 1.1 After review of PR #59: the version history shows each version's description and link, and the feedback form keeps its draft and explains REVISION_SUPERSEDED (TEST-54c). |
 | 2026-11-25 | 1.0 Initial contract for Sprint 2: revisions with history, BR-08, revised BR-01, `REVISION_SUPERSEDED` on feedback, additive `revisions[]` and `closedAt` in the milestone detail (D-16, D-17, D-23). |
