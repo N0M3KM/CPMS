@@ -3,7 +3,7 @@
 **Owner:** Jinnakan 1010 · **Reviewer:** Drarun 1016 · **Requirements:** FR-08, BR-01 (revised), BR-02, BR-04, BR-05, BR-07, BR-08 (new) · **Depends on:** F-04, F-05, F-07, Sprint 2 foundation task
 
 
-**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
+**Approval status:** contract proposed on 2026-11-25. Implementation (PR #59) was authorized by Jinnakan on 2026-11-25 (chat). Drarun's approval of D-16, D-17, D-23 and of the implementation is recorded by his approving review on PR #59; instructor or TA confirmation of D-16 and D-17 is pending. The full record is in the [Sprint 2 plan](plan.md#approval-record-for-f-08-decisions-d-16-d-17-d-23).
 
 ## Behavior and workflow
 
