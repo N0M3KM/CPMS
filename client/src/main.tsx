@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import { currentUser, signOut, type User } from './auth-api';
 import { Login } from './Login';
-import { MilestoneView, ScopedHome, SessionEndedContext, TeamView } from './ScopedViews';
+import { MilestoneView, ScopedHome, SearchView, SessionEndedContext, TeamView } from './ScopedViews';
 import './styles.css';
 
 function homePath(user: User): string {
@@ -41,6 +41,7 @@ function SignedInView({ user, onSignOut, title, children }: {
       <p>Signed in as {user.name}.</p>
       <nav className="account-actions" aria-label="Account">
         <Link to={homePath(user)}>Home</Link>
+        <Link to="/search">Search milestones</Link>
         <button type="button" disabled={pending} onClick={logout}>{pending ? 'Signing out…' : 'Sign out'}</button>
       </nav>
       {error && <p className="error" role="alert">{error}</p>}
@@ -106,6 +107,7 @@ function App() {
             <Route path="/login" element={user ? <Navigate replace to={destination} /> : <Login onSignIn={setUser} />} />
             <Route path="/student" element={renderHome('/student')} />
             <Route path="/supervisor" element={renderHome('/supervisor')} />
+            <Route path="/search" element={renderSignedIn('Search milestones', <SearchView />)} />
             <Route path="/teams/:teamId" element={renderSignedIn(
               'Team detail', <TeamView canCreate={user?.role === 'SUPERVISOR'} />,
             )} />
