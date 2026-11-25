@@ -20,7 +20,7 @@ Complete progress boards and reports, search and filtering, then integrate, hard
 | Feature | Owner | Reviewer | Branch | Status |
 |---|---|---|---|---|
 | F-11 Progress board and reports | Drarun 1016 | Jinnakan 1010 | `feature/11-progress-board` | planned (contract only) |
-| F-12 Search and filter | Drarun 1016 | Jinnakan 1010 | `feature/12-search` | authorized for local implementation and tests |
+| F-12 Search and filter | Drarun 1016 | Jinnakan 1010 | `feature/12-search` | implemented and tested locally on `1679d54`; staging and release pending |
 
 | Feature | Requirement | Planned outcome | Dependencies |
 |---|---|---|---|
@@ -48,3 +48,7 @@ For Deliverable 2, record Sprint 3 contracts and actual working progress, a boun
 - Agree searchable fields, filter behavior, ordering and limits; prevent unauthorized data and aggregate counts from being exposed.
 - Maintain Lab 5 Docker, CI/CD and GCP delivery as X-01; initial delivery is separate from Sprint 3. Record Lab 6 cross-team UAT and re-tests and Lab 7 approved change/regression evidence separately from feature progress.
 - Track critical defects, failures, configuration gaps and deployment status. Confirm ambiguous policy with the instructor/TA where necessary.
+
+## Local verification
+
+F-12 AC-79 to AC-86 and AC-96 to AC-97 passed in the local candidate. The [red and green evidence](evidence/F-12-green.txt) records the exact feature commit, regression counts, browser cases, local restart persistence and search timing. F-11 remains planned. Review source and contracts through separate PRs to Sprint 3 staging after publication is authorized.

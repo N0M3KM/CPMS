@@ -1,0 +1,28 @@
+2026-11-26 ICT. Baseline 9178d840c2433f6e0e648db6c9981077faf250c0 plus tests in the working tree. Tests-only history 19ba640ef1dbd7777ac487a7ec3a72297827a4ec.
+The committed logout assertion subsequently matched the existing 200 contract. The red run stopped earlier at the missing search route.
+Command: npm test -w server -- search-db search-policy security
+Error: Cannot find module '../src/search/policy.js' imported from D:/CPMS/tmp/d2-sprint3/server/tests/search-policy.test.ts
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+Error: expected 200 "OK", got 404 "Not Found"
+Error: expected 200 "OK", got 404 "Not Found"
+Error: expected 200 "OK", got 404 "Not Found"
+Error: expected 200 "OK", got 404 "Not Found"
+Error: expected 200 "OK", got 404 "Not Found"
+Error: expected 200 "OK", got 404 "Not Found"
+Error: expected 401 "Unauthorized", got 404 "Not Found"
+Error: expected 200 "OK", got 404 "Not Found"
+ Test Files  3 failed (3)
+      Tests  10 failed | 33 passed (43)
+
+The compiled baseline browser runs failed on the absent Search milestones link.
+Command: npm run test:e2e -- --config node_modules/.cache/cpms-evidence.config.mjs e2e/f12-search.spec.ts
+  x  1 e2e\f12-search.spec.ts:11:1 › TEST-97 a student filters scoped results, opens a milestone and sees the empty state (5.9s)
+  x  2 e2e\f12-search.spec.ts:31:1 › TEST-97 a supervisor pages and can retry a failed search before session expiry (5.8s)
+  1) e2e\f12-search.spec.ts:11:1 › TEST-97 a student filters scoped results, opens a milestone and sees the empty state
+      11 | test('TEST-97 a student filters scoped results, opens a milestone and sees the empty state', async ({ page }) => {
+    Error Context: test-results\evidence\f12-search-TEST-97-a-stude-24e8e-ne-and-sees-the-empty-state\error-context.md
+  2) e2e\f12-search.spec.ts:31:1 › TEST-97 a supervisor pages and can retry a failed search before session expiry
+      11 | test('TEST-97 a student filters scoped results, opens a milestone and sees the empty state', async ({ page }) => {
+    Error Context: test-results\evidence\f12-search-TEST-97-a-super-c632b-earch-before-session-expiry\error-context.md
+    e2e\f12-search.spec.ts:11:1 › TEST-97 a student filters scoped results, opens a milestone and sees the empty state
+    e2e\f12-search.spec.ts:31:1 › TEST-97 a supervisor pages and can retry a failed search before session expiry

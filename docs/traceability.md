@@ -39,11 +39,11 @@
 | FR-09 | F-09 | 2 | AC-56 to AC-63, AC-88, AC-89 | TEST-56 to TEST-64, TEST-88, TEST-89 (planned) |
 | FR-10 | F-10 | 2 | AC-65 to AC-72, AC-87 | TEST-65 to TEST-72, TEST-87, TEST-90 (planned) |
 | FR-11 | F-11 | 3 | AC-73 to AC-78 | TEST-73 to TEST-78 (planned, no code in Deliverable 2) |
-| FR-12 | F-12 | 3 | AC-79 to AC-86 | TEST-79 to TEST-86 (planned) |
+| FR-12 | F-12 | 3 | AC-79 to AC-86, AC-96 and AC-97 | TEST-79 to TEST-86, TEST-96 and TEST-97 (passed locally) |
 | BR-08 | F-08 | 2 | AC-44 to AC-50, AC-53, AC-54 | TEST-44 to TEST-50, TEST-53, TEST-54 (planned) |
 | BR-09 | F-09 | 2 | AC-56 to AC-63, AC-88, AC-89 | TEST-56 to TEST-63, TEST-88, TEST-89 (planned) |
 | BR-10 | F-10 | 2 | AC-65 to AC-72, AC-87 | TEST-65 to TEST-72, TEST-87 (planned) |
-| BR-11 | F-12 | 3 | AC-79 to AC-86 | TEST-79 to TEST-86 (planned) |
+| BR-11 | F-12 | 3 | AC-79 to AC-86, AC-96 | TEST-79 to TEST-86 and TEST-96 (passed locally) |
 | Cross-feature | F-08, F-09, F-10 | 2 | none (cross-feature checks) | TEST-91 to TEST-95 (planned) |
 
 BR-01 is revised in SRS 3.0 (unique revision numbers); AC-23 and TEST-23 stay valid because the first-submission route is unchanged. Status columns here say planned until a result exists. The full matrix with actual test names, results and tested commit is built for Deliverable 2 (Part D) from the evidence run.
@@ -57,7 +57,7 @@ BR-01 is revised in SRS 3.0 (unique revision numbers); AC-23 and TEST-23 stay va
 
 ## Coverage gaps
 
-- FR-08 to FR-12 have AC and planned tests (2026-11-25), but no test has run yet. Nothing is verified until the evidence run records a result.
+- F-12 passed locally at `1679d54`. See the [recorded execution](sprints/sprint-3/evidence/F-12-green.txt). Sprint 2 execution uses the accepted Sprint 2 main release. F-11 remains unexecuted.
 - F-11 (AC-73 to AC-78) has a contract only and no planned implementation in Deliverable 2.
 - SRS decisions D-05 to D-08, D-10 to D-13 and D-16 to D-23 are proposed answers to ambiguities and need instructor or TA confirmation (D-16 to D-23 also need Drarun's confirmation).
 - NFR-05 needs its measurement environment recorded when run; F-12 adds a timing check to the remaining work.
@@ -71,3 +71,5 @@ BR-01 is revised in SRS 3.0 (unique revision numbers); AC-23 and TEST-23 stay va
 - 2026-11-25: Sprint 2 requirements FR-08 to FR-10 and decisions D-16 to D-20, D-23 approved by Drarun (approving reviews on PR #59, #60, #61). Still proposed: FR-11, FR-12 and D-21, D-22 (Sprint 3). Changes: BR-08 to BR-10 added, BR-11 proposed; BR-01 revised; milestone status gains CLOSED; team progress gains `closed`. Recorded in the [change register](sprints/sprint-2/change-register.md) (BASE-01 to BASE-06).
 - 2026-11-06: NFR-07 to NFR-12 approved for Sprint 1.
 - 2026-11-06: Domain reworked from proposal approval to Theme 6 (teams, milestones, submissions, feedback). All FR, BR, AC and TEST IDs renumbered; recorded in each document's version history.
+
+Local verification update (2026-11-26). F-12 includes the browser workflow and the bounded search rule. Tested feature commit `1679d5484d67b178e6d1134e1e4231e5b9e76b7b`. Staging review and deployment remain pending.
