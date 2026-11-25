@@ -1,17 +1,18 @@
 # CPMS Product Architecture Plan (all features)
 
-**Version:** 1.1 (Sprint 1 baseline)
+**Version:** 1.2 (Sprint 2 and Sprint 3 design, 2026-11-25)
 **Related:** [System SDS](system-sds.md) · [Sprint 1 pattern plan](sprints/sprint-1/architecture.md) · [Security test plan](security-test-plan.md) · [Features](features.md)
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
+| 1.2 | 2026-11-25 | F-08 to F-12 updated from proposed directions to the proposed design (approval pending): versioned `Submission` rows, `closedAt`, a separate `Grade` table (replaces the nullable `Feedback.grade` idea), scoped search. See the [change register](sprints/sprint-2/change-register.md). |
 | 1.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 1.0 | 2026-11-06 | Reworked for Theme 6 (F-01 to F-12, X-01). |
 | 0.1 | 2026-11-06 | Proposal-domain draft, superseded. |
 
-Sprint 1 (F-01 to F-07) is implemented and is the authorized baseline. F-08 to F-12 are proposed in the [SRS](srs.md); their architecture is a direction, not a contract.
+Sprint 1 (F-01 to F-07) is implemented and is the authorized baseline. F-08 to F-12 are proposed (not yet approved) in the [SRS](srs.md); their contracts are in `sprints/sprint-2/` and `sprints/sprint-3/`. F-11 is contract only in Deliverable 2.
 
 ## 1. Principles
 
@@ -37,10 +38,10 @@ flowchart TB
     Edge --> M3[milestones F-03]
     Edge --> M4[submissions F-04]
     Edge --> M5[feedback F-05]
-    Edge --> M6[revisions F-08 proposed]
-    Edge --> M7[grades F-10 proposed]
-    Edge --> M8[board and reports F-11 proposed]
-    Edge --> M9[search F-12 proposed]
+    Edge --> M6[revisions F-08]
+    Edge --> M7[grades F-10]
+    Edge --> M8[board and reports F-11 planned]
+    Edge --> M9[search F-12]
     M2 & M3 & M4 & M5 & M6 & M7 & M8 & M9 --> Scope[team scope + AuthorizedTeamService F-02]
     Scope --> Repo[Repositories over Prisma]
   end
@@ -59,14 +60,14 @@ flowchart TB
 | F-03 Milestone | `milestones/` | Facade, Policy | `Milestone` | `POST /api/teams/:id/milestones` | Supervisor scope, strict schema, future date | Edit and close in F-09 |
 | F-04 Submission | `submissions/` | Facade, Policy, Proxy | `Submission` | `POST /api/milestones/:id/submission` | Membership, unique index, link scheme allow-list, deadline | Revisions in F-08 |
 | F-05 Feedback | `feedback/` | Facade, Policy | `Feedback` | `POST /api/submissions/:id/feedback` | Supervisor scope, unique index, comment limits | Grades in F-10 |
-| F-08 Revisions (proposed) | `submissions/` | State (revision lifecycle), Policy | `SubmissionRevision` or versioned `Submission` | `POST /api/milestones/:id/submission/revisions`, `GET .../history` | Same scope and BOLA tests; history immutable | Revision limits per milestone |
-| F-09 Milestone mgmt (proposed) | `milestones/` | Facade, Policy | `Milestone.status`, `closedAt` | `PATCH /api/milestones/:id` | Supervisor scope; deadline change rules | Bulk deadlines |
-| F-10 Grades (proposed) | `feedback/` | Policy, Strategy (visibility) | `Feedback.grade` | `POST .../feedback` extended | Grade visibility rule decided in SRS first | Rubrics |
-| F-11 Board and reports (proposed) | `reports/` | Facade, Observer | read only aggregates | `GET /api/board`, `/reports/summary` | Scope applied before aggregation | Export |
-| F-12 Search (proposed) | `search/` | Strategy, Builder, Iterator (cursor) | indexes on status, dueAt, team | `GET /api/milestones?status=&q=&cursor=` | Params validated, parameterized, scope first, page cap | Full-text index |
+| F-08 Revisions | `submissions/` | Policy, row lock | `Submission` rows versioned by `revisionNo` (1 to 5) | `POST /api/milestones/:id/revisions`; history in `GET /api/milestones/:id` | Same scope and BOLA tests; history immutable; unique index and CHECK; milestone row lock | Revision limit per milestone |
+| F-09 Milestone mgmt | `milestones/`, `domain/closed.ts` | Facade, Policy, shared guard | `Milestone.closedAt` (status stays computed) | `PATCH /api/milestones/:id`, `POST .../close` | Supervisor scope; conditional writes; `assertMilestoneOpen` | Bulk deadlines |
+| F-10 Grades | `grades/` | Policy | `Grade` table | `POST /api/submissions/:id/grade` | Supervisor scope; feedback first; current revision only; unique index and CHECK | Rubrics |
+| F-11 Board and reports (planned, contract only) | `reports/` | Facade | read only aggregates | `GET /api/progress` | Scope applied before aggregation | Export |
+| F-12 Search | `search/` | Policy, Builder | none (read queries, 1000-row scan cap) | `GET /api/search?q=&status=&teamId=&page=&limit=` | Strict params, scope in every query, uniform 404 for foreign `teamId`, page cap | Database-side status filter, full-text index |
 | X-01 Deployment (Lab 5) | Docker, CI, Cloud Run, Cloud SQL, Secret Manager | none | none | health, ready | Secret Manager, `Secure` cookie, HTTPS, audit in CI | Staging environment |
 
-Patterns skipped in Sprint 1 become justified later: State in F-08, Observer in F-11, Iterator in F-12.
+Patterns skipped in Sprint 1 and still not needed: State in F-08 (revision number is derived, not a state machine), Observer in F-11, Iterator in F-12 (page and limit are enough at course scale).
 
 ## 4. Security chain and layers
 
@@ -81,9 +82,9 @@ Patterns skipped in Sprint 1 become justified later: State in F-08, Observer in 
 | Output | Field whitelist DTOs, JSON escaping, UI renders text, safe errors | SEC-01, SEC-14 |
 | Supply chain and secrets | `npm audit`, env-only secrets | SEC-19, SEC-20 |
 
-## 5. Data model evolution (proposed)
+## 5. Data model evolution (proposed 2026-11-25, approval pending)
 
-Sprint 1 tables stay unchanged. F-08 adds revision history (a `SubmissionRevision` table linked to `Submission`, or a version column; decide when F-08 is authorized). F-09 adds `closedAt` to `Milestone`. F-10 adds a nullable `grade` to `Feedback`. F-12 adds indexes only.
+One Sprint 2 foundation migration: `Submission.revisionNo` with CHECK 1 to 5 and a unique index on (`milestoneId`, `revisionNo`) in place of the unique index on `milestoneId`; `Milestone.closedAt`; a new `Grade` table with CHECK 0 to 100. Feedback is not changed. The unique-index swap is not purely additive: code from before Sprint 2 cannot run on the new schema, so rollback to a pre-Sprint 2 release needs a database restore (change register RISK-01). F-12 adds no index.
 
 ## 6. Deployment architecture (Lab 5)
 
@@ -91,6 +92,5 @@ One container: Express serves the built client and the API. Cloud Run runs it, C
 
 ## 7. Open decisions
 
-1. Revision policy for F-08 (how many, until when).
-2. Grade visibility for F-10 (SRS D-10 covers feedback only).
-3. Instructor or TA confirmation of SRS decisions D-05 to D-08 and D-10 to D-13.
+1. Instructor or TA confirmation of SRS decisions D-05 to D-08, D-10 to D-13 and D-16 to D-23 (revision limit, grade scale and visibility, close policy), and Drarun's confirmation of D-16 to D-23.
+2. Whether F-11 is built before 13 December (see the Sprint 3 remaining-work plan).

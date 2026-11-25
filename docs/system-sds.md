@@ -1,12 +1,13 @@
 # CPMS System-Level Software Design Specification (Part C)
 
-**Version:** 2.1 (Sprint 1 baseline)
-**Related:** [SRS](srs.md) · [Architecture plan](architecture.md) · [Sprint 1 plan](sprints/sprint-1/plan.md) · [AGENTS.md](../AGENTS.md)
+**Version:** 3.0 (Sprint 2 and Sprint 3 design, 2026-11-25)
+**Related:** [SRS](srs.md) · [Architecture plan](architecture.md) · [Sprint 1 plan](sprints/sprint-1/plan.md) · [Sprint 2 plan](sprints/sprint-2/plan.md) · [Sprint 3 plan](sprints/sprint-3/plan.md) · [AGENTS.md](../AGENTS.md)
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
+| 3.0 | 2026-11-25 | Data model gains `Submission.revisionNo`, `Milestone.closedAt` and `Grade`; status gains CLOSED; API and role matrix gain revisions, edit, close, grade and search routes. Design for F-08 to F-12; items are planned until built and verified. |
 | 2.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 2.0 | 2026-11-06 | Data model, API, UI and permission matrix reworked for Theme 6. |
 | 1.0 | 2026-11-06 | Initial (proposal domain, superseded). |
@@ -65,10 +66,12 @@ classDiagram
     datetime dueAt
     UUID createdById
     datetime createdAt
+    datetime closedAt "nullable, Sprint 2"
   }
   class Submission {
     UUID id
     UUID milestoneId
+    int revisionNo "1 to 5, Sprint 2"
     string title
     string description
     string link
@@ -82,13 +85,21 @@ classDiagram
     string comment
     datetime createdAt
   }
+  class Grade {
+    UUID id
+    UUID submissionId
+    UUID supervisorId
+    int score "0 to 100, Sprint 2"
+    datetime createdAt
+  }
   User "1" --> "0..*" Session
   User "1" --> "0..*" Team : supervises
   Team "1" --> "1..*" TeamMember
   User "1" --> "0..1" TeamMember : student
   Team "1" --> "0..*" Milestone
-  Milestone "1" --> "0..1" Submission
+  Milestone "1" --> "0..5" Submission : revisions
   Submission "1" --> "0..1" Feedback
+  Submission "1" --> "0..1" Grade
   User "1" --> "0..*" Submission : submitted by
 ```
 
@@ -98,13 +109,14 @@ classDiagram
 | `Session` | Opaque random `id` (at least 128 bits); FK `userId`; `expiresAt`; `createdAt`. The cookie holds only this ID. |
 | `Team` | `id`; `name` unique; FK `supervisorId` to a Supervisor. |
 | `TeamMember` | Composite key `(teamId, studentId)`; `studentId` unique, so a student belongs to one team (D-05); FK to a Student. |
-| `Milestone` | FK `teamId`; `title` 5 to 100; `description` 0 to 1000; `dueAt`; FK `createdById` (the team's supervisor); `createdAt`. |
-| `Submission` | `milestoneId` unique (BR-01); `title` 5 to 100; `description` 20 to 2000; `link` http or https, at most 500; FK `submittedById` (a team member); `submittedAt`. Never updated or deleted in Sprint 1. |
-| `Feedback` | `submissionId` unique (BR-05); FK `supervisorId`; `comment` 10 to 2000 trimmed; `createdAt`. Never updated or deleted in Sprint 1. |
+| `Milestone` | FK `teamId`; `title` 5 to 100; `description` 0 to 1000; `dueAt`; FK `createdById` (the team's supervisor); `createdAt`; `closedAt` nullable (Sprint 2, BR-09). Title, description and `dueAt` change only while `closedAt` is null. |
+| `Submission` | (`milestoneId`, `revisionNo`) unique (BR-01 revised, BR-08); `revisionNo` 1 to 5 (database CHECK); `title` 5 to 100; `description` 20 to 2000; `link` http or https, at most 500; FK `submittedById` (a team member); `submittedAt`. Never updated or deleted; a new version is a new row. |
+| `Feedback` | `submissionId` unique (BR-05); FK `supervisorId`; `comment` 10 to 2000 trimmed; `createdAt`. Never updated or deleted. |
+| `Grade` (Sprint 2) | `submissionId` unique (BR-10); FK `supervisorId`; `score` integer 0 to 100 (database CHECK); `createdAt`. Never updated or deleted. |
 
-Milestone status is computed, not stored: `REVIEWED` if feedback exists, else `SUBMITTED` if a submission exists, else `OVERDUE` if `dueAt` has passed, else `NOT_SUBMITTED`.
+Milestone status is computed, not stored, from the current revision (the highest `revisionNo`): `REVIEWED` if it has feedback, else `SUBMITTED` if any revision exists, else `CLOSED` if `closedAt` is set, else `OVERDUE` if `dueAt` has passed, else `NOT_SUBMITTED`.
 
-Concurrency: BR-01 is the unique index on `Submission.milestoneId`; a concurrent second insert fails and maps to 409. BR-05 is the unique index on `Feedback.submissionId`.
+Concurrency: the first submission is revision 1, and the unique index on (`milestoneId`, `revisionNo`) makes a concurrent second first-submission fail with 409 (BR-01). Submit and revise lock the milestone row inside the transaction, so two concurrent revisions get numbers 2 and 3 and a concurrent close cannot be bypassed; edit and close are conditional writes on `closedAt` being null. BR-05 and BR-10 are the unique indexes on `Feedback.submissionId` and `Grade.submissionId`.
 
 Time: the application reads time from an injectable clock so deadline tests are deterministic.
 
@@ -134,11 +146,17 @@ Theme tokens: background `#F8FAFC`, surface white, text `#0F172A`, muted `#47556
 | `GET /api/teams` | Authenticated | Student: own team. Supervisor: assigned teams. Each with milestone progress summary. |
 | `GET /api/teams/:teamId` | Team member or team supervisor | Team, members, supervisor, milestones with status. |
 | `POST /api/teams/:teamId/milestones` | Team supervisor | `{title,description?,dueAt}`. |
-| `GET /api/milestones/:milestoneId` | Team member or team supervisor | Milestone with submission and feedback. |
-| `POST /api/milestones/:milestoneId/submission` | Team student | `{title,description,link}`. |
-| `POST /api/submissions/:submissionId/feedback` | Team supervisor | `{comment}`. |
+| `GET /api/milestones/:milestoneId` | Team member or team supervisor | Milestone with `closedAt`, `submission` (current revision, six Sprint 1 keys), `revisions[]` (each with `revisionNo`, feedback, grade). |
+| `POST /api/milestones/:milestoneId/submission` | Team student | `{title,description,link}`; first version only. |
+| `POST /api/submissions/:submissionId/feedback` | Team supervisor | `{comment}`; current revision only (Sprint 2). |
+| `POST /api/milestones/:milestoneId/revisions` (F-08) | Team student | `{title,description,link}`; version 2 to 5. |
+| `PATCH /api/milestones/:milestoneId` (F-09) | Team supervisor | `{title?,description?,dueAt?}`, open milestones only. |
+| `POST /api/milestones/:milestoneId/close` (F-09) | Team supervisor | `{}`; sets `closedAt`. |
+| `POST /api/submissions/:submissionId/grade` (F-10) | Team supervisor | `{score}` integer 0 to 100; current revision with feedback. |
+| `GET /api/search` (F-12, Sprint 3) | Authenticated | `q`, `status`, `teamId`, `page`, `limit`; team scope in every query. |
+| `GET /api/progress` (F-11, planned) | Authenticated | Board and report counts; contract only in Deliverable 2. |
 
-Request and response shapes are in the [Sprint 1 feature contracts](sprints/sprint-1/).
+Request and response shapes are in the [Sprint 1 feature contracts](sprints/sprint-1/), the [Sprint 2 contracts](sprints/sprint-2/plan.md) and the [Sprint 3 contracts](sprints/sprint-3/plan.md). Team `progress` in `GET /api/teams` gains a `closed` count (Sprint 2).
 
 ## 5. Role and ownership matrix
 
@@ -151,8 +169,13 @@ Request and response shapes are in the [Sprint 1 feature contracts](sprints/spri
 | List teams | 401 | Own team | n/a | Assigned teams | n/a |
 | Read team, milestone, submission, feedback | 401 | Allow | 404 | Allow | 404 |
 | Create milestone | 401 | 403 | 403 | Allow | 404 |
-| Submit work | 401 | Allow (before deadline, once) | 404 | 403 | 403 |
-| Record feedback | 401 | 403 | 403 | Allow (once per submission) | 404 |
+| Submit work | 401 | Allow (before deadline, once, milestone open) | 404 | 403 | 403 |
+| Revise work (F-08) | 401 | Allow (open milestone, before deadline, versions 2 to 5) | 404 | 403 | 403 |
+| Record feedback | 401 | 403 | 403 | Allow (once per revision, current revision only) | 404 |
+| Edit or close milestone (F-09) | 401 | 403 | 403 | Allow (edit only while open; close once) | 404 |
+| Record grade (F-10) | 401 | 403 | 403 | Allow (once per revision, current revision with feedback) | 404 |
+| Read grades (F-10) | 401 | Allow | 404 | Allow | 404 |
+| Search milestones (F-12) | 401 | Own team only | `teamId` filter returns 404 | Assigned teams only | `teamId` filter returns 404 |
 
 The role check runs before the team check, so a Student calling a Supervisor route gets 403 even for another team. For any other cross-team read or write by an allowed role, the response is the same 404 as a nonexistent ID. No client-supplied user ID, role or team is trusted as authority.
 
