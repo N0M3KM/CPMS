@@ -8,6 +8,7 @@ Only recorded facts are listed. A row says resolved only where a merged change a
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-11-25 | BASE-02 and BASE-03 corrected after the foundation was built: no Sprint 1 expected value changed; only lookups and an additive `closed: 0` check. |
 | 1.0 | 2026-11-25 | First register: Lab 5 and Lab 6 findings, CI audit fix, and the baseline revisions that Sprint 2 introduces. |
 
 ## Findings and fixes
@@ -31,8 +32,8 @@ Only recorded facts are listed. A row says resolved only where a merged change a
 | ID | Revision | Rationale | Approval | Release |
 |---|---|---|---|---|
 | BASE-01 | BR-01 changes from "one submission per milestone" to "revision numbers are unique per milestone, at most 5 versions" (D-16). The first submission still returns 409 `DUPLICATE_SUBMISSION` on its own route (AC-23 unchanged). | Revisions with history (FR-08) need more than one row per milestone. | Proposed, not approved. Needs Drarun (PR #50) and the instructor or TA. Jinnakan asked for the drafts on 2026-11-25. | `sprint-2-release` (planned) |
-| BASE-02 | Team `progress` gains a `closed` count and milestone status gains `CLOSED` (D-18, D-23). One Sprint 1 test assertion changes on purpose (the `progress` key list in `scoped-views-db.test.ts`). | Milestone close (FR-09) needs a status that is neither overdue nor open. | Same as BASE-01 | `sprint-2-release` (planned) |
-| BASE-03 | `Milestone.submission` becomes `Milestone.submissions` in the data model; the API field `submission` keeps its Sprint 1 six keys and `revisions[]` is added (D-23). `seed.test.ts` changes its relation name. | Versioned submissions. | Same as BASE-01 | `sprint-2-release` (planned) |
+| BASE-02 | Team `progress` gains a `closed` count and milestone status gains `CLOSED` (D-18, D-23). No Sprint 1 assertion had to change: `scoped-views-db.test.ts` matches `progress` partially, and `closed: 0` was added to its expectations as a new check. | Milestone close (FR-09) needs a status that is neither overdue nor open. | Same as BASE-01 | `sprint-2-release` (planned) |
+| BASE-03 | `Milestone.submission` becomes `Milestone.submissions` in the data model; the API field `submission` keeps its Sprint 1 six keys and `revisions[]` is added (D-23). The foundation changed only relation lookups in Sprint 1 tests: `seed.test.ts` reads `submissions`, and `submit-work-db.test.ts` uses `findFirst` instead of `findUnique` on `milestoneId` (two lines). No expected value was changed. | Versioned submissions. | Same as BASE-01 | `sprint-2-release` (planned) |
 | BASE-04 | Grades use a separate immutable `Grade` table, not a nullable column on `Feedback` as the architecture note proposed (D-20). `docs/architecture.md` is corrected. | A nullable grade on feedback would break BR-05 (immutable feedback). | Same as BASE-01 | `sprint-2-release` (planned) |
 | BASE-05 | Feedback and grades are accepted only on the current revision (D-17, AC-54, AC-87). | One clear target per review. | Same as BASE-01 | `sprint-2-release` (planned) |
 | BASE-06 | Decisions D-16 to D-23 are added to the SRS. | Record every proposed choice. | Same as BASE-01 | SRS v3.0 |

@@ -46,9 +46,9 @@ describe('seed (AC-33, AC-34)', () => {
   it('AC-33: milestones cover NOT_SUBMITTED, OVERDUE, SUBMITTED and REVIEWED', async () => {
     await seed();
     const now = clock.now();
-    const milestones = await prisma.milestone.findMany({ include: { submission: { include: { feedback: true } } } });
+    const milestones = await prisma.milestone.findMany({ include: { submissions: { include: { feedback: true } } } });
     const status = (m: (typeof milestones)[number]) =>
-      m.submission?.feedback ? 'REVIEWED' : m.submission ? 'SUBMITTED' : m.dueAt < now ? 'OVERDUE' : 'NOT_SUBMITTED';
+      m.submissions[0]?.feedback ? 'REVIEWED' : m.submissions[0] ? 'SUBMITTED' : m.dueAt < now ? 'OVERDUE' : 'NOT_SUBMITTED';
     const seen = new Set(milestones.map(status));
     expect([...seen].sort()).toEqual(['NOT_SUBMITTED', 'OVERDUE', 'REVIEWED', 'SUBMITTED']);
   });

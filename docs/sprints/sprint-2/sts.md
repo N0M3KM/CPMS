@@ -78,14 +78,14 @@ Seed users (as in the [Sprint 1 STS](../sprint-1/sts.md)): Student A1, A2 (Team 
 
 ## TDD expectations
 
-For the revision limit and concurrency (TEST-48, TEST-49), the close rules (TEST-59, TEST-60, TEST-89), the grade rules (TEST-66, TEST-67, TEST-87) and the supersede rule (TEST-54), write the test first, run it, keep the failing output showing the intended reason, then implement and keep the passing output. Record both commits. Never weaken or skip a test to get a pass. The only Sprint 1 assertions that change are the two named in the [change register](change-register.md) (BASE-02 and BASE-03).
+For the revision limit and concurrency (TEST-48, TEST-49), the close rules (TEST-59, TEST-60, TEST-89), the grade rules (TEST-66, TEST-67, TEST-87) and the supersede rule (TEST-54), write the test first, run it, keep the failing output showing the intended reason, then implement and keep the passing output. Record both commits. Never weaken or skip a test to get a pass. No Sprint 1 expected value changes; the relation lookups updated for the new schema are listed in the [change register](change-register.md) (BASE-03).
 
 ## Sprint 2 Definition of Done
 
 - F-08, F-09 and F-10 implemented to these contracts; BR-08, BR-09 and BR-10 enforced on the backend; BR-01 as revised.
 - Every AC in the table above verified by its mapped test; actual results, counts, commands and the tested commit recorded.
 - Revisions, close and grade persisted through UI, API and database; the three Sprint 2 journeys and the two Sprint 1 journeys pass.
-- Earlier behavior still works: all Sprint 1 tests pass except the two deliberate assertion changes, authentication, role checks and team ownership unchanged.
+- Earlier behavior still works: all Sprint 1 tests pass with no expected value changed (only relation lookups in two test files were updated for the new schema), authentication, role checks and team ownership unchanged.
 - Additive migration apart from the recorded unique-index swap (RISK-01); idempotent seed unchanged; env-only secrets.
 - Each feature reviewed by the other developer through a PR into `sprint-2-staging`; staging integrated, system checks run, release PR merged to `main`, tag `sprint-2-release` recorded and kept even after later changes.
 - Failed, skipped and incomplete work disclosed; no real secrets in Git, logs, screenshots or the PDF.

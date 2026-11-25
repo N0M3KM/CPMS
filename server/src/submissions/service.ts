@@ -8,7 +8,8 @@ import { assertBeforeDeadline, duplicateSubmission, type SubmissionInput } from 
 const personFields = { id: true, name: true } as const;
 
 // Order of checks: not yours or missing (404), already submitted (409), deadline passed (409).
-// BR-01 is enforced by the unique index on milestoneId, so two members racing cannot both win.
+// BR-01 (revised): the first submission is revisionNo 1, and the unique index on (milestoneId, revisionNo)
+// means two members racing with a first submission cannot both win.
 export async function submitWork(
   prisma: PrismaClient, principal: Principal, milestoneId: string, input: SubmissionInput, clock: Clock,
 ) {
@@ -17,10 +18,10 @@ export async function submitWork(
     const row = await prisma.$transaction(async (tx) => {
       const milestone = await tx.milestone.findFirst({
         where: { id: milestoneId, team: teamWhere(scopeFor(principal)) },
-        select: { dueAt: true, submission: { select: { id: true } } },
+        select: { dueAt: true, submissions: { select: { id: true }, take: 1 } },
       });
       if (!milestone) throw AppError.notFound();
-      if (milestone.submission) throw duplicateSubmission();
+      if (milestone.submissions.length > 0) throw duplicateSubmission();
       assertBeforeDeadline(milestone.dueAt, now);
       return tx.submission.create({
         data: {

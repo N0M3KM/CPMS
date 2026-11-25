@@ -10,6 +10,7 @@ const statusLabels = {
   SUBMITTED: 'Submitted',
   REVIEWED: 'Reviewed',
   OVERDUE: 'Overdue',
+  CLOSED: 'Closed',
 };
 
 type MilestoneLink = { id: string; title: string; dueAt: string };
@@ -18,7 +19,7 @@ type Person = { id: string; name: string };
 type TeamSummary = {
   id: string;
   name: string;
-  progress: { notSubmitted: number; submitted: number; reviewed: number; overdue: number };
+  progress: { notSubmitted: number; submitted: number; reviewed: number; overdue: number; closed: number };
   nextDue: MilestoneLink | null;
 };
 type Team = {
@@ -131,6 +132,7 @@ export function ScopedHome({ role }: { role: User['role'] }) {
                       <li>{statusLabels.SUBMITTED}: {team.progress.submitted}</li>
                       <li>{statusLabels.REVIEWED}: {team.progress.reviewed}</li>
                       <li>{statusLabels.OVERDUE}: {team.progress.overdue}</li>
+                      <li>{statusLabels.CLOSED}: {team.progress.closed}</li>
                     </ul>
                     <p>Next due: {team.nextDue ? <MilestoneItem milestone={team.nextDue} /> : 'No upcoming work.'}</p>
                   </li>

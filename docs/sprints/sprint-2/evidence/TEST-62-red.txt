@@ -1,0 +1,8 @@
+# TEST-62 RED, 2026-11-25 22:09 +07: CLOSED status test against the Sprint 1 status function (no closedAt handling)
+$ npm test -w server -- milestone-status
+   × TEST-62 reports CLOSED for a closed milestone with no submission, and keeps SUBMITTED and REVIEWED when work exists 3ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/milestone-status.test.ts > TEST-62 reports CLOSED for a closed milestone with no submission, and keeps SUBMITTED and REVIEWED when work exists
+AssertionError: expected 'OVERDUE' to be 'CLOSED' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
