@@ -1,4 +1,5 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
+import { assertMilestoneOpen, lockMilestone } from '../domain/closed.js';
 import type { Clock } from '../platform/clock.js';
 import { AppError } from '../platform/errors.js';
 import type { Principal } from '../security/principal.js';
@@ -7,20 +8,29 @@ import { assertBeforeDeadline, duplicateSubmission, type SubmissionInput } from 
 
 const personFields = { id: true, name: true } as const;
 
-// Order of checks: not yours or missing (404), already submitted (409), deadline passed (409).
-// BR-01 is enforced by the unique index on milestoneId, so two members racing cannot both win.
+// Order of checks: not yours or missing (404), closed (409), already submitted (409), deadline passed (409).
+// BR-01 (revised): the first submission is revisionNo 1, and the unique index on (milestoneId, revisionNo)
+// means two members racing with a first submission cannot both win.
 export async function submitWork(
   prisma: PrismaClient, principal: Principal, milestoneId: string, input: SubmissionInput, clock: Clock,
 ) {
   const now = clock.now();
   try {
     const row = await prisma.$transaction(async (tx) => {
-      const milestone = await tx.milestone.findFirst({
+      const visible = await tx.milestone.findFirst({
         where: { id: milestoneId, team: teamWhere(scopeFor(principal)) },
-        select: { dueAt: true, submission: { select: { id: true } } },
+        select: { id: true },
       });
-      if (!milestone) throw AppError.notFound();
-      if (milestone.submission) throw duplicateSubmission();
+      if (!visible) throw AppError.notFound();
+      // BR-09: take the row lock, then re-read closedAt, dueAt and the submissions. A close, an edit or another
+      // member's submission that committed while this request waited is seen here, so the checks use fresh data.
+      await lockMilestone(tx, milestoneId);
+      const milestone = await tx.milestone.findUniqueOrThrow({
+        where: { id: milestoneId },
+        select: { closedAt: true, dueAt: true, submissions: { select: { id: true }, take: 1 } },
+      });
+      assertMilestoneOpen(milestone);
+      if (milestone.submissions.length > 0) throw duplicateSubmission();
       assertBeforeDeadline(milestone.dueAt, now);
       return tx.submission.create({
         data: {

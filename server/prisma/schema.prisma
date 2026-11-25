@@ -26,6 +26,7 @@ model User {
   createdMilestones Milestone[]
   submissions       Submission[]
   feedbackGiven     Feedback[]
+  gradesGiven       Grade[]
 }
 
 model Session {
@@ -70,18 +71,22 @@ model Milestone {
   dueAt       DateTime
   createdById String   @db.Uuid
   createdAt   DateTime @default(now())
+  // Set once when a supervisor closes the milestone (BR-09); null while it is open.
+  closedAt    DateTime?
 
-  team       Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  createdBy  User        @relation(fields: [createdById], references: [id])
-  submission Submission?
+  team        Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdBy   User         @relation(fields: [createdById], references: [id])
+  submissions Submission[]
 
   @@index([teamId, dueAt])
 }
 
-// One submission per milestone (BR-01): milestoneId is unique.
+// Versioned submissions (BR-01 revised, BR-08): the first submission is revisionNo 1, at most 5 versions.
+// The CHECK 1..5 lives in the SQL migration only; Prisma does not model CHECK constraints.
 model Submission {
   id            String   @id @default(uuid()) @db.Uuid
-  milestoneId   String   @unique @db.Uuid
+  milestoneId   String   @db.Uuid
+  revisionNo    Int      @default(1)
   title         String
   description   String
   link          String
@@ -91,6 +96,10 @@ model Submission {
   milestone   Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
   submittedBy User      @relation(fields: [submittedById], references: [id])
   feedback    Feedback?
+  grade       Grade?
+
+  @@unique([milestoneId, revisionNo])
+  @@index([milestoneId])
 }
 
 // One feedback per submission (BR-05): submissionId is unique.
@@ -99,6 +108,18 @@ model Feedback {
   submissionId String   @unique @db.Uuid
   supervisorId String   @db.Uuid
   comment      String
+  createdAt    DateTime @default(now())
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  supervisor User       @relation(fields: [supervisorId], references: [id])
+}
+
+// One grade per submission row (BR-10): submissionId is unique. Score 0..100 (CHECK in the SQL migration).
+model Grade {
+  id           String   @id @default(uuid()) @db.Uuid
+  submissionId String   @unique @db.Uuid
+  supervisorId String   @db.Uuid
+  score        Int
   createdAt    DateTime @default(now())
 
   submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)

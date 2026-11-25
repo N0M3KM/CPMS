@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client';
 import type { Express } from 'express';
 import { mountFeedbackWrites } from './feedback/routes.js';
+import { mountGradeWrites } from './grades/routes.js';
 import { mountMilestoneWrites } from './milestones/routes.js';
 import type { Clock } from './platform/clock.js';
 import type { SecurityKit } from './security/kit.js';
@@ -14,4 +15,5 @@ export function mountFeatureRoutes(app: Express, security: SecurityKit, prisma: 
   mountMilestoneWrites(app, security, prisma, clock);
   mountSubmissionWrites(app, security, prisma, clock);
   mountFeedbackWrites(app, security, prisma);
+  mountGradeWrites(app, security, prisma);
 }

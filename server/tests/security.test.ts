@@ -330,15 +330,24 @@ describe('route matrix (SEC-06): every route is accounted for', () => {
       'GET /api/teams/:teamId': 'protected',
       'POST /api/teams/:teamId/milestones': 'protected',
       'GET /api/milestones/:milestoneId': 'protected',
+      'PATCH /api/milestones/:milestoneId': 'protected',
+      'POST /api/milestones/:milestoneId/close': 'protected',
       'POST /api/milestones/:milestoneId/submission': 'protected',
+      'POST /api/milestones/:milestoneId/revisions': 'protected',
       'POST /api/submissions/:submissionId/feedback': 'protected',
+      'POST /api/submissions/:submissionId/grade': 'protected',
     };
     expect(routes).toEqual(Object.keys(matrix).sort());
     for (const [key, access] of Object.entries(matrix)) {
       if (access !== 'protected') continue;
-      const [method, rawPath] = key.split(' ') as ['GET' | 'POST', string];
+      const [method, rawPath] = key.split(' ') as ['GET' | 'POST' | 'PATCH', string];
       const path = rawPath.replace(/:\w+/g, '99999999-9999-4999-8999-999999999999');
-      const res = await (method === 'GET' ? api.get(path) : api.post(path).set('Origin', ORIGIN));
+      const call = {
+        GET: () => api.get(path),
+        POST: () => api.post(path).set('Origin', ORIGIN),
+        PATCH: () => api.patch(path).set('Origin', ORIGIN),
+      }[method];
+      const res = await call();
       expect(res.status, key).toBe(401);
       expect(res.body, key).toEqual(envelope('UNAUTHENTICATED'));
     }

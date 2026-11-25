@@ -2,7 +2,10 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { Link, useParams } from 'react-router-dom';
 import type { User } from './auth-api';
 import { FeedbackForm } from './FeedbackForm';
+import { GradeForm } from './GradeForm';
+import { ManageMilestone } from './ManageMilestone';
 import { NewMilestoneForm } from './NewMilestoneForm';
+import { ReviseWorkForm } from './ReviseWorkForm';
 import { SubmitWorkForm } from './SubmitWorkForm';
 
 const statusLabels = {
@@ -10,6 +13,7 @@ const statusLabels = {
   SUBMITTED: 'Submitted',
   REVIEWED: 'Reviewed',
   OVERDUE: 'Overdue',
+  CLOSED: 'Closed',
 };
 
 type MilestoneLink = { id: string; title: string; dueAt: string };
@@ -18,7 +22,7 @@ type Person = { id: string; name: string };
 type TeamSummary = {
   id: string;
   name: string;
-  progress: { notSubmitted: number; submitted: number; reviewed: number; overdue: number };
+  progress: { notSubmitted: number; submitted: number; reviewed: number; overdue: number; closed: number };
   nextDue: MilestoneLink | null;
 };
 type Team = {
@@ -28,9 +32,22 @@ type Team = {
   members: Person[];
   milestones: MilestoneSummary[];
 };
+type Revision = {
+  revisionNo: number;
+  id: string;
+  title: string;
+  description: string;
+  link: string;
+  submittedAt: string;
+  feedback: { comment: string; createdAt: string } | null;
+  grade: { score: number; createdAt: string; supervisor: Person } | null;
+};
+const MAX_REVISIONS = 5;
 type Milestone = MilestoneSummary & {
   teamId: string;
   description: string;
+  closedAt: string | null;
+  revisions: Revision[];
   submission: {
     id: string;
     title: string;
@@ -49,7 +66,7 @@ type LoadState<T> =
 // The app provides this so a view can tell it the server no longer knows the session (401).
 export const SessionEndedContext = createContext<() => void>(() => undefined);
 
-function DataView<T>({ path, children }: { path: string; children: (data: T, reload: () => void) => ReactNode }) {
+function DataView<T>({ path, children }: { path: string; children: (data: T, reload: () => void, refresh: () => void) => ReactNode }) {
   const [state, setState] = useState<LoadState<T>>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const onSessionEnded = useContext(SessionEndedContext);
@@ -87,7 +104,12 @@ function DataView<T>({ path, children }: { path: string; children: (data: T, rel
   }
 
   if (state.status === 'loading') return <p role="status">Loading…</p>;
-  if (state.status === 'ready') return children(state.data, reload);
+  // refresh fetches again but keeps the current view on screen, so forms with unsaved text are not unmounted.
+  function refresh() {
+    setAttempt(previous => previous + 1);
+  }
+
+  if (state.status === 'ready') return children(state.data, reload, refresh);
   return (
     <>
       <p className="error" role="alert">{state.message}</p>
@@ -131,6 +153,7 @@ export function ScopedHome({ role }: { role: User['role'] }) {
                       <li>{statusLabels.SUBMITTED}: {team.progress.submitted}</li>
                       <li>{statusLabels.REVIEWED}: {team.progress.reviewed}</li>
                       <li>{statusLabels.OVERDUE}: {team.progress.overdue}</li>
+                      <li>{statusLabels.CLOSED}: {team.progress.closed}</li>
                     </ul>
                     <p>Next due: {team.nextDue ? <MilestoneItem milestone={team.nextDue} /> : 'No upcoming work.'}</p>
                   </li>
@@ -197,18 +220,49 @@ function SubmissionLink({ value }: { value: string }) {
   return <span>{value}</span>;
 }
 
+function RevisionHistory({ revisions }: { revisions: Revision[] }) {
+  return (
+    <section aria-labelledby="version-history">
+      <h3 id="version-history">Version history</h3>
+      <ol className="view-list">
+        {revisions.map(revision => (
+          <li key={revision.id}>
+            <p><strong>Version {revision.revisionNo}</strong>: {revision.title}</p>
+            <p>Sent <DateTime value={revision.submittedAt} /></p>
+            <p className="view-description">{revision.description}</p>
+            <p><SubmissionLink value={revision.link} /></p>
+            <p>{revision.feedback ? `Feedback: ${revision.feedback.comment}` : 'No feedback on this version.'}</p>
+            {revision.grade && <p>Grade: {revision.grade.score} by {revision.grade.supervisor.name}</p>}
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 export function MilestoneView({ canSubmit = false, canReview = false }: { canSubmit?: boolean; canReview?: boolean }) {
   const { milestoneId = '' } = useParams();
   return (
     <DataView<Milestone> key={milestoneId} path={`/milestones/${encodeURIComponent(milestoneId)}`}>
-      {(milestone, reload) => (
+      {(milestone, reload, refresh) => {
+        // The current revision is the last item of revisions[]; its grade (if any) sits beside its feedback.
+        const currentGrade = milestone.revisions.at(-1)?.grade ?? null;
+        return (
         <section aria-labelledby="milestone-name">
           <Link to={`/teams/${milestone.teamId}`}>Back to team</Link>
           <h2 id="milestone-name">{milestone.title}</h2>
           <p>Due <DateTime value={milestone.dueAt} />{' '}
             <span className="status-badge">{statusLabels[milestone.status]}</span>
           </p>
+          {milestone.closedAt && (
+            <p>
+              {milestone.status !== 'CLOSED' && <><span className="status-badge">Closed</span>{' '}</>}
+              Closed on <DateTime value={milestone.closedAt} />
+            </p>
+          )}
           {milestone.description && <p className="view-description">{milestone.description}</p>}
+          {/* canReview is true only for the supervisor role; the server still checks the team on every call. */}
+          {canReview && !milestone.closedAt && <ManageMilestone milestone={milestone} onChanged={reload} />}
           <h3>Submission</h3>
           {milestone.submission ? (
             <>
@@ -221,15 +275,24 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
                 <>
                   <p className="view-description">{milestone.submission.feedback.comment}</p>
                   <p>Recorded <DateTime value={milestone.submission.feedback.createdAt} /></p>
+                  {currentGrade ? (
+                    <p>Grade: {currentGrade.score} by {currentGrade.supervisor.name} (<DateTime value={currentGrade.createdAt} />)</p>
+                  ) : canReview ? <GradeForm submissionId={milestone.submission.id} onSaved={reload} /> : null}
                 </>
-              ) : canReview ? <FeedbackForm submissionId={milestone.submission.id} onSaved={reload} />
+              ) : canReview ? <FeedbackForm submissionId={milestone.submission.id} onSaved={reload} onStale={refresh} />
                 : <p>No feedback yet.</p>}
+              {milestone.revisions.length > 1 && <RevisionHistory revisions={milestone.revisions} />}
+              {canSubmit && !milestone.closedAt && Date.now() <= Date.parse(milestone.dueAt)
+                && milestone.revisions.length < MAX_REVISIONS
+                && <ReviseWorkForm milestoneId={milestone.id} onRevised={reload} />}
             </>
           ) : milestone.status === 'OVERDUE' ? <p>The deadline has passed and no work was submitted.</p>
+            : milestone.closedAt ? <p>This milestone is closed. No work was submitted.</p>
             : canSubmit ? <SubmitWorkForm milestoneId={milestone.id} onSubmitted={reload} />
             : <p>No submission yet.</p>}
         </section>
-      )}
+        );
+      }}
     </DataView>
   );
 }

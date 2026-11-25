@@ -75,9 +75,9 @@ it('TEST-36 limits supervisor reads and summarizes their teams', async () => {
   const second = await login('supervisor2@example.test');
   const list = await read('/api/teams', first).expect(200);
   expect(list.body.teams).toMatchObject([
-    { id: id(101), progress: { notSubmitted: 1, submitted: 0, reviewed: 1, overdue: 0 },
+    { id: id(101), progress: { notSubmitted: 1, submitted: 0, reviewed: 1, overdue: 0, closed: 0 },
       nextDue: { id: id(202), title: 'Prototype demo', dueAt: '2026-11-22T12:00:00.000Z' } },
-    { id: id(102), progress: { notSubmitted: 0, submitted: 1, reviewed: 0, overdue: 1 }, nextDue: null },
+    { id: id(102), progress: { notSubmitted: 0, submitted: 1, reviewed: 0, overdue: 1, closed: 0 }, nextDue: null },
   ]);
   expect((await read('/api/teams', second).expect(200)).body.teams).toMatchObject([{ id: id(103) }]);
   const submitted = await read(milestonePath(204), first).expect(200);

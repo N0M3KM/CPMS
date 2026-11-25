@@ -1,0 +1,453 @@
+# F-10 RED, 2026-11-25 22:15 +0700, base commit 0c7e096, branch feature/10-grades, database f10_test
+$ TEST_DATABASE_URL=<f10_test> npm test -w server grade security
+
+> cpms-server@0.1.0 test
+> vitest run grade security
+
+
+ RUN  v5.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-ae022c254445c80af/server
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "f10_test", schema "public" at "127.0.0.1:5433"
+
+2 migrations found in prisma/migrations
+
+
+No pending migrations to apply.
+ ❯ tests/grades-db.test.ts (21 tests | 21 failed) 8498ms
+   ❯ F-10 grades (API + database) (21)
+     × TEST-65 the team supervisor grades the current revision; supervisor comes from the session, revision from the path 466ms
+     × TEST-65 a supervisor id or submission id in the body is refused and nothing is stored 410ms
+     × TEST-65 a closed milestone still accepts a grade (no closedAt check, SRS D-18) 394ms
+     × TEST-66 a revision with no feedback returns FEEDBACK_REQUIRED and stores nothing 400ms
+     × TEST-67 a second grade on the same revision returns GRADE_EXISTS and keeps the first value 409ms
+     × TEST-67 two simultaneous grades on the same revision give one 201, one 409 GRADE_EXISTS and one row 412ms
+     ❯ TEST-68 score rule at the API (8)
+       × rejects score 101 with 400 and stores nothing 407ms
+       × rejects score -1 with 400 and stores nothing 404ms
+       × rejects score 85.5 with 400 and stores nothing 390ms
+       × rejects score the string "90" with 400 and stores nothing 413ms
+       × rejects score null with 400 and stores nothing 395ms
+       × rejects a missing score and an unknown field with 400 407ms
+       × accepts 0 and 100 (on separate revisions) 395ms
+       × validates before the scope lookup: a bad body on an unknown submission is 400, a good one is 404 398ms
+     × TEST-70 a student gets 403, another team supervisor gets the uniform 404, no session gets 401 391ms
+     × TEST-71 an earlier revision keeps its grade and the new revision has none until it is graded 391ms
+     × TEST-72 the grade response has exactly score, createdAt and supervisor {id, name} 396ms
+     ❯ TEST-87 only the current revision can be graded (3)
+       × grading a superseded revision returns REVISION_SUPERSEDED and stores nothing 416ms
+       × a superseded revision that already has a grade reports REVISION_SUPERSEDED, not GRADE_EXISTS 412ms
+       × a superseded revision without feedback reports REVISION_SUPERSEDED, not FEEDBACK_REQUIRED 400ms
+     × keeps the grade out of the team detail and out of the Sprint 1 submission keys 393ms
+ ❯ tests/security.test.ts (34 tests | 1 failed) 1810ms
+   ❯ route matrix (SEC-06): every route is accounted for (1)
+     × has no unlisted route and every protected route returns 401 anonymously 68ms
+ ❯ tests/grade-policy.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/grade-policy.test.ts [ tests/grade-policy.test.ts ]
+Error: Cannot find module '../src/grades/policy.js' imported from /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-ae022c254445c80af/server/tests/grade-policy.test.ts
+ ❯ tests/grade-policy.test.ts:2:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { gradeSchema } from '../src/grades/policy.js';
+       | ^
+      3|
+      4| describe('gradeSchema (BR-10, TEST-68)', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/23]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 22 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-65 the team supervisor grades the current revision; supervisor comes from the session, revision from the path
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ tests/grades-db.test.ts:56:24
+     54|   it('TEST-65 the team supervisor grades the current revision; supervi…
+     55|     const res = await fx.as(s1).post(gradePath(REVIEWED_A)).send({ sco…
+     56|     expect(res.status).toBe(201);
+       |                        ^
+     57|     expect(res.body).toMatchObject({ score: 90, supervisor: { id: S1_I…
+     58|     const rows = await prisma.grade.findMany();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-65 a supervisor id or submission id in the body is refused and nothing is stored
+AssertionError: expected [ 404, 'NOT_FOUND' ] to deeply equal [ 400, 'VALIDATION_ERROR' ]
+
+- Expected
++ Received
+
+  [
+-   400,
+-   "VALIDATION_ERROR",
++   404,
++   "NOT_FOUND",
+  ]
+
+ ❯ tests/grades-db.test.ts:65:26
+     63|   it('TEST-65 a supervisor id or submission id in the body is refused …
+     64|     const res = await fx.as(s1).post(gradePath(REVIEWED_A)).send({ sco…
+     65|     expect(errorOf(res)).toEqual([400, 'VALIDATION_ERROR']);
+       |                          ^
+     66|     expect(await gradeCount()).toBe(0);
+     67|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-65 a closed milestone still accepts a grade (no closedAt check, SRS D-18)
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/grades-db.test.ts:71:69
+     69|   it('TEST-65 a closed milestone still accepts a grade (no closedAt ch…
+     70|     await prisma.milestone.update({ where: { id: MILESTONE_A }, data: …
+     71|     await fx.as(s1).post(gradePath(REVIEWED_A)).send({ score: 77 }).ex…
+       |                                                                     ^
+     72|     expect(await gradeCount()).toBe(1);
+     73|   });
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-66 a revision with no feedback returns FEEDBACK_REQUIRED and stores nothing
+AssertionError: expected [ 404, 'NOT_FOUND' ] to deeply equal [ 409, 'FEEDBACK_REQUIRED' ]
+
+- Expected
++ Received
+
+  [
+-   409,
+-   "FEEDBACK_REQUIRED",
++   404,
++   "NOT_FOUND",
+  ]
+
+ ❯ tests/grades-db.test.ts:77:26
+     75|   it('TEST-66 a revision with no feedback returns FEEDBACK_REQUIRED an…
+     76|     const res = await fx.as(s1).post(gradePath(OPEN_B)).send({ score: …
+     77|     expect(errorOf(res)).toEqual([409, 'FEEDBACK_REQUIRED']);
+       |                          ^
+     78|     expect(await gradeCount()).toBe(0);
+     79|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-67 a second grade on the same revision returns GRADE_EXISTS and keeps the first value
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/grades-db.test.ts:82:69
+     80|
+     81|   it('TEST-67 a second grade on the same revision returns GRADE_EXISTS…
+     82|     await fx.as(s1).post(gradePath(REVIEWED_A)).send({ score: 90 }).ex…
+       |                                                                     ^
+     83|     const second = await fx.as(s1).post(gradePath(REVIEWED_A)).send({ …
+     84|     expect(errorOf(second)).toEqual([409, 'GRADE_EXISTS']);
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-67 two simultaneous grades on the same revision give one 201, one 409 GRADE_EXISTS and one row
+AssertionError: expected [ 404, 404 ] to deeply equal [ 201, 409 ]
+
+- Expected
++ Received
+
+  [
+-   201,
+-   409,
++   404,
++   404,
+  ]
+
+ ❯ tests/grades-db.test.ts:95:41
+     93|       fx.as(s1).post(gradePath(REVIEWED_A)).send({ score: 40 }),
+     94|     ]);
+     95|     expect([x.status, y.status].sort()).toEqual([201, 409]);
+       |                                         ^
+     96|     const loser = x.status === 409 ? x : y;
+     97|     expect(errorOf(loser)).toEqual([409, 'GRADE_EXISTS']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-68 score rule at the API > rejects score 101 with 400 and stores nothing
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-68 score rule at the API > rejects score -1 with 400 and stores nothing
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-68 score rule at the API > rejects score 85.5 with 400 and stores nothing
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-68 score rule at the API > rejects score the string "90" with 400 and stores nothing
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-68 score rule at the API > rejects score null with 400 and stores nothing
+AssertionError: expected [ 404, 'NOT_FOUND' ] to deeply equal [ 400, 'VALIDATION_ERROR' ]
+
+- Expected
++ Received
+
+  [
+-   400,
+-   "VALIDATION_ERROR",
++   404,
++   "NOT_FOUND",
+  ]
+
+ ❯ tests/grades-db.test.ts:109:28
+    107|     ])('rejects score %s with 400 and stores nothing', async (_label, …
+    108|       const res = await fx.as(s1).post(gradePath(REVIEWED_A)).send({ s…
+    109|       expect(errorOf(res)).toEqual([400, 'VALIDATION_ERROR']);
+       |                            ^
+    110|       expect(await gradeCount()).toBe(0);
+    111|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-68 score rule at the API > rejects a missing score and an unknown field with 400
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/grades-db.test.ts:114:77
+    112|
+    113|     it('rejects a missing score and an unknown field with 400', async …
+    114|       expect((await fx.as(s1).post(gradePath(REVIEWED_A)).send({})).st…
+       |                                                                             ^
+    115|       expect((await fx.as(s1).post(gradePath(REVIEWED_A)).send({ score…
+    116|       expect(await gradeCount()).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-68 score rule at the API > accepts 0 and 100 (on separate revisions)
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/grades-db.test.ts:120:70
+    118|
+    119|     it('accepts 0 and 100 (on separate revisions)', async () => {
+    120|       await fx.as(s1).post(gradePath(REVIEWED_A)).send({ score: 0 }).e…
+       |                                                                      ^
+    121|       await addRevision2(REV2_A, MILESTONE_A, true);
+    122|       await fx.as(s1).post(gradePath(REV2_A)).send({ score: 100 }).exp…
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-68 score rule at the API > validates before the scope lookup: a bad body on an unknown submission is 400, a good one is 404
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/grades-db.test.ts:128:86
+    126|
+    127|     it('validates before the scope lookup: a bad body on an unknown su…
+    128|       expect((await fx.as(s1).post(gradePath(id(999))).send({ score: 1…
+       |                                                                                      ^
+    129|       expect((await fx.as(s1).post(gradePath(id(999))).send({ score: 9…
+    130|       expect((await fx.as(s1).post(gradePath('not-a-uuid')).send({ sco…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-70 a student gets 403, another team supervisor gets the uniform 404, no session gets 401
+AssertionError: expected [ 404, 'NOT_FOUND' ] to deeply equal [ 403, 'FORBIDDEN' ]
+
+- Expected
++ Received
+
+  [
+-   403,
+-   "FORBIDDEN",
++   404,
++   "NOT_FOUND",
+  ]
+
+ ❯ tests/grades-db.test.ts:136:30
+    134|   it('TEST-70 a student gets 403, another team supervisor gets the uni…
+    135|     const student = await fx.as(a1).post(gradePath(REVIEWED_A)).send({…
+    136|     expect(errorOf(student)).toEqual([403, 'FORBIDDEN']);
+       |                              ^
+    137|
+    138|     const foreign = await fx.as(s2).post(gradePath(REVIEWED_A)).send({…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-71 an earlier revision keeps its grade and the new revision has none until it is graded
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/grades-db.test.ts:150:69
+    148|
+    149|   it('TEST-71 an earlier revision keeps its grade and the new revision…
+    150|     await fx.as(s1).post(gradePath(REVIEWED_A)).send({ score: 90 }).ex…
+       |                                                                     ^
+    151|     await addRevision2(REV2_A, MILESTONE_A, false);
+    152|
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-72 the grade response has exactly score, createdAt and supervisor {id, name}
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/grades-db.test.ts:165:81
+    163|
+    164|   it('TEST-72 the grade response has exactly score, createdAt and supe…
+    165|     const res = await fx.as(s1).post(gradePath(REVIEWED_A)).send({ sco…
+       |                                                                                 ^
+    166|     expect(Object.keys(res.body).sort()).toEqual(['createdAt', 'score'…
+    167|     expect(Object.keys(res.body.supervisor).sort()).toEqual(['id', 'na…
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-87 only the current revision can be graded > grading a superseded revision returns REVISION_SUPERSEDED and stores nothing
+AssertionError: expected [ 404, 'NOT_FOUND' ] to deeply equal [ 409, 'REVISION_SUPERSEDED' ]
+
+- Expected
++ Received
+
+  [
+-   409,
+-   "REVISION_SUPERSEDED",
++   404,
++   "NOT_FOUND",
+  ]
+
+ ❯ tests/grades-db.test.ts:175:28
+    173|       await addRevision2(REV2_A, MILESTONE_A, false);
+    174|       const res = await fx.as(s1).post(gradePath(REVIEWED_A)).send({ s…
+    175|       expect(errorOf(res)).toEqual([409, 'REVISION_SUPERSEDED']);
+       |                            ^
+    176|       expect(await gradeCount()).toBe(0);
+    177|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-87 only the current revision can be graded > a superseded revision that already has a grade reports REVISION_SUPERSEDED, not GRADE_EXISTS
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/grades-db.test.ts:180:71
+    178|
+    179|     it('a superseded revision that already has a grade reports REVISIO…
+    180|       await fx.as(s1).post(gradePath(REVIEWED_A)).send({ score: 90 }).…
+       |                                                                       ^
+    181|       await addRevision2(REV2_A, MILESTONE_A, false);
+    182|       const res = await fx.as(s1).post(gradePath(REVIEWED_A)).send({ s…
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > TEST-87 only the current revision can be graded > a superseded revision without feedback reports REVISION_SUPERSEDED, not FEEDBACK_REQUIRED
+AssertionError: expected [ 404, 'NOT_FOUND' ] to deeply equal [ 409, 'REVISION_SUPERSEDED' ]
+
+- Expected
++ Received
+
+  [
+-   409,
+-   "REVISION_SUPERSEDED",
++   404,
++   "NOT_FOUND",
+  ]
+
+ ❯ tests/grades-db.test.ts:190:28
+    188|       await addRevision2(REV2_B, MILESTONE_B, false);
+    189|       const res = await fx.as(s1).post(gradePath(OPEN_B)).send({ score…
+    190|       expect(errorOf(res)).toEqual([409, 'REVISION_SUPERSEDED']);
+       |                            ^
+    191|       expect(await gradeCount()).toBe(0);
+    192|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/23]⎯
+
+ FAIL  tests/grades-db.test.ts > F-10 grades (API + database) > keeps the grade out of the team detail and out of the Sprint 1 submission keys
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/grades-db.test.ts:196:69
+    194|
+    195|   it('keeps the grade out of the team detail and out of the Sprint 1 s…
+    196|     await fx.as(s1).post(gradePath(REVIEWED_A)).send({ score: 90 }).ex…
+       |                                                                     ^
+    197|     // The grade is read through revisions[] only (F-08, see grades-vi…
+    198|     expect((await fx.as(b1).get(`/api/teams/${id(101)}`)).status).toBe…
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/23]⎯
+
+ FAIL  tests/security.test.ts > route matrix (SEC-06): every route is accounted for > has no unlisted route and every protected route returns 401 anonymously
+AssertionError: expected [ 'GET /api/auth/me', …(11) ] to deeply equal [ 'GET /api/auth/me', …(12) ]
+
+- Expected
++ Received
+
+@@ -8,8 +8,7 @@
+    "GET /api/version",
+    "POST /api/auth/login",
+    "POST /api/auth/logout",
+    "POST /api/milestones/:milestoneId/submission",
+    "POST /api/submissions/:submissionId/feedback",
+-   "POST /api/submissions/:submissionId/grade",
+    "POST /api/teams/:teamId/milestones",
+  ]
+
+ ❯ tests/security.test.ts:337:20
+    335|       'POST /api/submissions/:submissionId/grade': 'protected',
+    336|     };
+    337|     expect(routes).toEqual(Object.keys(matrix).sort());
+       |                    ^
+    338|     for (const [key, access] of Object.entries(matrix)) {
+    339|       if (access !== 'protected') continue;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/23]⎯
+
+
+ Test Files  3 failed | 1 skipped (4)
+      Tests  22 failed | 33 passed | 6 todo (61)
+   Start at  22:15:11
+   Duration  11.18s (tests 98%, import 2%)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-ae022c254445c80af/server
+npm error workspace cpms-server@0.1.0
+npm error location /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-ae022c254445c80af/server
+npm error command failed
+npm error command sh -c vitest run grade security
+exit code: 1

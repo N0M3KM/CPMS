@@ -1,0 +1,4 @@
+# production cap RED, 2026-11-25 22:33 +07
+     × refuses a limit above the default of 100, so the burst protection cannot be loosened by mistake 2ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 24 passed (25)

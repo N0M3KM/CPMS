@@ -1,0 +1,14 @@
+# E2E after foundation, 2026-11-25 22:10 +07
+$ npm run test:e2e
+> cpms@0.1.0 test:e2e
+> playwright test
+
+Seed complete: 2 supervisors, 6 students, 3 teams, 5 milestones, 2 submissions, 1 feedback.
+
+Running 3 tests using 1 worker
+
+  ✓  1 e2e/journeys.spec.ts:29:1 › TEST-42 supervisor creates a milestone, a student submits it and sees it after reload (2.2s)
+  ✓  2 e2e/journeys.spec.ts:67:1 › TEST-43 invalid feedback is blocked, valid feedback is saved and other teams cannot see it (1.8s)
+  ✓  3 e2e/session-ended.spec.ts:8:1 › CF-01 a page that loads after the session ended returns to Sign in (619ms)
+
+  3 passed (12.1s)

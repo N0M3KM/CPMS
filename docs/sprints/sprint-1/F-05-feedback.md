@@ -52,3 +52,4 @@ Tests: TEST-27 to TEST-32 and TEST-43 (E2E) in the [STS](sts.md).
 | Date | Change |
 |---|---|
 | 2026-11-06 | Recorded the order of checks, control-character rule and the absence of edit and delete routes. |
+| 2026-11-25 | Sprint 2 adds 409 `REVISION_SUPERSEDED` (feedback only on the current revision) after the scope check and before `FEEDBACK_EXISTS`, and the feedback transaction takes the milestone row lock. Request and 201 response unchanged. See [F-08](../sprint-2/F-08-revisions.md). |

@@ -1,12 +1,13 @@
 # CPMS Three-Sprint Plan (Part D)
 
-**Version:** 2.1 (Sprint 1 baseline)
+**Version:** 2.2 (Sprint 2 approved 2026-11-25; Sprint 3 proposed, approval pending)
 **Related:** [Features](../features.md) · [Traceability](../traceability.md) · [Sprint 1 plan](sprint-1/plan.md)
 
 ## Version history
 
 | Version | Date | Change |
 |---|---|---|
+| 2.2 | 2026-11-25 | Sprint 2 approved (2026-11-25, Drarun's approving reviews on PR #59, #60, #61) and Sprint 3 proposed, with detailed contracts (F-08 to F-12) and decisions D-16 to D-23; Sprint 3 approval from Drarun and the instructor or TA is pending. F-12 is the Sprint 3 feature implemented for Deliverable 2; F-11 has a contract only. Staging branches follow AGENTS.md: `sprint-3-staging` is cut after the Sprint 2 release. |
 | 2.1 | 2026-11-07 | Status updated after Sprint 1 implementation; no requirement, rule or acceptance-criteria change. |
 | 2.0 | 2026-11-06 | Reworked for Theme 6; Sprint 2 and 3 allocation follows the theme's later-sprint list. |
 | 1.0 | 2026-11-06 | Initial (proposal domain, superseded). |
@@ -16,10 +17,10 @@
 | Sprint | Goal | Features | Depends on | Completion outcome | Checkpoint |
 |---|---|---|---|---|---|
 | 1 | Small deployable product: auth, team-scoped access, and the milestone to submission to feedback slice | F-06, F-01, F-02, F-07, F-03, F-04, F-05 | none | Supervisor creates a milestone for a supervised team. A team member submits work and reads it back after reload. A late or duplicate submission is rejected. The supervisor records feedback; the team sees it. Another team sees nothing. | Deliverable 1, 8 Nov |
-| 2 (proposed) | Core expansion of milestone workflows | F-08 revisions and history, F-09 milestone management, F-10 grades | Sprint 1 release on `main` | Teams can revise within a policy with history preserved; supervisors manage milestones; grades follow a visibility rule. Integrated and tested. | Deliverable 2, 29 Nov |
-| 3 (proposed) | Completion and hardening | F-11 progress board and reports, F-12 search and filter, X-01 deployment, regression and defect fixes | Sprint 2 | Remaining features complete, failure handling and usability polished, regression suite green, released. | Progress 29 Nov, complete 13 Dec |
+| 2 (approved 2026-11-25) | Core expansion of milestone workflows | F-08 revisions and history, F-09 milestone management, F-10 grades | Sprint 1 release on `main` | Teams can revise within a policy with history preserved; supervisors manage milestones; grades follow a visibility rule. Integrated and tested. | Deliverable 2, 29 Nov |
+| 3 (proposed 2026-11-25, approval pending) | Completion and hardening | F-11 progress board and reports, F-12 search and filter, X-01 deployment, regression and defect fixes | Sprint 2 | Remaining features complete, failure handling and usability polished, regression suite green, released. | Progress 29 Nov, complete 13 Dec |
 
-Together the sprints cover every baseline requirement (FR-01 to FR-12) in the [SRS](../srs.md). Only Sprint 1 has detailed contracts; Sprints 2 and 3 are proposed until authorized.
+Together the sprints cover every baseline requirement (FR-01 to FR-12) in the [SRS](../srs.md). Sprints 1, 2 and 3 now have detailed contracts: [Sprint 2](sprint-2/plan.md) (F-08, F-09, F-10) and [Sprint 3](sprint-3/plan.md) (F-11 contract, F-12 contract and implementation). Status stays planned until a test result and a deployed release exist.
 
 ## Dependencies
 

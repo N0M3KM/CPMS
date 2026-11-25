@@ -16,8 +16,12 @@ What it checks (AC-1 to AC-3):
   4  forbidden: no cookie 401, student creating a milestone 403, student reading another team 404
      (same answer as a nonexistent ID), supervisor of another team 404
   5  every error body is the safe envelope: no stack, SQL or framework text
+  6  Sprint 2: the member sends a revised version (history kept, status back to SUBMITTED), feedback on the
+     old version is refused, the supervisor gives feedback and a grade on the new version (out-of-range and
+     second grade refused, a student cannot grade, another supervisor gets 404), closing the milestone
+     refuses a further revision and edit while the milestone and its grade stay readable
 
-It creates one milestone, one submission and one feedback record named "Cloud Run acceptance <time>"
+It creates one milestone, two versions of one submission, feedback, a grade and closes the milestone, named "Cloud Run acceptance <time>"
 on Team A. Run it once per deployment. Sessions are always logged out. Only the standard library.
 """
 import json
@@ -122,6 +126,42 @@ def run(base, supervisor_password, student_password):
         record(final['status'] == 'REVIEWED' and final['submission']['feedback'] is not None,
                'status REVIEWED and feedback visible to the team')
 
+        # Sprint 2: revisions (F-08), grade (F-10), close (F-09).
+        revised = expect('member sends a revised version', call(
+            base, '/api/milestones/%s/revisions' % milestone, 'POST',
+            {'title': 'Acceptance revision', 'link': 'https://example.com/acceptance-2',
+             'description': 'Second version created by the Cloud Run acceptance run.'}, stu), 201)
+        record(revised['revisionNo'] == 2, 'the revision is version 2')
+        two = expect('member reloads the milestone with two versions', call(base, '/api/milestones/%s' % milestone, cookie=stu), 200)
+        record(two['status'] == 'SUBMITTED' and [r['revisionNo'] for r in two['revisions']] == [1, 2]
+               and two['revisions'][0]['feedback'] is not None and two['revisions'][1]['feedback'] is None,
+               'two versions persisted, version 1 keeps its feedback, status SUBMITTED')
+        expect('RULE feedback on the old version rejected', call(
+            base, '/api/submissions/%s/feedback' % submission['id'], 'POST',
+            {'comment': 'A late comment on the old version.'}, sup), 409)
+        expect('supervisor records feedback on the new version', call(
+            base, '/api/submissions/%s/feedback' % revised['id'], 'POST',
+            {'comment': 'The new version is clearer. Keep the same structure.'}, sup), 201)
+        expect('RULE grade above 100 rejected', call(
+            base, '/api/submissions/%s/grade' % revised['id'], 'POST', {'score': 101}, sup), 400)
+        expect('FORBIDDEN student grades: 403', call(
+            base, '/api/submissions/%s/grade' % revised['id'], 'POST', {'score': 100}, stu), 403)
+        expect('supervisor records a grade', call(
+            base, '/api/submissions/%s/grade' % revised['id'], 'POST', {'score': 90}, sup), 201)
+        expect('RULE second grade rejected', call(
+            base, '/api/submissions/%s/grade' % revised['id'], 'POST', {'score': 40}, sup), 409)
+        graded = expect('member reads the grade', call(base, '/api/milestones/%s' % milestone, cookie=stu), 200)
+        record(graded['status'] == 'REVIEWED' and graded['revisions'][1]['grade']['score'] == 90
+               and graded['revisions'][0]['grade'] is None, 'grade 90 on version 2 only, status REVIEWED')
+        expect('supervisor closes the milestone', call(base, '/api/milestones/%s/close' % milestone, 'POST', {}, sup), 200)
+        expect('RULE revision after close rejected', call(
+            base, '/api/milestones/%s/revisions' % milestone, 'POST', work, stu), 409)
+        expect('RULE edit after close rejected', call(
+            base, '/api/milestones/%s' % milestone, 'PATCH', {'title': 'Edited after close'}, sup), 409)
+        closed = expect('closed milestone stays readable', call(base, '/api/milestones/%s' % milestone, cookie=stu), 200)
+        record(closed['closedAt'] is not None and closed['revisions'][1]['grade']['score'] == 90,
+               'closed milestone keeps its versions, feedback and grade')
+
         expect('FORBIDDEN no session: 401', call(base, '/api/teams'), 401)
         expect('FORBIDDEN student creates milestone: 403', call(
             base, '/api/teams/%s/milestones' % team_a, 'POST', {'title': 'Not allowed here', 'dueAt': due}, stu), 403)
@@ -137,6 +177,8 @@ def run(base, supervisor_password, student_password):
             base, '/api/teams/%s/milestones' % team_a, 'POST', {'title': 'Not allowed here', 'dueAt': due}, sup2), 404)
         expect('FORBIDDEN supervisor 2 reads Team A milestone: 404', call(
             base, '/api/milestones/%s' % milestone, cookie=sup2), 404)
+        expect('FORBIDDEN supervisor 2 grades a Team A version: 404', call(
+            base, '/api/submissions/%s/grade' % revised['id'], 'POST', {'score': 10}, sup2), 404)
     finally:
         for cookie in cookies:
             request(base, '/api/auth/logout', 'POST', {}, cookie=cookie)
