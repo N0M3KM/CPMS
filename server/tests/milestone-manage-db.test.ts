@@ -182,6 +182,7 @@ describe('F-09 close a milestone', () => {
         status: 'REVIEWED', closedAt: SEED_NOW.toISOString(),
         submission: { id: id(301), feedback: { comment: expect.any(String) } },
       });
+      expect(res.body.revisions.at(-1).grade.score).toBe(88);   // the grade stays readable after close
     }
     // Closed with work keeps REVIEWED, closed without work is CLOSED, and a closed milestone is never next due.
     const team = await fx.as(a1).get(`/api/teams/${id(101)}`).expect(200);
@@ -218,9 +219,13 @@ describe('F-09 close a milestone', () => {
 });
 
 describe('F-09 close against a first submission (BR-09, row lock)', () => {
-  const poll = async (done: () => Promise<boolean>, timeoutMs: number) => {
+  const poll = async (done: () => Promise<boolean>, timeoutMs: number): Promise<boolean> => {
     const end = Date.now() + timeoutMs;
-    while (Date.now() < end && !(await done())) await new Promise(r => setTimeout(r, 25));
+    while (Date.now() < end) {
+      if (await done()) return true;
+      await new Promise(r => setTimeout(r, 25));
+    }
+    return false;
   };
 
   it('TEST-89a a submission waiting on the row lock while a close commits gets MILESTONE_CLOSED and stores nothing', async () => {
@@ -237,12 +242,13 @@ describe('F-09 close against a first submission (BR-09, row lock)', () => {
     await lockTaken;
     const submission = fx.as(a1).post(`/api/milestones/${M}/submission`).send(validSubmission).then(res => res);   // .then sends it
     // Wait until a backend is blocked on a lock (the submission), then let the close commit.
-    await poll(async () => {
+    const waited = await poll(async () => {
       const rows = await prisma.$queryRaw<{ n: bigint }[]>`SELECT count(*) AS n FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND datname = current_database()`;
       return (rows[0]?.n ?? 0n) > 0n;
     }, 3000);
     release();
     await closer;
+    expect(waited).toBe(true);   // the submission really was blocked on the lock
     const res = await submission;
     expect(code(res)).toEqual([409, 'MILESTONE_CLOSED']);
     expect(await prisma.submission.count({ where: { milestoneId: M } })).toBe(0);

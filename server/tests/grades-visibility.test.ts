@@ -1,39 +1,70 @@
-import { describe, it } from 'vitest';
+import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { createApiFixture, id } from './helpers/api-fixture.js';
+import { createTestPrisma } from './helpers/db.js';
 
-// These assertions read grades through GET /api/milestones/:id, specifically revisions[], which F-08 adds.
-// F-08 is built in another worktree, so they stay as todo here. The integration owner turns each it.todo into a
-// real test after F-08 merges, using createApiFixture from ./helpers/api-fixture.js, with this setup:
-//   fx.reset(); s1 = login(supervisor1), a1 = login(student.a1), b1 = login(student.b1), s2 = login(supervisor2)
-//   grade posted as: fx.as(s1).post(`/api/submissions/${id(301)}/grade`).send({ score: 90 }) -> 201
-describe('F-10 grade visibility through revisions[] (needs F-08)', () => {
-  it.todo('TEST-69 team member and supervisor see the grade in revisions[]');
-  // const own = await fx.as(a1).get(`/api/milestones/${id(201)}`).expect(200);
-  // expect(own.body.revisions.at(-1).grade).toMatchObject({ score: 90, supervisor: { id: id(1), name: 'Supervisor One' } });
-  // const sup = await fx.as(s1).get(`/api/milestones/${id(201)}`).expect(200);
-  // expect(sup.body.revisions.at(-1).grade.score).toBe(90);
+// F-10 grade visibility through GET /api/milestones/:id (revisions[] from F-08). Seed: milestone 201 (Team A) has
+// submission 301 with feedback; Team B and Team C belong to other students and supervisors.
+const prisma = createTestPrisma();
+const fx = createApiFixture(prisma);
+const M = id(201);
+const SUBMISSION = id(301);
+let s1: string; let s2: string; let a1: string; let b1: string;
 
-  it.todo('TEST-69 another team gets the uniform 404 and no grade appears in its lists');
-  // expect((await fx.as(b1).get(`/api/milestones/${id(201)}`)).status).toBe(404);
-  // expect((await fx.as(s2).get(`/api/milestones/${id(201)}`)).status).toBe(404);
-  // const list = await fx.as(b1).get(`/api/teams/${id(102)}`).expect(200);
-  // expect(JSON.stringify(list.body)).not.toContain('"score"');   // also GET /api/teams as b1 and as s2
+beforeEach(async () => {
+  await fx.reset();   // a fresh app per test, so the request limiter never reaches 429
+  s1 = await fx.login('supervisor1@example.test');
+  s2 = await fx.login('supervisor2@example.test');
+  a1 = await fx.login('student.a1@example.test');
+  b1 = await fx.login('student.b1@example.test');
+});
+afterAll(() => prisma.$disconnect());
 
-  it.todo('TEST-69 a revision with feedback and no grade shows grade: null; before grading every revision has grade: null');
-  // const before = await fx.as(a1).get(`/api/milestones/${id(201)}`).expect(200);
-  // expect(before.body.revisions.every((r: { grade: unknown }) => r.grade === null)).toBe(true);
+const grade = (score: number) => fx.as(s1).post(`/api/submissions/${SUBMISSION}/grade`).send({ score });
+const read = (cookie: string, milestoneId = M) => fx.as(cookie).get(`/api/milestones/${milestoneId}`);
 
-  it.todo('TEST-71 after a new revision the earlier revision keeps its grade and the new one has grade: null');
-  // grade 301 (90), then POST the second revision through the F-08 route as a1 (or create revisionNo 2 with Prisma), then:
-  // const res = await fx.as(a1).get(`/api/milestones/${id(201)}`).expect(200);
-  // expect(res.body.revisions.map((r: { grade: { score: number } | null }) => r.grade?.score ?? null)).toEqual([90, null]);
+describe('F-10 grades are read through revisions[]', () => {
+  it('TEST-69 the team and its supervisor see the grade on the revision; before grading every grade is null', async () => {
+    const before = await read(a1).expect(200);
+    expect(before.body.revisions.every((r: { grade: unknown }) => r.grade === null)).toBe(true);
+    await grade(90).expect(201);
+    const own = await read(a1).expect(200);
+    expect(own.body.revisions.at(-1).grade).toMatchObject({ score: 90, supervisor: { id: id(1) } });
+    expect((await read(s1).expect(200)).body.revisions.at(-1).grade.score).toBe(90);
+  });
 
-  it.todo('TEST-72 the grade object inside revisions[] has exactly score, createdAt and supervisor {id, name}');
-  // const g = (await fx.as(a1).get(`/api/milestones/${id(201)}`).expect(200)).body.revisions.at(-1).grade;
-  // expect(Object.keys(g).sort()).toEqual(['createdAt', 'score', 'supervisor']);
-  // expect(Object.keys(g.supervisor).sort()).toEqual(['id', 'name']);
-  // and the six Sprint 1 keys of body.submission are unchanged (no grade key on submission).
+  it('TEST-69 another team and another supervisor get the uniform 404 and no grade appears in their lists', async () => {
+    await grade(90).expect(201);
+    expect((await read(b1)).status).toBe(404);
+    expect((await read(s2)).status).toBe(404);
+    for (const [cookie, path] of [[b1, '/api/teams'], [b1, `/api/teams/${id(102)}`], [s2, '/api/teams'], [s2, `/api/teams/${id(103)}`]] as const) {
+      const res = await fx.as(cookie).get(path).expect(200);
+      expect(JSON.stringify(res.body)).not.toContain('"score"');
+    }
+  });
 
-  it.todo('TEST-90 data side: a graded revision stays visible to the supervisor and the team after the milestone is closed');
-  // await prisma.milestone.update({ where: { id: id(201) }, data: { closedAt: fx.clock.now() } });
-  // expect((await fx.as(a1).get(`/api/milestones/${id(201)}`)).body.revisions.at(-1).grade.score).toBe(90);
+  it('TEST-71 after a new revision the earlier revision keeps its grade and the new one has none', async () => {
+    await grade(90).expect(201);
+    await prisma.submission.create({
+      data: { milestoneId: M, revisionNo: 2, title: 'Second version', description: 'd'.repeat(20), link: 'https://example.test/v2', submittedById: id(11), submittedAt: fx.clock.now() },
+    });
+    const res = await read(a1).expect(200);
+    expect(res.body.revisions.map((r: { revisionNo: number; grade: { score: number } | null }) => [r.revisionNo, r.grade?.score ?? null]))
+      .toEqual([[1, 90], [2, null]]);
+  });
+
+  it('TEST-72 the grade object has exactly score, createdAt and supervisor {id, name}; submission has no grade key', async () => {
+    await grade(75).expect(201);
+    const body = (await read(a1).expect(200)).body;
+    const g = body.revisions.at(-1).grade;
+    expect(Object.keys(g).sort()).toEqual(['createdAt', 'score', 'supervisor']);
+    expect(Object.keys(g.supervisor).sort()).toEqual(['id', 'name']);
+    expect(Object.keys(body.submission).sort()).toEqual(['description', 'feedback', 'id', 'link', 'submittedAt', 'title']);
+  });
+
+  it('TEST-90 (data side) a graded revision stays visible to the supervisor and the team after the milestone is closed', async () => {
+    await grade(90).expect(201);
+    await prisma.milestone.update({ where: { id: M }, data: { closedAt: fx.clock.now() } });
+    expect((await read(a1).expect(200)).body.revisions.at(-1).grade.score).toBe(90);
+    expect((await read(s1).expect(200)).body.revisions.at(-1).grade.score).toBe(90);
+  });
 });

@@ -23,7 +23,7 @@ const errorOf = (res: { status: number; body: { error?: { code?: string } } }) =
 
 let s1: string; let s2: string; let a1: string; let b1: string;
 
-// F-08 is not part of this branch, so a second revision is created directly with Prisma.
+// A second revision is created directly with Prisma here; the revisions route is covered in revisions-db.test.ts.
 async function addRevision2(submissionId: string, milestoneId: string, withFeedback: boolean) {
   await prisma.submission.create({
     data: {

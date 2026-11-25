@@ -1,8 +1,8 @@
 import type { Prisma } from '@prisma/client';
 import { AppError } from '../platform/errors.js';
 
-// One place for the closed-milestone rule (BR-09). Submit, revise and edit all call it, so a caller
-// that forgets the check is the exception and not the rule.
+// One place for the closed-milestone rule (BR-09). Submit and revise call it after taking the row lock; edit and
+// close use a conditional write on closedAt instead, which enforces the same rule in one statement.
 export const milestoneClosed = () => AppError.conflict('MILESTONE_CLOSED', 'This milestone is closed.');
 
 export function assertMilestoneOpen(milestone: { closedAt: Date | null }): void {

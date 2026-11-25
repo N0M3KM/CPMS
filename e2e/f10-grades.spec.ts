@@ -16,9 +16,8 @@ async function login(page: Page, email: string, password: string) {
   await page.getByRole('button', { name: 'Sign in' }).click();
 }
 
-// TEST-90 (AC-65, AC-69). The supervisor-side steps work with F-10 alone. Steps marked "needs F-08" read the grade
-// back through revisions[] on GET /api/milestones/:id and through the student's milestone page, which F-08 provides;
-// until F-08 is merged those assertions fail and the integration owner wires the read-only grade display.
+// TEST-90 (AC-65, AC-69): the supervisor records feedback and a grade, the team's student reads the grade on the
+// milestone page (and through revisions[] on GET /api/milestones/:id), and a student of another team sees nothing.
 test('TEST-90 supervisor gives feedback and a grade, the team sees both, another team sees nothing', async ({ browser }) => {
   // Team A student submits work for the open milestone.
   const studentCtx = await browser.newContext({ viewport: { width: 1000, height: 760 } });
@@ -55,7 +54,7 @@ test('TEST-90 supervisor gives feedback and a grade, the team sees both, another
 
   await supervisor.getByLabel('Score (0 to 100)').fill(String(SCORE));
   await supervisor.getByRole('button', { name: 'Save grade' }).click();
-  await expect(supervisor.getByText(`Grade: ${SCORE} / 100`)).toBeVisible();
+  await expect(supervisor.getByText(`Grade: ${SCORE} by`)).toBeVisible();
 
   // The student cannot grade (AC-70), even by calling the API directly.
   const forbidden = await student.request.post(`/api/submissions/${await submissionIdOf(student)}/grade`, {
@@ -66,10 +65,10 @@ test('TEST-90 supervisor gives feedback and a grade, the team sees both, another
   // Team A student reloads and sees feedback and grade (AC-69). Needs F-08: the read-only grade comes from revisions[].
   await student.reload();
   await expect(student.getByText(FEEDBACK)).toBeVisible();
-  await expect(student.getByText(new RegExp(`${SCORE}\\s*/\\s*100`))).toBeVisible();
+  await expect(student.getByText(`Grade: ${SCORE} by`)).toBeVisible();
   const own = await student.request.get(`/api/milestones/${MILESTONE}`);
   expect(own.status()).toBe(200);
-  expect((await own.json()).revisions.at(-1).grade).toMatchObject({ score: SCORE }); // needs F-08
+  expect((await own.json()).revisions.at(-1).grade).toMatchObject({ score: SCORE });
 
   // A student of another team sees no grade and no data (AC-69).
   const otherCtx = await browser.newContext({ viewport: { width: 1000, height: 760 } });
@@ -78,7 +77,7 @@ test('TEST-90 supervisor gives feedback and a grade, the team sees both, another
   await expect(other.getByRole('heading', { name: 'Student home' })).toBeVisible();
   await other.goto(`/milestones/${MILESTONE}`);
   await expect(other.getByText('This page is unavailable.')).toBeVisible();
-  await expect(other.getByText(new RegExp(`${SCORE}\\s*/\\s*100`))).toHaveCount(0);
+  await expect(other.getByText(`Grade: ${SCORE} by`)).toHaveCount(0);
   const foreign = await other.request.get(`/api/milestones/${MILESTONE}`);
   const missing = await other.request.get(`/api/milestones/${id(999)}`);
   expect(foreign.status()).toBe(404);

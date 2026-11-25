@@ -244,7 +244,10 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
   const { milestoneId = '' } = useParams();
   return (
     <DataView<Milestone> key={milestoneId} path={`/milestones/${encodeURIComponent(milestoneId)}`}>
-      {(milestone, reload, refresh) => (
+      {(milestone, reload, refresh) => {
+        // The current revision is the last item of revisions[]; its grade (if any) sits beside its feedback.
+        const currentGrade = milestone.revisions.at(-1)?.grade ?? null;
+        return (
         <section aria-labelledby="milestone-name">
           <Link to={`/teams/${milestone.teamId}`}>Back to team</Link>
           <h2 id="milestone-name">{milestone.title}</h2>
@@ -272,11 +275,9 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
                 <>
                   <p className="view-description">{milestone.submission.feedback.comment}</p>
                   <p>Recorded <DateTime value={milestone.submission.feedback.createdAt} /></p>
-                  {/* F-10: until F-08 adds revisions[] with each revision's grade, the response cannot say whether
-                      this revision is graded, so the form is offered after feedback and the server answers 409
-                      GRADE_EXISTS. Integration: show it only when the current revision has no grade, and render
-                      saved grades read-only for every revision and for students. */}
-                  {canReview && <GradeForm submissionId={milestone.submission.id} />}
+                  {currentGrade ? (
+                    <p>Grade: {currentGrade.score} by {currentGrade.supervisor.name} (<DateTime value={currentGrade.createdAt} />)</p>
+                  ) : canReview ? <GradeForm submissionId={milestone.submission.id} onSaved={reload} /> : null}
                 </>
               ) : canReview ? <FeedbackForm submissionId={milestone.submission.id} onSaved={reload} onStale={refresh} />
                 : <p>No feedback yet.</p>}
@@ -290,7 +291,8 @@ export function MilestoneView({ canSubmit = false, canReview = false }: { canSub
             : canSubmit ? <SubmitWorkForm milestoneId={milestone.id} onSubmitted={reload} />
             : <p>No submission yet.</p>}
         </section>
-      )}
+        );
+      }}
     </DataView>
   );
 }
