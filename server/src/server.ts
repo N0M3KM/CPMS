@@ -16,6 +16,7 @@ const clientDist = config.clientDist ?? (config.nodeEnv === 'production' ? resol
 const app = createApp({
   checkDb: dbChecker(prisma),
   trustProxy: config.trustProxy,
+  requestLimitPerMinute: config.requestLimitPerMinute,
   ...(process.env.APP_COMMIT ? { commit: process.env.APP_COMMIT } : {}),
   ...(clientDist && existsSync(join(clientDist, 'index.html')) ? { staticDir: clientDist } : {}),
   teamAccess: prismaTeamAccess(prisma),

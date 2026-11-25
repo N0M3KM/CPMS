@@ -97,19 +97,23 @@ export function mountScopedViews(
         submissions: {
           orderBy: { revisionNo: 'asc' },
           select: {
-            id: true, title: true, description: true, link: true, submittedAt: true,
+            id: true, revisionNo: true, title: true, description: true, link: true, submittedAt: true,
             feedback: { select: { id: true, comment: true, createdAt: true } },
+            grade: { select: { score: true, createdAt: true, supervisor: { select: personFields } } },
           },
         },
       },
     });
     if (!milestone) throw AppError.notFound();
 
-    // `submission` keeps its Sprint 1 keys and is the current (last) revision; F-08 adds `revisions[]`.
+    // `submission` keeps its six Sprint 1 keys and is the current (last) revision; F-08 adds `revisions[]`.
     const { submissions, ...rest } = milestone;
-    const submission = currentOf(submissions);
+    const revisions = submissions.map(({ id, revisionNo, title, description, link, submittedAt, feedback, grade }) =>
+      ({ revisionNo, id, title, description, link, submittedAt, feedback, grade }));
+    const current = currentOf(submissions);
+    const submission = current && pickFields(current, ['id', 'title', 'description', 'link', 'submittedAt', 'feedback']);
     res.json({
-      ...rest, submission,
+      ...rest, submission, revisions,
       status: milestoneStatus({ dueAt: milestone.dueAt, closedAt: milestone.closedAt, submission }, clock.now()),
     });
   });

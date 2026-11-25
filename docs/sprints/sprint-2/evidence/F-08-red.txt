@@ -1,0 +1,378 @@
+date: 2026-11-25T15:15:31Z
+command: TEST_DATABASE_URL=<f08_test> npm test -w server -- revision security
+base commit: 0c7e096 (feature/sprint2-foundation)
+note: tests only, no implementation. Red reasons: POST /api/milestones/:id/revisions is 404, src/submissions/revision.js is missing, revisions[] is absent, matrix lists no revisions route.
+
+
+> cpms-server@0.1.0 test
+> vitest run revision security
+
+
+ RUN  v5.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-adce26c4003b9360d/server
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "f08_test", schema "public" at "127.0.0.1:5433"
+
+2 migrations found in prisma/migrations
+
+
+No pending migrations to apply.
+ ❯ tests/security.test.ts (34 tests | 1 failed) 1823ms
+   ❯ route matrix (SEC-06): every route is accounted for (1)
+     × has no unlisted route and every protected route returns 401 anonymously 76ms
+ ❯ tests/revisions-db.test.ts (16 tests | 15 failed) 6006ms
+   ❯ F-08 revisions (16)
+     × TEST-44 creates revision 2 and leaves revision 1 unchanged 473ms
+     × TEST-44 lets any team member revise and records the session student 388ms
+     × TEST-45 rejects a revision when there is no first submission 382ms
+     × TEST-46 accepts a revision before and at dueAt, and rejects one after it 444ms
+     × TEST-47 rejects a revision on a closed milestone, ahead of the deadline check 368ms
+     × TEST-48 accepts version 5 and rejects version 6 with REVISION_LIMIT 365ms
+     × TEST-49 two concurrent revisions both succeed as 2 and 3 357ms
+     × TEST-50 rejects invalid fields and unknown fields without storing anything 354ms
+     × TEST-51 answers 401 without a session, 403 to a supervisor and the uniform 404 to another team 352ms
+     × TEST-52 keeps the six Sprint 1 submission keys and adds revisions[] in ascending order 349ms
+     × TEST-52 returns an empty revisions list when there is no submission 341ms
+     × TEST-52 includes a grade with its supervisor when one exists 374ms
+     × TEST-53 shows SUBMITTED after a revision and keeps the first feedback on revision 1 369ms
+     × TEST-54 rejects feedback on a superseded revision with REVISION_SUPERSEDED 366ms
+     × TEST-54 reports REVISION_SUPERSEDED before FEEDBACK_EXISTS and still hides other teams 356ms
+ ❯ tests/revision-policy.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/revision-policy.test.ts [ tests/revision-policy.test.ts ]
+Error: Cannot find module '../src/submissions/revision.js' imported from /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-adce26c4003b9360d/server/tests/revision-policy.test.ts
+ ❯ tests/revision-policy.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import { assertBeforeDeadline } from '../src/submissions/policy.js';
+      3| import { assertRevisionAllowed, MAX_REVISIONS } from '../src/submissio…
+       | ^
+      4|
+      5| describe('F-08 revision policy', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/17]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-44 creates revision 2 and leaves revision 1 unchanged
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ tests/revisions-db.test.ts:40:24
+     38|     const before = (await rows())[0]!;
+     39|     const res = await revise(a1, { ...validSubmission, title: 'Prototy…
+     40|     expect(res.status).toBe(201);
+       |                        ^
+     41|     expect(res.body).toEqual({
+     42|       id: expect.any(String), milestoneId: M, revisionNo: 2, title: 'P…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-44 lets any team member revise and records the session student
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/revisions-db.test.ts:54:34
+     52|   it('TEST-44 lets any team member revise and records the session stud…
+     53|     await submitFirst();
+     54|     const res = await revise(a2).expect(201);
+       |                                  ^
+     55|     expect(res.body.submittedBy).toEqual({ id: id(12), name: 'Student …
+     56|     expect((await rows())[1]).toMatchObject({ revisionNo: 2, submitted…
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-45 rejects a revision when there is no first submission
+AssertionError: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ tests/revisions-db.test.ts:61:24
+     59|   it('TEST-45 rejects a revision when there is no first submission', a…
+     60|     const res = await revise(a1);
+     61|     expect(res.status).toBe(409);
+       |                        ^
+     62|     expect(res.body.error.code).toBe('NO_SUBMISSION');
+     63|     expect(await rows()).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-46 accepts a revision before and at dueAt, and rejects one after it
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ tests/revisions-db.test.ts:71:39
+     69|     fx.clock.advance(DUE.getTime() - 1 - fx.clock.now().getTime());
+     70|     a1 = await fx.login('student.a1@example.test');
+     71|     expect((await revise(a1)).status).toBe(201);
+       |                                       ^
+     72|     fx.clock.advance(1);
+     73|     expect(fx.clock.now()).toEqual(DUE);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-47 rejects a revision on a closed milestone, ahead of the deadline check
+AssertionError: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ tests/revisions-db.test.ts:88:24
+     86|     await prisma.milestone.update({ where: { id: M }, data: { closedAt…
+     87|     const res = await revise(a1);
+     88|     expect(res.status).toBe(409);
+       |                        ^
+     89|     expect(res.body.error.code).toBe('MILESTONE_CLOSED');
+     90|     expect(await rows()).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-48 accepts version 5 and rejects version 6 with REVISION_LIMIT
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/revisions-db.test.ts:101:30
+     99|   it('TEST-48 accepts version 5 and rejects version 6 with REVISION_LI…
+    100|     await submitFirst();
+    101|     expect((await revise(a1).expect(201)).body.revisionNo).toBe(2);
+       |                              ^
+    102|     expect((await revise(a1).expect(201)).body.revisionNo).toBe(3);
+    103|     await prisma.submission.create({
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-49 two concurrent revisions both succeed as 2 and 3
+AssertionError: expected [ 404, 404 ] to deeply equal [ 201, 201 ]
+
+- Expected
++ Received
+
+  [
+-   201,
+-   201,
++   404,
++   404,
+  ]
+
+ ❯ tests/revisions-db.test.ts:132:34
+    130|     // Both members signed in above; only the revisions run at the sam…
+    131|     const [x, y] = await Promise.all([revise(a1), revise(a2)]);
+    132|     expect([x.status, y.status]).toEqual([201, 201]);
+       |                                  ^
+    133|     expect([x.body.revisionNo, y.body.revisionNo].sort()).toEqual([2, …
+    134|     expect((await rows()).map((r) => r.revisionNo)).toEqual([1, 2, 3]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-50 rejects invalid fields and unknown fields without storing anything
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/revisions-db.test.ts:151:26
+    149|     for (const body of bad) {
+    150|       const res = await revise(a1, body);
+    151|       expect(res.status).toBe(400);
+       |                          ^
+    152|       expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    153|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-51 answers 401 without a session, 403 to a supervisor and the uniform 404 to another team
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ tests/revisions-db.test.ts:160:39
+    158|   it('TEST-51 answers 401 without a session, 403 to a supervisor and t…
+    159|     await submitFirst();
+    160|     expect((await revise('')).status).toBe(401);
+       |                                       ^
+    161|     const supervisor = await revise(s1);
+    162|     expect(supervisor.status).toBe(403);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-52 keeps the six Sprint 1 submission keys and adds revisions[] in ascending order
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/revisions-db.test.ts:175:74
+    173|   it('TEST-52 keeps the six Sprint 1 submission keys and adds revision…
+    174|     await submitFirst();
+    175|     await revise(a1, { ...validSubmission, title: 'Prototype demo v2' …
+       |                                                                          ^
+    176|     const res = await fx.as(a1).get(`/api/milestones/${M}`).expect(200…
+    177|     expect(res.body.closedAt).toBeNull();
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-52 returns an empty revisions list when there is no submission
+AssertionError: expected undefined to deeply equal []
+
+- Expected:
+[]
+
++ Received:
+undefined
+
+ ❯ tests/revisions-db.test.ts:194:32
+    192|     const res = await fx.as(a1).get(`/api/milestones/${M}`).expect(200…
+    193|     expect(res.body.submission).toBeNull();
+    194|     expect(res.body.revisions).toEqual([]);
+       |                                ^
+    195|   });
+    196|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-52 includes a grade with its supervisor when one exists
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ tests/revisions-db.test.ts:201:21
+    199|     await prisma.grade.create({ data: { submissionId: await revisionOf…
+    200|     const res = await fx.as(a1).get(`/api/milestones/${M}`).expect(200…
+    201|     expect(res.body.revisions[0].grade).toEqual({ score: 80, createdAt…
+       |                     ^
+    202|   });
+    203|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-53 shows SUBMITTED after a revision and keeps the first feedback on revision 1
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/revisions-db.test.ts:210:22
+    208|     expect((await fx.as(a1).get(`/api/milestones/${M}`)).body.status).…
+    209|
+    210|     await revise(a1).expect(201);
+       |                      ^
+    211|     const res = await fx.as(a1).get(`/api/milestones/${M}`).expect(200…
+    212|     expect(res.body.status).toBe('SUBMITTED');
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-54 rejects feedback on a superseded revision with REVISION_SUPERSEDED
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/revisions-db.test.ts:225:22
+    223|     await submitFirst();
+    224|     const first = await revisionOf(1);
+    225|     await revise(a1).expect(201);
+       |                      ^
+    226|     const res = await fx.as(s1).post(`/api/submissions/${first}/feedba…
+    227|     expect(res.status).toBe(409);
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/17]⎯
+
+ FAIL  tests/revisions-db.test.ts > F-08 revisions > TEST-54 reports REVISION_SUPERSEDED before FEEDBACK_EXISTS and still hides other teams
+Error: expected 201 "Created", got 404 "Not Found"
+ ❯ tests/revisions-db.test.ts:238:22
+    236|     const first = await revisionOf(1);
+    237|     await fx.as(s1).post(`/api/submissions/${first}/feedback`).send({ …
+    238|     await revise(a1).expect(201);
+       |                      ^
+    239|     const again = await fx.as(s1).post(`/api/submissions/${first}/feed…
+    240|     expect(again.status).toBe(409);
+ ❯ Test._assertStatus ../../../../node_modules/supertest/lib/test.js:404:14
+ ❯ ../../../../node_modules/supertest/lib/test.js:460:13
+ ❯ Test._assertFunction ../../../../node_modules/supertest/lib/test.js:437:13
+ ❯ Test.assert ../../../../node_modules/supertest/lib/test.js:302:23
+ ❯ localAssert ../../../../node_modules/supertest/lib/test.js:220:38
+ ❯ Server.<anonymous> ../../../../node_modules/supertest/lib/test.js:227:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/17]⎯
+
+ FAIL  tests/security.test.ts > route matrix (SEC-06): every route is accounted for > has no unlisted route and every protected route returns 401 anonymously
+AssertionError: expected [ 'GET /api/auth/me', …(11) ] to deeply equal [ 'GET /api/auth/me', …(12) ]
+
+- Expected
++ Received
+
+@@ -6,10 +6,9 @@
+    "GET /api/teams",
+    "GET /api/teams/:teamId",
+    "GET /api/version",
+    "POST /api/auth/login",
+    "POST /api/auth/logout",
+-   "POST /api/milestones/:milestoneId/revisions",
+    "POST /api/milestones/:milestoneId/submission",
+    "POST /api/submissions/:submissionId/feedback",
+    "POST /api/teams/:teamId/milestones",
+  ]
+
+ ❯ tests/security.test.ts:337:20
+    335|       'POST /api/submissions/:submissionId/feedback': 'protected',
+    336|     };
+    337|     expect(routes).toEqual(Object.keys(matrix).sort());
+       |                    ^
+    338|     for (const [key, access] of Object.entries(matrix)) {
+    339|       if (access !== 'protected') continue;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/17]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  16 failed | 34 passed (50)
+   Start at  22:15:07
+   Duration  8.82s (tests 96%, import 3%, transform 1%)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-adce26c4003b9360d/server
+npm error workspace cpms-server@0.1.0
+npm error location /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/.claude/worktrees/agent-adce26c4003b9360d/server
+npm error command failed
+npm error command sh -c vitest run revision security

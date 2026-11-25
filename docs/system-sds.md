@@ -200,6 +200,7 @@ The role check runs before the team check, so a Student calling a Supervisor rou
 | `ALLOWED_ORIGIN` | Origin accepted for state-changing requests | No |
 | `SEED_STUDENT_PASSWORD` | Password for seeded students | Yes |
 | `SEED_SUPERVISOR_PASSWORD` | Password for seeded supervisors | Yes |
+| `REQUEST_LIMIT_PER_MINUTE` | Requests per minute per client address before 429 (NFR-10). Default 100, and production refuses a higher value; only the browser journeys raise it | No |
 
 All config comes from the environment. `.env.example` holds placeholders only and `.env` is git-ignored. No real secret appears in Git, client code, logs, screenshots or the PDF.
 

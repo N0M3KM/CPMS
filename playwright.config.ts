@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 if (existsSync('.env')) process.loadEnvFile('.env');
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL ?? '';
-const apiEnv = { ...process.env, DATABASE_URL: testDatabaseUrl, PORT: '3000', NODE_ENV: 'development' } as Record<string, string>;
+const apiEnv = { ...process.env, DATABASE_URL: testDatabaseUrl, PORT: '3000', NODE_ENV: 'development', REQUEST_LIMIT_PER_MINUTE: '5000' } as Record<string, string>;
 
 // End-to-end journeys run against the separate test database with the real API and client.
 // They use the locally installed Chrome (set E2E_CHANNEL to use another channel).

@@ -17,6 +17,8 @@ export interface AppDeps {
   trustProxy?: number;
   // Built client directory to serve (single-container deployment).
   staticDir?: string;
+  // Requests per minute per client address before 429 (NFR-10). Defaults to 100.
+  requestLimitPerMinute?: number;
   // Commit the running image was built from (APP_COMMIT build argument); shown by /api/version.
   commit?: string;
   // Feature modules register their routes here, behind the shared security chain.
@@ -50,7 +52,7 @@ export function createApp(deps: AppDeps): Express {
   });
 
   if (deps.auth) {
-    const reserveRequest = createRateLimit(deps.auth.clock, 100, 60_000);
+    const reserveRequest = createRateLimit(deps.auth.clock, deps.requestLimitPerMinute ?? 100, 60_000);
     app.use('/api', (req, res, next) => {
       const request = reserveRequest([clientIp(req)]);
       if ('retryAfter' in request) {

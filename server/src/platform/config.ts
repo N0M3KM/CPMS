@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 const MIN_SECRET_LENGTH = 16;
+const DEFAULT_REQUEST_LIMIT = 100;
 
 const envSchema = z
   .object({
@@ -15,9 +16,18 @@ const envSchema = z
     TRUST_PROXY: z.string().regex(/^[0-5]$/, 'TRUST_PROXY must be a whole number from 0 to 5').default('0').transform(Number),
     // Built client directory to serve from the same process (single-container deployment).
     CLIENT_DIST: z.string().min(1).optional(),
+    // Requests per minute per client address before 429 (NFR-10). The default stays 100; the browser journeys raise it.
+    REQUEST_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).max(100_000).default(DEFAULT_REQUEST_LIMIT),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;
+    if (env.REQUEST_LIMIT_PER_MINUTE > DEFAULT_REQUEST_LIMIT) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['REQUEST_LIMIT_PER_MINUTE'],
+        message: `REQUEST_LIMIT_PER_MINUTE cannot exceed ${DEFAULT_REQUEST_LIMIT} in production`,
+      });
+    }
     if ((env.SESSION_SECRET?.length ?? 0) < MIN_SECRET_LENGTH) {
       ctx.addIssue({
         code: 'custom',
@@ -45,6 +55,7 @@ export interface AppConfig {
   allowedOrigin: string;
   trustProxy: number;
   clientDist: string | undefined;
+  requestLimitPerMinute: number;
 }
 
 // Validates the environment once at startup. Error messages name variables, never values.
@@ -65,5 +76,6 @@ export function loadConfig(env: Record<string, string | undefined>): AppConfig {
     allowedOrigin: e.ALLOWED_ORIGIN ?? 'http://localhost:5173',
     trustProxy: e.TRUST_PROXY,
     clientDist: e.CLIENT_DIST,
+    requestLimitPerMinute: e.REQUEST_LIMIT_PER_MINUTE,
   };
 }

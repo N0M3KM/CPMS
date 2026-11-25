@@ -73,3 +73,30 @@ describe('loadConfig for deployment', () => {
   });
 });
 
+
+describe('REQUEST_LIMIT_PER_MINUTE (NFR-10 request burst limit)', () => {
+  it('defaults to 100 requests per minute per address', () => {
+    expect(loadConfig(base).requestLimitPerMinute).toBe(100);
+  });
+
+  it('accepts a whole number from 1 to 100000 (the browser journeys raise it, production keeps the default)', () => {
+    expect(loadConfig({ ...base, REQUEST_LIMIT_PER_MINUTE: '1000' }).requestLimitPerMinute).toBe(1000);
+  });
+
+  it.each(['0', '-5', 'abc', '1.5', '100001'])('rejects %s', (value) => {
+    expect(() => loadConfig({ ...base, REQUEST_LIMIT_PER_MINUTE: value })).toThrow(/REQUEST_LIMIT_PER_MINUTE/);
+  });
+});
+
+describe('REQUEST_LIMIT_PER_MINUTE in production', () => {
+  const prod = { ...base, NODE_ENV: 'production', SESSION_SECRET: 'x'.repeat(32), ALLOWED_ORIGIN: 'https://cpms.example.test' };
+
+  it('keeps the default of 100 and allows lowering it', () => {
+    expect(loadConfig(prod).requestLimitPerMinute).toBe(100);
+    expect(loadConfig({ ...prod, REQUEST_LIMIT_PER_MINUTE: '50' }).requestLimitPerMinute).toBe(50);
+  });
+
+  it('refuses a limit above the default of 100, so the burst protection cannot be loosened by mistake', () => {
+    expect(() => loadConfig({ ...prod, REQUEST_LIMIT_PER_MINUTE: '1000' })).toThrow(/REQUEST_LIMIT_PER_MINUTE/);
+  });
+});
