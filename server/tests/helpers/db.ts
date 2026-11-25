@@ -9,6 +9,7 @@ export function createTestPrisma(): PrismaClient {
 
 // Deletes every row in child-first order. Only ever called on the _test database.
 export async function resetDb(prisma: PrismaClient): Promise<void> {
+  await prisma.grade.deleteMany();
   await prisma.feedback.deleteMany();
   await prisma.submission.deleteMany();
   await prisma.milestone.deleteMany();

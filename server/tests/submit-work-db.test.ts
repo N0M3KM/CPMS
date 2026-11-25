@@ -74,7 +74,7 @@ describe('F-04 submit milestone work', () => {
       submittedBy: { id: id(11), name: 'Student A1' }, submittedAt: SEED_NOW.toISOString(), feedback: null,
     });
     await submit(OPEN_C, c1).send(max).expect(201);
-    expect(await prisma.submission.findUnique({ where: { milestoneId: OPEN_A } })).toMatchObject({ submittedById: id(11), title: min.title });
+    expect(await prisma.submission.findFirst({ where: { milestoneId: OPEN_A } })).toMatchObject({ submittedById: id(11), title: min.title });
     const detail = await api.get(`/api/milestones/${OPEN_A}`).set('Cookie', a2).expect(200);
     expect(detail.body.status).toBe('SUBMITTED');
     expect(detail.body.submission).toMatchObject({ title: min.title, link: min.link });
@@ -108,7 +108,7 @@ describe('F-04 submit milestone work', () => {
     await submit(OPEN_A, a1).send(valid).expect(201);
     const dup = await submit(OPEN_A, a2).send({ ...valid, title: 'Second try title' }).expect(409);
     expect(dup.body.error.code).toBe('DUPLICATE_SUBMISSION');
-    expect((await prisma.submission.findUniqueOrThrow({ where: { milestoneId: OPEN_A } })).title).toBe(valid.title);
+    expect((await prisma.submission.findFirstOrThrow({ where: { milestoneId: OPEN_A } })).title).toBe(valid.title);
     const existing = await submit(SUBMITTED_B, b1).send(valid).expect(409);
     expect(existing.body.error.code).toBe('DUPLICATE_SUBMISSION');
   });

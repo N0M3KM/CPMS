@@ -49,6 +49,38 @@ describe('schema constraints', () => {
       prisma.submission.create({ data: { milestoneId: randomUUID(), title: 'First work', description: 'd'.repeat(20), link: 'https://example.test/a', submittedById: student.id, submittedAt: new Date() } }),
     ).rejects.toThrow();
   });
+
+  // Sprint 2 foundation (F-08, F-09, F-10): versioned submissions, closedAt, grades.
+  it('allows revision 2, rejects a duplicate revision number and revisionNo 6 (BR-01 revised, BR-08)', async () => {
+    const { milestone, student } = await milestoneFixture();
+    const base = { milestoneId: milestone.id, title: 'Second revision', description: 'd'.repeat(20), link: 'https://example.test/r2', submittedById: student.id, submittedAt: new Date() };
+    await prisma.submission.create({ data: { ...base, revisionNo: 1 } });
+    await prisma.submission.create({ data: { ...base, revisionNo: 2 } });
+    await expect(prisma.submission.create({ data: { ...base, revisionNo: 2 } })).rejects.toMatchObject({ code: 'P2002' });
+    await expect(prisma.submission.create({ data: { ...base, revisionNo: 6 } })).rejects.toThrow();
+  });
+
+  it('keeps closedAt null until a milestone is closed (BR-09)', async () => {
+    const { milestone } = await milestoneFixture();
+    expect((await prisma.milestone.findUniqueOrThrow({ where: { id: milestone.id } })).closedAt).toBeNull();
+    const closedAt = new Date();
+    await prisma.milestone.update({ where: { id: milestone.id }, data: { closedAt } });
+    expect((await prisma.milestone.findUniqueOrThrow({ where: { id: milestone.id } })).closedAt).toEqual(closedAt);
+  });
+
+  it('allows one grade per submission and rejects a score outside 0 to 100 (BR-10)', async () => {
+    const { milestone, student, supervisor } = await milestoneFixture();
+    const sub = await prisma.submission.create({
+      data: { milestoneId: milestone.id, title: 'Graded work', description: 'd'.repeat(20), link: 'https://example.test/g', submittedById: student.id, submittedAt: new Date() },
+    });
+    await prisma.grade.create({ data: { submissionId: sub.id, supervisorId: supervisor.id, score: 90 } });
+    await expect(prisma.grade.create({ data: { submissionId: sub.id, supervisorId: supervisor.id, score: 80 } })).rejects.toMatchObject({ code: 'P2002' });
+    const other = await prisma.submission.create({
+      data: { milestoneId: milestone.id, revisionNo: 2, title: 'Graded work 2', description: 'd'.repeat(20), link: 'https://example.test/g2', submittedById: student.id, submittedAt: new Date() },
+    });
+    await expect(prisma.grade.create({ data: { submissionId: other.id, supervisorId: supervisor.id, score: 101 } })).rejects.toThrow();
+    await expect(prisma.grade.create({ data: { submissionId: other.id, supervisorId: supervisor.id, score: -1 } })).rejects.toThrow();
+  });
 });
 
 async function milestoneFixture() {

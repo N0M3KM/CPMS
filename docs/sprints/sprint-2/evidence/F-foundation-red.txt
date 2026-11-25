@@ -1,0 +1,91 @@
+# F-foundation RED, 2026-11-25 22:07 +07, base commit 28b3a96 plus new tests in server/tests/schema.test.ts
+$ npm test -w server -- schema
+> cpms-server@0.1.0 test
+> vitest run schema
+ RUN  v5.1.0 /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+Datasource "db": PostgreSQL database "cpms_test", schema "public" at "127.0.0.1:5433"
+┌─────────────────────────────────────────────────────────┐
+│  Update available 6.19.3 -> 8.0.0-rc.35                 │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+ ❯ tests/schema.test.ts (8 tests | 3 failed) 94ms
+   ❯ schema constraints (8)
+     × allows revision 2, rejects a duplicate revision number and revisionNo 6 (BR-01 revised, BR-08) 5ms
+     × keeps closedAt null until a milestone is closed (BR-09) 7ms
+     × allows one grade per submission and rejects a score outside 0 to 100 (BR-10) 5ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/schema.test.ts > schema constraints > allows revision 2, rejects a duplicate revision number and revisionNo 6 (BR-01 revised, BR-08)
+PrismaClientValidationError: 
+Invalid `prisma.submission.create()` invocation in
+/Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server/tests/schema.test.ts:57:29
+  54 it('allows revision 2, rejects a duplicate revision number and revisionNo 6 (BR-01 revised, BR-08)', async () => {
+  55   const { milestone, student } = await milestoneFixture();
+  56   const base = { milestoneId: milestone.id, title: 'Second revision', description: 'd'.repeat(20), link: 'https://example.test/r2', submittedById: student.id, submittedAt: new Date() };
+→ 57   await prisma.submission.create({
+         data: {
+           milestoneId: "9ac0baa0-cf27-410d-aa09-8bb033830522",
+           title: "Second revision",
+           description: "dddddddddddddddddddd",
+           link: "https://example.test/r2",
+           submittedById: "b0934cc4-4435-4c69-83a7-630b2f0c6640",
+           submittedAt: new Date("2026-11-25T15:07:51.464Z"),
+           revisionNo: 1,
+           ~~~~~~~~~~
+       ?   id?: String,
+       ?   feedback?: FeedbackUncheckedCreateNestedOneWithoutSubmissionInput
+         }
+       })
+Unknown argument `revisionNo`. Available options are marked with ?.
+ ❯ Nn ../node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:45:9
+ ❯ throwValidationException ../node_modules/@prisma/client/src/runtime/RequestHandler.ts:202:7
+ ❯ ei.handleAndLogRequestError ../node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12
+ ❯ ei.request ../node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12
+ ❯ a ../node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24
+ ❯ tests/schema.test.ts:57:5
+     55|     const { milestone, student } = await milestoneFixture();
+     56|     const base = { milestoneId: milestone.id, title: 'Second revision'…
+     57|     await prisma.submission.create({ data: { ...base, revisionNo: 1 } …
+       |     ^
+     58|     await prisma.submission.create({ data: { ...base, revisionNo: 2 } …
+     59|     await expect(prisma.submission.create({ data: { ...base, revisionN…
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+ FAIL  tests/schema.test.ts > schema constraints > keeps closedAt null until a milestone is closed (BR-09)
+AssertionError: expected undefined to be null
+- Expected:
+null
++ Received:
+undefined
+ ❯ tests/schema.test.ts:65:98
+     63|   it('keeps closedAt null until a milestone is closed (BR-09)', async …
+     64|     const { milestone } = await milestoneFixture();
+     65|     expect((await prisma.milestone.findUniqueOrThrow({ where: { id: mi…
+       |                                                                                                  ^
+     66|     const closedAt = new Date();
+     67|     await prisma.milestone.update({ where: { id: milestone.id }, data:…
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+ FAIL  tests/schema.test.ts > schema constraints > allows one grade per submission and rejects a score outside 0 to 100 (BR-10)
+TypeError: Cannot read properties of undefined (reading 'create')
+ ❯ tests/schema.test.ts:76:24
+     74|       data: { milestoneId: milestone.id, title: 'Graded work', descrip…
+     75|     });
+     76|     await prisma.grade.create({ data: { submissionId: sub.id, supervis…
+       |                        ^
+     77|     await expect(prisma.grade.create({ data: { submissionId: sub.id, s…
+     78|     const other = await prisma.submission.create({
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+ Test Files  1 failed (1)
+      Tests  3 failed | 5 passed (8)
+   Start at  22:07:50
+   Duration  809ms (tests 70%, import 19%, transform 10%, worker 1%)
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+npm error workspace cpms-server@0.1.0
+npm error location /Users/jinnakanchaviengpob/Desktop/3rd Year/CPE_334/CPMS/server
+npm error command failed
+npm error command sh -c vitest run schema

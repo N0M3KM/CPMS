@@ -1,0 +1,7 @@
+# F-foundation GREEN, 2026-11-25 22:10 +07, uncommitted tree on base 28b3a96
+$ npm run typecheck && npm test -w server
+> tsc --noEmit -p tsconfig.json
+
+ Test Files  24 passed (24)
+      Tests  243 passed (243)
+   Duration  23.45s (tests 93%, import 7%)

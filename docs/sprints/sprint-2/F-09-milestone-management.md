@@ -57,7 +57,7 @@ Errors: 400 `VALIDATION_ERROR` (malformed ID), 401, 403, 404, 409 `ALREADY_CLOSE
 |---|---|
 | `GET /api/milestones/:milestoneId` | Adds `closedAt` (ISO date-time or `null`). `status` can be `CLOSED`. The `submission` key set is unchanged. |
 | `GET /api/teams/:teamId` | Milestone items keep `{id,title,dueAt,status}`; `status` can be `CLOSED`. |
-| `GET /api/teams` | `progress` gains `closed`: `{notSubmitted, submitted, reviewed, overdue, closed}`. This is the one deliberate assertion change in the Sprint 1 scoped-views test. `nextDue` is still the earliest `NOT_SUBMITTED` milestone, so closed milestones are never next due. |
+| `GET /api/teams` | `progress` gains `closed`: `{notSubmitted, submitted, reviewed, overdue, closed}`. The Sprint 1 scoped-views test matches `progress` partially, so it keeps passing; `closed: 0` is added to its expectations. `nextDue` is still the earliest `NOT_SUBMITTED` milestone, so closed milestones are never next due. |
 | `POST /api/milestones/:milestoneId/submission` | New 409 `MILESTONE_CLOSED`; check order is now 404, closed, duplicate, deadline. |
 
 ## Data
