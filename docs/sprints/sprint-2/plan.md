@@ -1,6 +1,6 @@
 # Sprint 2 Plan — Milestone Workflow Expansion
 
-**Version:** 1.1 (PROPOSED 2026-11-25, approval pending)  
+**Version:** 1.4 (approved 2026-11-25: F-08, F-09, F-10)  
 **Product:** CPMS, Theme 6  
 **Team:** Drarun Yookphan (67070501016), Jinnakan Chaviengpob (67070501010)  
 **Related:** [Three-sprint plan](../plan.md) · [Feature inventory](../../features.md) · [SRS](../../srs.md) · [System SDS](../../system-sds.md) · [Traceability](../../traceability.md)
@@ -10,20 +10,21 @@
 | Version | Date | Change |
 |---|---|---|
 | 1.3 | 2026-11-26 | F-09 approval recorded (PR #60 review); F-10 approval record opened. |
+| 1.4 | 2026-11-26 | F-10 approval recorded (PR #61 review). All three Sprint 2 features are approved and merged into `sprint-2-staging`; release preparation (acceptance steps for revisions, close and grades). |
 | 1.2 | 2026-11-25 | F-08 approval record added (requested in the review of PR #59). F-08 is marked implemented and in review; decisions and approvals stay pending until their sources exist. |
-| 1.1 | 2026-11-25 | Proposed; approval pending (Drarun, instructor or TA). Policies proposed (SRS D-16 to D-23), contracts F-08 to F-10, test specification and change register added, owners and reviewers assigned. |
+| 1.1 | 2026-11-25 | Proposed (approval followed per feature, see the approval records). Policies proposed (SRS D-16 to D-23), contracts F-08 to F-10, test specification and change register added, owners and reviewers assigned. |
 | 1.0 | 2026-11-06 | Initial plan aligned with the team's Theme 6 baseline. |
 
 ## Goal and scope
 
-Build on the accepted Sprint 1 release so a team can revise milestone work with history, a supervisor can manage milestones, and grades can be recorded and viewed according to an agreed policy. Retain the Student and Supervisor roles, team-scoped access, persistent UI/API/database journey and security foundation. Contracts: [F-08](F-08-revisions.md), [F-09](F-09-milestone-management.md), [F-10](F-10-grades.md); tests and Definition of Done: [sts.md](sts.md); findings and baseline changes: [change-register.md](change-register.md). The contracts and decisions D-16 to D-23 are proposed. Approvals are recorded per feature in the table below, each with its source and date; a status is changed to approved only when its source exists.
+Build on the accepted Sprint 1 release so a team can revise milestone work with history, a supervisor can manage milestones, and grades can be recorded and viewed according to an agreed policy. Retain the Student and Supervisor roles, team-scoped access, persistent UI/API/database journey and security foundation. Contracts: [F-08](F-08-revisions.md), [F-09](F-09-milestone-management.md), [F-10](F-10-grades.md); tests and Definition of Done: [sts.md](sts.md); findings and baseline changes: [change-register.md](change-register.md). Decisions D-16 to D-20 and D-23 are approved; D-21 and D-22 belong to Sprint 3 and are proposed. Approvals are recorded per feature below, each with its source and date.
 
 | Feature | Owner | Reviewer | Branch | Status |
 |---|---|---|---|---|
 | Sprint 2 foundation (schema, shared guards, test fixtures) | Jinnakan 1010 | Drarun 1016 | `feature/sprint2-foundation` | planned |
 | F-08 Revisions | Jinnakan 1010 | Drarun 1016 | `feature/08-revisions` | merged (PR #59); approved 2026-11-25 |
 | F-09 Milestone management | Drarun 1016 | Jinnakan 1010 | `feature/09-milestone-management` | merged (PR #60); approved 2026-11-25 |
-| F-10 Grades | Jinnakan 1010 | Drarun 1016 | `feature/10-grades` | implemented, in review; approval pending, see below |
+| F-10 Grades | Jinnakan 1010 | Drarun 1016 | `feature/10-grades` | merged (PR #61); approved 2026-11-25 |
 
 | Feature | Requirement | Planned outcome | Dependencies |
 |---|---|---|---|
@@ -58,11 +59,11 @@ The status words for F-09 (this plan, the F-09 contract, SRS FR-09, D-18, D-19, 
 | Who | What | Status | Source and date |
 |---|---|---|---|
 | Jinnakan | Authorized building Sprint 2, including F-10, and pushing it for review | Given | Chat instruction, 2026-11-26 ("Lets do feature 10") |
-| Drarun | Approval of D-20 (grade 0 to 100 in its own table, only after feedback on the current revision, immutable, visible to the team and supervisor) and of the F-10 implementation | Pending | His approving review on the F-10 pull request is the record |
+| Drarun | Approval of D-20 (grade 0 to 100 in its own table, only after feedback on the current revision, immutable, visible to the team and supervisor) and of the F-10 implementation | Given | Approving review on PR #61, 2026-11-25 ("This review approves the documented F-10 grade policy D-20 and its implementation"); CI run #23 passed for commit fc0b50f; PR #61 merged |
 | Drarun | Approval of D-17 (current revision only) and D-23 (API shape) | Given | Approving review on PR #59, 2026-11-25 |
-| Instructor or TA | Confirmation of D-20 | Not received | Asked "where necessary"; Drarun decides, as for F-08 and F-09 |
+| Instructor or TA | Confirmation of D-20 | Not received | Asked "where necessary"; Drarun approved F-10 without it |
 
-The status words for F-10 change to approved, with the review's date, in one commit once the approving review exists.
+The status words for F-10 (this plan, the F-10 contract, SRS FR-10, D-20, change register BASE-04) were changed to approved on 2026-11-25 with that source.
 
 ## Work packages and integration
 

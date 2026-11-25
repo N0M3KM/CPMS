@@ -1,0 +1,7 @@
+# Sprint 2 release candidate checks on docs/sprint2-release-prep (sprint-2-staging 767c664 + approval records + acceptance steps), 2026-11-26 00:23 +07
+typecheck: 0 errors; build: ok
+deploy offline tests: deploy stub PASS, release stub PASS, smoke unittest OK
+server tests: 33 files, 357 passed
+browser journeys (Playwright, Chrome): 7 passed
+npm audit --audit-level=high: found 0 vulnerabilities
+acceptance script (local, fresh database): 49 PASS, 0 FAIL, see acceptance-local-sprint2.txt
