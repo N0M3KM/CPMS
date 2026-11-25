@@ -4,6 +4,7 @@ import { mountFeedbackWrites } from './feedback/routes.js';
 import { mountGradeWrites } from './grades/routes.js';
 import { mountMilestoneWrites } from './milestones/routes.js';
 import type { Clock } from './platform/clock.js';
+import { mountSearch } from './search/routes.js';
 import type { SecurityKit } from './security/kit.js';
 import { mountSubmissionWrites } from './submissions/routes.js';
 import { mountScopedViews } from './views/routes.js';
@@ -12,6 +13,7 @@ import { mountScopedViews } from './views/routes.js';
 // test sees exactly the routes that production serves.
 export function mountFeatureRoutes(app: Express, security: SecurityKit, prisma: PrismaClient, clock: Clock): void {
   mountScopedViews(app, security, prisma, clock);
+  mountSearch(app, security, prisma, clock);
   mountMilestoneWrites(app, security, prisma, clock);
   mountSubmissionWrites(app, security, prisma, clock);
   mountFeedbackWrites(app, security, prisma);

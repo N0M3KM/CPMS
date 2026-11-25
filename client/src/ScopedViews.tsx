@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { User } from './auth-api';
 import { FeedbackForm } from './FeedbackForm';
@@ -66,7 +66,11 @@ type LoadState<T> =
 // The app provides this so a view can tell it the server no longer knows the session (401).
 export const SessionEndedContext = createContext<() => void>(() => undefined);
 
-function DataView<T>({ path, children }: { path: string; children: (data: T, reload: () => void, refresh: () => void) => ReactNode }) {
+function DataView<T>({ path, children, failureMessage = 'Could not load this view.' }: {
+  path: string;
+  children: (data: T, reload: () => void, refresh: () => void) => ReactNode;
+  failureMessage?: string;
+}) {
   const [state, setState] = useState<LoadState<T>>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const onSessionEnded = useContext(SessionEndedContext);
@@ -91,12 +95,12 @@ function DataView<T>({ path, children }: { path: string; children: (data: T, rel
         const data: T = await response.json();
         if (!controller.signal.aborted) setState({ status: 'ready', data });
       } catch {
-        if (!controller.signal.aborted) setState({ status: 'error', message: 'Could not load this view.' });
+        if (!controller.signal.aborted) setState({ status: 'error', message: failureMessage });
       }
     }
     void load();
     return () => controller.abort();
-  }, [attempt, path]);
+  }, [attempt, path, failureMessage]);
 
   function reload() {
     setState({ status: 'loading' });
@@ -130,6 +134,68 @@ function MilestoneItem({ milestone }: { milestone: MilestoneLink }) {
       <Link to={`/milestones/${milestone.id}`}>{milestone.title}</Link>
       {' · Due '}<DateTime value={milestone.dueAt} />
     </>
+  );
+}
+
+type SearchResult = { items: MilestoneSummary[]; total: number; page: number; limit: number };
+
+export function SearchView() {
+  const [filters, setFilters] = useState({ title: '', status: '', page: 1 });
+  const params = new URLSearchParams({ page: String(filters.page) });
+  if (filters.title) params.set('q', filters.title);
+  if (filters.status) params.set('status', filters.status);
+  const query = params.toString();
+
+  function search(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setFilters({ title: String(form.get('title') ?? '').trim(), status: String(form.get('status') ?? ''), page: 1 });
+  }
+
+  return (
+    <section aria-label="Milestone search">
+      <p>Search covers up to 1,000 matching milestones you can access.</p>
+      <form className="search-filters" onSubmit={search}>
+        <div>
+          <label htmlFor="search-title">Milestone title</label>
+          <input id="search-title" name="title" type="search" maxLength={100} />
+        </div>
+        <div>
+          <label htmlFor="search-status">Status</label>
+          <select id="search-status" name="status">
+            <option value="">Any status</option>
+            {Object.entries(statusLabels).map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+          </select>
+        </div>
+        <button type="submit">Search</button>
+      </form>
+      <DataView<SearchResult> key={query} path={`/search?${query}`} failureMessage="Could not load search results.">
+        {({ items, total, page, limit }) => {
+          const lastPage = Math.max(1, Math.ceil(total / limit));
+          return (
+            <>
+              <p role="status">{total} {total === 1 ? 'result' : 'results'} · Page {page} of {lastPage}</p>
+              {items.length === 0 ? <p>No milestones match your search.</p> : (
+                <ul className="view-list">
+                  {items.map(item => (
+                    <li key={item.id}>
+                      <MilestoneItem milestone={item} />{' '}
+                      <span className="status-badge">{statusLabels[item.status]}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {lastPage > 1 && (
+                <nav className="account-actions" aria-label="Search pages">
+                  <button type="button" disabled={page <= 1} onClick={() => setFilters({ ...filters, page: page - 1 })}>Previous</button>
+                  <button type="button" disabled={page >= lastPage} onClick={() => setFilters({ ...filters, page: page + 1 })}>Next</button>
+                </nav>
+              )}
+            </>
+          );
+        }}
+      </DataView>
+    </section>
   );
 }
 
