@@ -39,9 +39,15 @@ test('TEST-97 a supervisor pages and can retry a failed search before session ex
     });
     expect(response.status()).toBe(201);
   }
+  const searchText = 'Search paging';
+  const firstFilteredPage = (url: URL) => url.pathname === '/api/search'
+    && url.searchParams.get('q') === searchText && url.searchParams.get('page') === '1';
+
+  // Register before opening the screen. Its initial, unfiltered load must not consume the mock.
+  await page.route(firstFilteredPage, route => route.fulfill({ status: 503 }), { times: 1 });
   await page.getByRole('link', { name: 'Search milestones' }).click();
-  await page.route('**/api/search?*', route => route.fulfill({ status: 503 }), { times: 1 });
-  await page.getByLabel('Milestone title').fill('Search paging');
+  await expect(page.getByRole('status')).toHaveText(/^\d+ results · Page 1 of \d+$/);
+  await page.getByLabel('Milestone title').fill(searchText);
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await expect(page.getByRole('alert')).toHaveText('Could not load search results.');
   await page.getByRole('button', { name: 'Try again' }).click();
@@ -50,7 +56,7 @@ test('TEST-97 a supervisor pages and can retry a failed search before session ex
   await expect(page.getByRole('status')).toHaveText('21 results · Page 2 of 2');
   await expect(page.getByRole('link', { name: 'Search paging 20', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Search paging 19', exact: true })).toHaveCount(0);
-  await page.route('**/api/search?*', route => route.fulfill({ status: 401 }), { times: 1 });
+  await page.route(firstFilteredPage, route => route.fulfill({ status: 401 }), { times: 1 });
   await page.getByRole('button', { name: 'Previous' }).click();
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 });
