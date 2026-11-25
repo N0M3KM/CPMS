@@ -1,6 +1,6 @@
 # Sprint 3 Plan — Progress Visibility and Product Hardening
 
-**Version:** 1.1 (PROPOSED 2026-11-25, approval pending)  
+**Version:** 1.2 (local F-12 implementation authorized, release approval pending)
 **Product:** CPMS, Theme 6  
 **Team:** Drarun Yookphan (67070501016), Jinnakan Chaviengpob (67070501010)  
 **Related:** [Three-sprint plan](../plan.md) · [Feature inventory](../../features.md) · [SRS](../../srs.md) · [System SDS](../../system-sds.md) · [Traceability](../../traceability.md)
@@ -9,7 +9,8 @@
 
 | Version | Date | Change |
 |---|---|---|
-| 1.1 | 2026-11-25 | Proposed; approval pending (Drarun, instructor or TA). F-11 and F-12 contracts and test specification added. F-12 is implemented for Deliverable 2; F-11 is contract only; remaining work is scheduled to 13 December. |
+| 1.2 | 2026-11-26 | Authorize the local F-12 increment and verification. Add AC-96 for the scan cap and AC-97 for the browser journey. F-11 stays contract-only. |
+| 1.1 | 2026-11-25 | Proposed F-11 and F-12 contracts and STS. Targeted F-12 for Deliverable 2 and planned remaining work through 13 December. |
 | 1.0 | 2026-11-06 | Initial plan aligned with the team's Theme 6 baseline. |
 
 ## Goal and scope
@@ -19,7 +20,7 @@ Complete progress boards and reports, search and filtering, then integrate, hard
 | Feature | Owner | Reviewer | Branch | Status |
 |---|---|---|---|---|
 | F-11 Progress board and reports | Drarun 1016 | Jinnakan 1010 | `feature/11-progress-board` | planned (contract only) |
-| F-12 Search and filter | Drarun 1016 | Jinnakan 1010 | `feature/12-search` | planned |
+| F-12 Search and filter | Drarun 1016 | Jinnakan 1010 | `feature/12-search` | implemented and tested locally on `1679d54`; staging and release pending |
 
 | Feature | Requirement | Planned outcome | Dependencies |
 |---|---|---|---|
@@ -30,7 +31,7 @@ Complete progress boards and reports, search and filtering, then integrate, hard
 ## Work packages and integration
 
 1. Review the Sprint 2 release, open defects, UAT findings, deployment and migration status. Agree report scope and search fields, filters, ordering and pagination.
-2. Once authorized, prepare F-11 and F-12 Issues, contracts and test specifications. Define how revisions and adjusted deadlines affect displayed status.
+2. Maintain F-11 Issue #55 and F-12 Issue #56, their contracts and test specifications. Use Sprint 3 staging as the review base. Define how revisions and adjusted deadlines affect displayed status.
 3. Plan F-11 using team-scoped progress data; establish its audience, reporting calculations and treatment of revisions and closed or overdue milestones.
 4. Plan F-12 using the same authorization boundary; apply team scope before search, filters, counts and pagination. F-11 and F-12 can proceed in parallel once shared decisions are settled.
 5. Integrate all sprint work, address accepted defects, verify usability and failure paths, and maintain a remaining-work and known-debt list. Both developers participate in requirements, design, testing, implementation and peer review; assign owners and reviewers with the Issues.
@@ -47,3 +48,7 @@ For Deliverable 2, record Sprint 3 contracts and actual working progress, a boun
 - Agree searchable fields, filter behavior, ordering and limits; prevent unauthorized data and aggregate counts from being exposed.
 - Maintain Lab 5 Docker, CI/CD and GCP delivery as X-01; initial delivery is separate from Sprint 3. Record Lab 6 cross-team UAT and re-tests and Lab 7 approved change/regression evidence separately from feature progress.
 - Track critical defects, failures, configuration gaps and deployment status. Confirm ambiguous policy with the instructor/TA where necessary.
+
+## Local verification
+
+F-12 AC-79 to AC-86 and AC-96 to AC-97 passed in the local candidate. The [red and green evidence](evidence/F-12-green.txt) records the exact feature commit, regression counts, browser cases, local restart persistence and search timing. F-11 remains planned. Review source and contracts through separate PRs to Sprint 3 staging after publication is authorized.

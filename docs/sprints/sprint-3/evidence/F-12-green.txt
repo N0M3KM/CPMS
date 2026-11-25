@@ -1,0 +1,19 @@
+2026-11-26 ICT. Feature commit 1679d5484d67b178e6d1134e1e4231e5b9e76b7b. Windows x64, Node 24, PostgreSQL 16.16, Chrome.
+npm run typecheck: passed. npm run build: passed. npm audit --audit-level=high: found 0 vulnerabilities.
+npm test
+ Test Files  35 passed (35)
+      Tests  366 passed | 1 skipped (367)
+One skipped test scans for values from a local .env file, which was absent.
+The existing SEC-11 test first failed because Windows path separators differed from its one exact allowlisted path.
+The final commit normalizes paths before comparison and leaves the checks unchanged.
+
+npm run test:e2e -- --config node_modules/.cache/cpms-evidence.config.mjs
+This local harness served the built client and backend as one origin. The stock dev watcher could not read the Windows sandbox user profile.
+  ok 5 e2e\f12-search.spec.ts:11:1 › TEST-97 a student filters scoped results, opens a milestone and sees the empty state (704ms)
+  ok 6 e2e\f12-search.spec.ts:31:1 › TEST-97 a supervisor pages and can retry a failed search before session expiry (902ms)
+  9 passed (16.5s)
+
+Screenshot capture suite: 1 passed.
+
+After local app restart, authenticated GET returned stored state: {"testedCommit":"1679d5484d67b178e6d1134e1e4231e5b9e76b7b","milestone":"Deliverable 2 evidence milestone updated","closed":true,"revisionNumbers":[1,2],"feedbackPresent":[true,true],"currentGrade":90}
+Measured local search latency: {"testedCommit":"1679d5484d67b178e6d1134e1e4231e5b9e76b7b","request":"/api/search?q=proposal&status=REVIEWED","samples":20,"warmups":3,"environment":"win32 x64, Node v24.14.0, PostgreSQL 16.16 on loopback","medianMs":6.2,"p95Ms":8.5,"maxMs":8.7,"baselineThresholdMs":500}

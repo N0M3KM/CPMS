@@ -3,7 +3,7 @@
 **Owner:** Drarun 1016 · **Reviewer:** Jinnakan 1010 · **Requirements:** FR-11, BR-06 · **Depends on:** F-07, F-08, F-09 · **Status:** planned. Contract only in Deliverable 2; nothing in this document is implemented and no code exists.
 
 
-**Approval status:** proposed on 2026-11-25, not yet approved. Needs Drarun's approval on PR #50 and confirmation from the instructor or TA. No implementation starts before that is recorded here.
+**Approval status:** contract prepared for peer review. Implementation remains planned and is outside the current local increment. Instructor or TA confirmation is pending.
 
 ## Behavior and workflow
 
@@ -79,4 +79,5 @@ Tests: TEST-73 to TEST-78 (API and database integration), planned and not yet wr
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1 | 2026-11-26 | STS now names the endpoint and assigns concrete fixtures and assertions. AC-73 to AC-78 remain planned. |
 | 1.0 | 2026-11-25 | Initial contract for F-11, status planned. No implementation in Deliverable 2. |
