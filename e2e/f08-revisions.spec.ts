@@ -61,7 +61,8 @@ test('TEST-55 a student revises reviewed work and both versions stay listed afte
   // A1 sees the feedback, then revises (AC-44).
   await login(page, 'student.a1@example.test', STUDENT_PW);
   await page.getByRole('link', { name: MILESTONE }).click();
-  await expect(page.getByText('Reviewed', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: MILESTONE })).toBeVisible();   // the milestone page, not the team list
+  await expect(page.locator('.status-badge', { hasText: 'Reviewed' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Send a new version' })).toBeVisible();
   await fillWork(page, 'Revision plan v2', 'The second version of the plan with measurable goals.', 'https://example.test/team-a/plan-2');
   await page.getByRole('button', { name: 'Send new version' }).click();
